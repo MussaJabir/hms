@@ -155,3 +155,8 @@ lib/
 - Suggest paid services or packages
 - Commit directly to main — always use feature/phase branches
 - Ask for GitHub tokens or credentials — they're already configured in the shell
+
+## Development Session Log
+
+### 2026-03-24
+- Branch: `phase-0.1/firebase-config` — Purged google-services.json from git history (public repo security fix), configured Firebase Core + Firestore + Auth in Android Gradle, created main.dart with Firebase init + Firestore offline persistence + ProviderScope + GoRouter, created placeholder HomeScreen as ConsumerWidget, ran build_runner code generation ⏳ in progress
