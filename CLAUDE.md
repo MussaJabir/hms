@@ -124,7 +124,7 @@ lib/
 - GitHub tokens are configured in the shell environment (~/.bashrc or /bin/bash profile)
 - Git credentials are already set up — do NOT ask for tokens or authentication
 - If a git push fails with auth errors, remind me to check my token instead of trying to fix it yourself
-- Remote origin should be set up for: https://github.com/dutch/ (I'll confirm the exact repo URL)
+- Remote origin: https://github.com/MussaJabir/hms.git
 
 ## Claude Skills — USE THEM
 - Always check for and utilize any globally installed Claude skills available in ~/.claude/skills/
