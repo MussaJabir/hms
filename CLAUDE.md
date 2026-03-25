@@ -167,4 +167,4 @@ lib/
 - Branch: `setup/review-agent` — Created /review slash command (automated pre-merge quality gate) and /merge slash command (automated merge-to-main workflow) ✅ merged
 - Branch: `fix/rename-review-command` — Renamed /review to /pre-merge to avoid collision with global pr-review-expert skill, updated /merge reference ✅ merged
 - Branch: `phase-0.2/theme` — Created app theme system (AppColors light/dark, AppTypography with TZS amount styles, AppSpacing, AppTheme with light/dark ThemeData), updated main.dart and HomeScreen to use theme ✅ merged
-- Branch: `phase-0.2/riverpod-core-providers` — Created shared Riverpod providers: authStateProvider (Firebase auth stream), currentGroundProvider (ground selection notifier), connectivityProvider (online/offline stream), barrel export ⏳ in progress
+- Branch: `phase-0.2/riverpod-core-providers` — Created shared Riverpod providers: authStateProvider (Firebase auth stream), currentGroundProvider (ground selection notifier), connectivityProvider (online/offline stream), barrel export ✅ merged
