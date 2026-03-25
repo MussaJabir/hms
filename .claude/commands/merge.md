@@ -1,4 +1,4 @@
-Merge the current branch to main. Only run this AFTER /review passes.
+Merge the current branch to main. Only run this AFTER /pre-merge passes.
 
 1. Get the current branch name and store it
 2. `git checkout main`
