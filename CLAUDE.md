@@ -159,4 +159,4 @@ lib/
 ## Development Session Log
 
 ### 2026-03-24
-- Branch: `phase-0.1/firebase-config` — Purged google-services.json from git history (public repo security fix), configured Firebase Core + Firestore + Auth in Android Gradle, created main.dart with Firebase init + Firestore offline persistence + ProviderScope + GoRouter, created placeholder HomeScreen as ConsumerWidget, ran build_runner code generation ⏳ in progress
+- Branch: `phase-0.1/firebase-config` — Purged google-services.json from git history (public repo security fix), configured Firebase Core + Firestore + Auth in Android Gradle, created main.dart with Firebase init + Firestore offline persistence + ProviderScope + GoRouter, created placeholder HomeScreen as ConsumerWidget, ran build_runner code generation ✅ merged
