@@ -1,4 +1,4 @@
-package com.example.hms
+package com.dutch.hms
 
 import io.flutter.embedding.android.FlutterActivity
 
