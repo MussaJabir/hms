@@ -54,5 +54,8 @@ dev_dependencies:
   # Linting
   riverpod_lint: ^3.1.0
 
+  # Testing
+  fake_cloud_firestore: ^4.1.0
+
 flutter:
   uses-material-design: true
