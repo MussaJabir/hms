@@ -166,4 +166,4 @@ lib/
 - **Phase 0.1 — Project Initialization: COMPLETE** ✅
 - Branch: `setup/review-agent` — Created /review slash command (automated pre-merge quality gate) and /merge slash command (automated merge-to-main workflow) ✅ merged
 - Branch: `fix/rename-review-command` — Renamed /review to /pre-merge to avoid collision with global pr-review-expert skill, updated /merge reference ✅ merged
-- Branch: `phase-0.2/theme` — Created app theme system (AppColors light/dark, AppTypography with TZS amount styles, AppSpacing, AppTheme with light/dark ThemeData), updated main.dart and HomeScreen to use theme ⏳ in progress
+- Branch: `phase-0.2/theme` — Created app theme system (AppColors light/dark, AppTypography with TZS amount styles, AppSpacing, AppTheme with light/dark ThemeData), updated main.dart and HomeScreen to use theme ✅ merged
