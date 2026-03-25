@@ -162,4 +162,5 @@ lib/
 - Branch: `phase-0.1/firebase-config` — Purged google-services.json from git history (public repo security fix), configured Firebase Core + Firestore + Auth in Android Gradle, created main.dart with Firebase init + Firestore offline persistence + ProviderScope + GoRouter, created placeholder HomeScreen as ConsumerWidget, ran build_runner code generation ✅ merged
 
 ### 2026-03-25 — Phase 0.1 Completion
-- Branch: `phase-0.1/android-settings` — App display name set to "HMS", verified Kotlin package path matches com.dutch.hms, confirmed all Android settings correct ⏳ in progress
+- Branch: `phase-0.1/android-settings` — App display name set to "HMS", verified Kotlin package path matches com.dutch.hms, confirmed all Android settings correct ✅ merged
+- **Phase 0.1 — Project Initialization: COMPLETE** ✅
