@@ -7,12 +7,8 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('HMS'),
-      ),
-      body: const Center(
-        child: Text('Home Management System'),
-      ),
+      appBar: AppBar(title: const Text('HMS')),
+      body: const Center(child: Text('Home Management System')),
     );
   }
 }
