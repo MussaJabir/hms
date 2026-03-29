@@ -77,8 +77,7 @@ class _FakePlugin extends Fake implements FlutterLocalNotificationsPlugin {
   @override
   T? resolvePlatformSpecificImplementation<
     T extends FlutterLocalNotificationsPlatform
-  >() =>
-      null;
+  >() => null;
 }
 
 // ---------------------------------------------------------------------------
