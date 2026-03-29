@@ -174,4 +174,4 @@ lib/
 
 ### Phase 0.3 — Core Services
 
-- Branch: `phase-0.3/activity-log-service` — Created ActivityLogService with log/query/stream methods, depends on FirestoreService, Riverpod provider, unit tests with fake Firestore (12 tests passing) ⏳ in progress
+- Branch: `phase-0.3/activity-log-service` — Created ActivityLogService with log/query/stream methods, depends on FirestoreService, Riverpod provider, unit tests with fake Firestore (12 tests passing) ✅ merged
