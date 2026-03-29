@@ -171,3 +171,7 @@ lib/
 - Branch: `phase-0.2/firestore-service` — Created generic FirestoreService with CRUD + streaming + auto metadata (createdAt, updatedAt, updatedBy, schemaVersion), Riverpod provider, unit tests ✅ merged
 - Branch: `phase-0.2/auth-service` — Created AuthService with sign in/out, account creation, password reset, auth state stream, AuthException with user-friendly error mapping, Riverpod provider, services barrel export, unit tests with mocked FirebaseAuth ✅ merged
 - Branch: `phase-0.2/models-base` — Created Freezed base models: AppUser (with isSuperAdmin/isAdmin getters), Ground, AppConfig (with nested TanescoTier for TANESCO tariffs), ActivityLog; barrel export at models.dart; added build.yaml with explicit_to_json: true for correct nested serialization; 19 unit tests across AppUser, Ground, AppConfig all passing; Freezed 3.x requires `abstract class` with _$Mixin pattern ✅
+
+### Phase 0.3 — Core Services
+
+- Branch: `phase-0.3/activity-log-service` — Created ActivityLogService with log/query/stream methods, depends on FirestoreService, Riverpod provider, unit tests with fake Firestore (12 tests passing) ⏳ in progress

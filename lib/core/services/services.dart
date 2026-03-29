@@ -1,3 +1,5 @@
+export 'activity_log_service.dart';
+export 'activity_log_service_provider.dart';
 export 'auth_exception.dart';
 export 'auth_service.dart';
 export 'auth_service_provider.dart';
