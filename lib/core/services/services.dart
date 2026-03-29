@@ -5,3 +5,5 @@ export 'auth_service.dart';
 export 'auth_service_provider.dart';
 export 'firestore_service.dart';
 export 'firestore_service_provider.dart';
+export 'recurring_transaction_service.dart';
+export 'recurring_transaction_service_provider.dart';
