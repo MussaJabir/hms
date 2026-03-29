@@ -181,4 +181,4 @@ lib/
 
 ### Phase 0.5 — Design System
 
-- Branch: `phase-0.5/app-card` — Created AppCard component (title, subtitle, leading icon, trailing text/widget, bottom widget, tap/long-press, chevron), AppCardShimmer loading skeleton, widget tests ⏳ in progress
+- Branch: `phase-0.5/app-card` — Created AppCard component (title, subtitle, leading icon, trailing text/widget, bottom widget, tap/long-press, chevron), AppCardShimmer loading skeleton, widget tests ✅ merged
