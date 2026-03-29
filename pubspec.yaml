@@ -38,6 +38,7 @@ dependencies:
   # Utilities
   intl: ^0.19.0
   connectivity_plus: ^7.0.0
+  timezone: ^0.11.0
 
 dev_dependencies:
   flutter_test:
@@ -58,6 +59,7 @@ dev_dependencies:
   fake_cloud_firestore: ^4.1.0
   firebase_auth_mocks: ^0.15.1
   mock_exceptions: ^0.8.2
+  flutter_local_notifications_platform_interface: ^11.0.0
 
 flutter:
   uses-material-design: true

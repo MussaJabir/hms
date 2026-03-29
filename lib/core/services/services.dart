@@ -8,5 +8,7 @@ export 'data_migration_service_provider.dart';
 export 'firestore_service.dart';
 export 'firestore_service_provider.dart';
 export 'migration_registry.dart';
+export 'notification_service.dart';
+export 'notification_service_provider.dart';
 export 'recurring_transaction_service.dart';
 export 'recurring_transaction_service_provider.dart';
