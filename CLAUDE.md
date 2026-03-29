@@ -178,3 +178,7 @@ lib/
 - Branch: `phase-0.3/recurring-transaction-engine` — Created RecurringConfig and RecurringRecord Freezed models, RecurringTransactionService with monthly generation (idempotent), payment tracking, overdue detection, Riverpod provider, unit tests (18 tests passing) ✅ merged
 - Branch: `phase-0.3/data-migration-service` — Created Migration and MigrationStatus models, DataMigrationService with version checking and ordered transforms (idempotent), MigrationRegistry for future schema changes, Riverpod provider, unit tests (17 tests passing) ✅ merged
 - Branch: `phase-0.3/notification-service` — Created NotificationService with scheduling (one-time, weekly, immediate), cancel methods, Firestore-backed notification history for in-app inbox, unread count streaming, NotificationType enum, ScheduledNotification model, Riverpod provider, unit tests (22 tests passing) ✅ merged
+
+### Phase 0.5 — Design System
+
+- Branch: `phase-0.5/app-card` — Created AppCard component (title, subtitle, leading icon, trailing text/widget, bottom widget, tap/long-press, chevron), AppCardShimmer loading skeleton, widget tests ⏳ in progress
