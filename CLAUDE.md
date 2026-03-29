@@ -176,4 +176,4 @@ lib/
 
 - Branch: `phase-0.3/activity-log-service` — Created ActivityLogService with log/query/stream methods, depends on FirestoreService, Riverpod provider, unit tests with fake Firestore (12 tests passing) ✅ merged
 - Branch: `phase-0.3/recurring-transaction-engine` — Created RecurringConfig and RecurringRecord Freezed models, RecurringTransactionService with monthly generation (idempotent), payment tracking, overdue detection, Riverpod provider, unit tests (18 tests passing) ✅ merged
-- Branch: `phase-0.3/data-migration-service` — Created Migration and MigrationStatus models, DataMigrationService with version checking and ordered transforms (idempotent), MigrationRegistry for future schema changes, Riverpod provider, unit tests (17 tests passing) ⏳ in progress
+- Branch: `phase-0.3/data-migration-service` — Created Migration and MigrationStatus models, DataMigrationService with version checking and ordered transforms (idempotent), MigrationRegistry for future schema changes, Riverpod provider, unit tests (17 tests passing) ✅ merged
