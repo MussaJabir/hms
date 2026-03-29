@@ -184,3 +184,4 @@ lib/
 - Branch: `phase-0.5/app-card` — Created AppCard component (title, subtitle, leading icon, trailing text/widget, bottom widget, tap/long-press, chevron), AppCardShimmer loading skeleton, widget tests ✅ merged
 - Branch: `phase-0.5/alert-card` — Created AlertCard component (severity levels: critical/warning/info/success, color-coded left border, icon, dismiss, action button, timestamp), AlertSeverity enum, timeAgo utility, widget and unit tests ✅ merged
 - Branch: `phase-0.5/summary-tile` — Created SummaryTile component (standard/compact modes, trend arrows, value coloring), TrendDirection enum, TZS currency formatter utility (full/short formats), widget and unit tests ✅ merged
+- Branch: `phase-0.5/status-badge` — Created StatusBadge pill component (normal/small sizes), PaymentStatus enum with 11 statuses and color mapping, fromString factory for Firestore values, widget tests ⏳ in progress
