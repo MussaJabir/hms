@@ -71,10 +71,10 @@ Widget _wrapWithRouter(FirstTimeSetupService service) {
   final router = GoRouter(
     initialLocation: '/setup',
     routes: [
-      GoRoute(path: '/setup', builder: (_, __) => const FirstTimeSetupScreen()),
+      GoRoute(path: '/setup', builder: (context, _) => const FirstTimeSetupScreen()),
       GoRoute(
         path: '/login',
-        builder: (_, __) => const Scaffold(body: Text('Login')),
+        builder: (context, _) => const Scaffold(body: Text('Login')),
       ),
     ],
   );
