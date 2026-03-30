@@ -195,3 +195,4 @@ lib/
 
 - Branch: `phase-1/login-screen` — Created login screen with email/password fields, form validation, AuthService integration, password visibility toggle, forgot password dialog, error display, loading states, Design System components, widget tests ✅ merged
 - Branch: `phase-1/role-model-and-service` — Created UserService (CRUD for user profiles, role management), FirstTimeSetupService (initial Super Admin creation), Riverpod providers (currentUserProfile, isSuperAdmin, allUsers, firstTimeSetup), barrel exports, unit tests ✅ merged
+- Branch: `phase-1/auth-guard-routing` — Created AuthState enum (loading/firstTimeSetup/unauthenticated/authenticated), AuthNotifier (Riverpod-derived auth state), pure authRedirect function, GoRouter with auth guards, SplashScreen, FirstTimeSetupScreen (4-field form with validation), screens barrel export, 20 tests (13 router + 7 widget) ⏳ in progress
