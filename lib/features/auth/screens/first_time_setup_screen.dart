@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hms/core/services/auth_exception.dart';
 import 'package:hms/core/theme/app_colors.dart';
 import 'package:hms/core/theme/app_spacing.dart';
@@ -69,7 +70,18 @@ class _FirstTimeSetupScreenState extends ConsumerState<FirstTimeSetupScreen> {
           );
       // GoRouter auth guard redirects to home automatically
     } on AuthException catch (e) {
-      if (mounted) {
+      if (!mounted) return;
+      if (e.message.contains('already exists') ||
+          e.message.contains('already in use')) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('An account already exists. Redirecting to login...'),
+          ),
+        );
+        await Future<void>.delayed(const Duration(seconds: 1));
+        if (mounted) context.go('/login');
+      } else {
         setState(() {
           _isLoading = false;
           _errorMessage = e.message;
@@ -228,6 +240,16 @@ class _FirstTimeSetupScreenState extends ConsumerState<FirstTimeSetupScreen> {
                             ),
                           )
                         : const Text('Create Account'),
+                  ),
+
+                  const SizedBox(height: AppSpacing.sm),
+
+                  // Escape hatch for existing users
+                  Center(
+                    child: TextButton(
+                      onPressed: _isLoading ? null : () => context.go('/login'),
+                      child: const Text('Already have an account? Sign In'),
+                    ),
                   ),
 
                   const SizedBox(height: AppSpacing.xl),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hms/core/services/services.dart';
 import 'package:hms/core/theme/app_colors.dart';
 import 'package:hms/core/theme/app_spacing.dart';
@@ -187,6 +188,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     child: TextButton(
                       onPressed: _isLoading ? null : _showForgotPassword,
                       child: const Text('Forgot password?'),
+                    ),
+                  ),
+
+                  // Escape hatch for new users who landed here by mistake
+                  Center(
+                    child: TextButton(
+                      onPressed: _isLoading ? null : () => context.go('/setup'),
+                      child: const Text('First time? Set up admin account'),
                     ),
                   ),
 

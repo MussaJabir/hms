@@ -1,12 +1,13 @@
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hms/core/services/activity_log_service.dart';
 import 'package:hms/core/services/auth_exception.dart';
 import 'package:hms/core/services/auth_service.dart';
 import 'package:hms/core/services/firestore_service.dart';
-import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
-import 'package:hms/core/services/activity_log_service.dart';
 import 'package:hms/features/auth/providers/first_time_setup_provider.dart';
 import 'package:hms/features/auth/screens/first_time_setup_screen.dart';
 import 'package:hms/features/auth/services/first_time_setup_service.dart';
@@ -62,6 +63,27 @@ Widget _wrap(Widget child, {FirstTimeSetupService? service}) {
         firstTimeSetupServiceProvider.overrideWithValue(service),
     ],
     child: MaterialApp(home: child),
+  );
+}
+
+// Wraps with a GoRouter so context.go() works in navigation tests.
+Widget _wrapWithRouter(FirstTimeSetupService service) {
+  final router = GoRouter(
+    initialLocation: '/setup',
+    routes: [
+      GoRoute(
+        path: '/setup',
+        builder: (_, __) => const FirstTimeSetupScreen(),
+      ),
+      GoRoute(
+        path: '/login',
+        builder: (_, __) => const Scaffold(body: Text('Login')),
+      ),
+    ],
+  );
+  return ProviderScope(
+    overrides: [firstTimeSetupServiceProvider.overrideWithValue(service)],
+    child: MaterialApp.router(routerConfig: router),
   );
 }
 
@@ -195,12 +217,10 @@ void main() {
   // ---------------------------------------------------------------------------
 
   group('FirstTimeSetupScreen error display', () {
-    testWidgets('shows error when createSuperAdmin throws AuthException', (
-      tester,
-    ) async {
+    testWidgets('shows inline error for generic AuthException', (tester) async {
       final errorService = _FakeFirstTimeSetupService(
         onCreateSuperAdmin: ({required email, required password, required displayName}) async =>
-            throw const AuthException('Email already in use'),
+            throw const AuthException('An unexpected error occurred'),
       );
 
       await tester.pumpWidget(
@@ -220,7 +240,44 @@ void main() {
       await tester.pump(); // future completes with error
       await tester.pump(); // catch block + setState + rebuild
 
-      expect(find.text('Email already in use'), findsOneWidget);
+      expect(find.text('An unexpected error occurred'), findsOneWidget);
+    });
+
+    testWidgets('shows snackbar and redirects when account already exists', (
+      tester,
+    ) async {
+      final errorService = _FakeFirstTimeSetupService(
+        onCreateSuperAdmin: ({required email, required password, required displayName}) async =>
+            throw const AuthException(
+              'An account with this email already exists',
+            ),
+      );
+
+      await tester.pumpWidget(_wrapWithRouter(errorService));
+      await tester.pumpAndSettle();
+
+      final fields = find.byType(TextFormField);
+      await tester.enterText(fields.at(0), 'John Doe');
+      await tester.enterText(fields.at(1), 'boss@home.com');
+      await tester.enterText(fields.at(2), 'password123');
+      await tester.enterText(fields.at(3), 'password123');
+
+      await tester.ensureVisible(find.text('Create Account'));
+      await tester.tap(find.text('Create Account'));
+      await tester.pump(); // start async chain
+      await tester.pump(); // future completes
+      await tester.pump(); // catch block + setState + snackbar
+
+      expect(
+        find.text('An account already exists. Redirecting to login...'),
+        findsOneWidget,
+      );
+
+      // Drain the 1-second redirect delay then settle navigation
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Login'), findsOneWidget);
     });
   });
 }
