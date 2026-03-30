@@ -105,7 +105,10 @@ void main() {
   group('authRedirect — authenticated state', () {
     test('redirects from /splash to home', () {
       expect(
-        authRedirect(authState: AuthState.authenticated, currentPath: '/splash'),
+        authRedirect(
+          authState: AuthState.authenticated,
+          currentPath: '/splash',
+        ),
         '/',
       );
     });

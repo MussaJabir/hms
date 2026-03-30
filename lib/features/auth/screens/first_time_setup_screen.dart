@@ -63,7 +63,9 @@ class _FirstTimeSetupScreenState extends ConsumerState<FirstTimeSetupScreen> {
       _errorMessage = null;
     });
     try {
-      await ref.read(firstTimeSetupServiceProvider).createSuperAdmin(
+      await ref
+          .read(firstTimeSetupServiceProvider)
+          .createSuperAdmin(
             email: _emailController.text.trim(),
             password: _passwordController.text,
             displayName: _displayNameController.text.trim(),
@@ -203,9 +205,8 @@ class _FirstTimeSetupScreenState extends ConsumerState<FirstTimeSetupScreen> {
                       ),
                       onPressed: () {
                         setState(
-                          () =>
-                              _obscureConfirmPassword =
-                                  !_obscureConfirmPassword,
+                          () => _obscureConfirmPassword =
+                              !_obscureConfirmPassword,
                         );
                       },
                     ),

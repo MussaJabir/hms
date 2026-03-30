@@ -104,14 +104,8 @@ GoRouter appRouter(Ref ref) {
         path: '/setup',
         builder: (context, state) => const FirstTimeSetupScreen(),
       ),
-      GoRoute(
-        path: '/login',
-        builder: (context, state) => const LoginScreen(),
-      ),
-      GoRoute(
-        path: '/',
-        builder: (context, state) => const HomeScreen(),
-      ),
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+      GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
     ],
   );
 

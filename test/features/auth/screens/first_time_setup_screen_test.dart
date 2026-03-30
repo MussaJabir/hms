@@ -71,10 +71,7 @@ Widget _wrapWithRouter(FirstTimeSetupService service) {
   final router = GoRouter(
     initialLocation: '/setup',
     routes: [
-      GoRoute(
-        path: '/setup',
-        builder: (_, __) => const FirstTimeSetupScreen(),
-      ),
+      GoRoute(path: '/setup', builder: (_, __) => const FirstTimeSetupScreen()),
       GoRoute(
         path: '/login',
         builder: (_, __) => const Scaffold(body: Text('Login')),
@@ -179,9 +176,10 @@ void main() {
   group('FirstTimeSetupScreen loading state', () {
     testWidgets('shows loading indicator when submitting', (tester) async {
       final slowService = _FakeFirstTimeSetupService(
-        onCreateSuperAdmin: ({required email, required password, required displayName}) async {
-          await Future<void>.delayed(const Duration(seconds: 30));
-        },
+        onCreateSuperAdmin:
+            ({required email, required password, required displayName}) async {
+              await Future<void>.delayed(const Duration(seconds: 30));
+            },
       );
 
       await tester.pumpWidget(
@@ -219,8 +217,9 @@ void main() {
   group('FirstTimeSetupScreen error display', () {
     testWidgets('shows inline error for generic AuthException', (tester) async {
       final errorService = _FakeFirstTimeSetupService(
-        onCreateSuperAdmin: ({required email, required password, required displayName}) async =>
-            throw const AuthException('An unexpected error occurred'),
+        onCreateSuperAdmin:
+            ({required email, required password, required displayName}) async =>
+                throw const AuthException('An unexpected error occurred'),
       );
 
       await tester.pumpWidget(
@@ -247,10 +246,11 @@ void main() {
       tester,
     ) async {
       final errorService = _FakeFirstTimeSetupService(
-        onCreateSuperAdmin: ({required email, required password, required displayName}) async =>
-            throw const AuthException(
-              'An account with this email already exists',
-            ),
+        onCreateSuperAdmin:
+            ({required email, required password, required displayName}) async =>
+                throw const AuthException(
+                  'An account with this email already exists',
+                ),
       );
 
       await tester.pumpWidget(_wrapWithRouter(errorService));
