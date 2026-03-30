@@ -190,3 +190,7 @@ lib/
 - Branch: `phase-0.5/loading-shimmer` — Created shimmer loading system: ShimmerEffect (animated gradient), ShimmerBox (placeholder shape), ShimmerCard/ShimmerAlertCard/ShimmerSummaryTile (matching real component layouts), ShimmerList (multiple items), barrel export, widget tests ✅ merged
 - Branch: `phase-0.5/offline-banner` — Created OfflineBanner (animated show/hide, offline/syncing states, watches connectivityProvider), ConnectionStatus (dot indicator for AppBar), widgets barrel export for entire Design System, updated HomeScreen demo, widget tests ✅ merged
 - **Phase 0.5 — Design System: COMPLETE** ✅
+
+### Phase 1 — Authentication & User Management
+
+- Branch: `phase-1/login-screen` — Created login screen with email/password fields, form validation, AuthService integration, password visibility toggle, forgot password dialog, error display, loading states, Design System components, widget tests ⏳ in progress
