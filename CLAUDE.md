@@ -194,3 +194,4 @@ lib/
 ### Phase 1 — Authentication & User Management
 
 - Branch: `phase-1/login-screen` — Created login screen with email/password fields, form validation, AuthService integration, password visibility toggle, forgot password dialog, error display, loading states, Design System components, widget tests ✅ merged
+- Branch: `phase-1/role-model-and-service` — Created UserService (CRUD for user profiles, role management), FirstTimeSetupService (initial Super Admin creation), Riverpod providers (currentUserProfile, isSuperAdmin, allUsers, firstTimeSetup), barrel exports, unit tests ⏳ in progress
