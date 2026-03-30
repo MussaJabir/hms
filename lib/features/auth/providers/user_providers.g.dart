@@ -91,7 +91,7 @@ final class CurrentUserProfileProvider
 }
 
 String _$currentUserProfileHash() =>
-    r'2628d0143844c9f43e5283c7330765cd37fc2206';
+    r'b2094ec13ebccd21a3189be5273b62bd1002ccb2';
 
 /// Streams all user profiles (for user management screen).
 
