@@ -186,4 +186,4 @@ lib/
 - Branch: `phase-0.5/summary-tile` — Created SummaryTile component (standard/compact modes, trend arrows, value coloring), TrendDirection enum, TZS currency formatter utility (full/short formats), widget and unit tests ✅ merged
 - Branch: `phase-0.5/status-badge` — Created StatusBadge pill component (normal/small sizes), PaymentStatus enum with 11 statuses and color mapping, fromString factory for Firestore values, widget tests ✅ merged
 - Branch: `phase-0.5/quick-form` — Created form components: HmsTextField, HmsCurrencyField (live TZS formatting with TzsInputFormatter), HmsDatePicker (dd/MM/yyyy), HmsDropdown, Validators utility (phone, NIDA, meter reading, currency, dates), widget and unit tests ✅ merged
-- Branch: `phase-0.5/empty-state` — Created EmptyState component (standard/compact modes, icon, title, message, action button), EmptyStatePresets with 13 pre-configured states for all modules, widget tests ⏳ in progress
+- Branch: `phase-0.5/empty-state` — Created EmptyState component (standard/compact modes, icon, title, message, action button), EmptyStatePresets with 13 pre-configured states for all modules, widget tests ✅ merged
