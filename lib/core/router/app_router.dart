@@ -106,6 +106,31 @@ GoRouter appRouter(Ref ref) {
       ),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
+      GoRoute(
+        path: '/users',
+        builder: (context, state) => const UserManagementScreen(),
+        routes: [
+          GoRoute(
+            path: 'add',
+            builder: (context, state) => const AddUserScreen(),
+          ),
+          GoRoute(
+            path: ':userId',
+            builder: (context, state) => UserDetailScreen(
+              userId: state.pathParameters['userId']!,
+            ),
+            routes: [
+              GoRoute(
+                path: 'activity',
+                builder: (context, state) => UserActivityLogScreen(
+                  userId: state.pathParameters['userId']!,
+                  userName: state.extra as String? ?? '',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     ],
   );
 

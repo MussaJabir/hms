@@ -174,3 +174,82 @@ final class IsSuperAdminProvider
 }
 
 String _$isSuperAdminHash() => r'5d77967a18054a1aa12dc0e5a906f7e14c15332e';
+
+/// Streams a specific user's profile by userId in real-time.
+
+@ProviderFor(userProfile)
+final userProfileProvider = UserProfileFamily._();
+
+/// Streams a specific user's profile by userId in real-time.
+
+final class UserProfileProvider
+    extends
+        $FunctionalProvider<AsyncValue<AppUser?>, AppUser?, Stream<AppUser?>>
+    with $FutureModifier<AppUser?>, $StreamProvider<AppUser?> {
+  /// Streams a specific user's profile by userId in real-time.
+  UserProfileProvider._({
+    required UserProfileFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'userProfileProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$userProfileHash();
+
+  @override
+  String toString() {
+    return r'userProfileProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<AppUser?> $createElement($ProviderPointer pointer) =>
+      $StreamProviderElement(pointer);
+
+  @override
+  Stream<AppUser?> create(Ref ref) {
+    final argument = this.argument as String;
+    return userProfile(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is UserProfileProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$userProfileHash() => r'026b76b8a767d7cfe60b9106a0c5f0eb8b3982dd';
+
+/// Streams a specific user's profile by userId in real-time.
+
+final class UserProfileFamily extends $Family
+    with $FunctionalFamilyOverride<Stream<AppUser?>, String> {
+  UserProfileFamily._()
+    : super(
+        retry: null,
+        name: r'userProfileProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Streams a specific user's profile by userId in real-time.
+
+  UserProfileProvider call(String userId) =>
+      UserProfileProvider._(argument: userId, from: this);
+
+  @override
+  String toString() => r'userProfileProvider';
+}

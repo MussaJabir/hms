@@ -40,3 +40,9 @@ Future<bool> isSuperAdmin(Ref ref) async {
   final profile = await ref.watch(currentUserProfileProvider.future);
   return profile?.isSuperAdmin ?? false;
 }
+
+/// Streams a specific user's profile by userId in real-time.
+@riverpod
+Stream<AppUser?> userProfile(Ref ref, String userId) {
+  return ref.watch(userServiceProvider).streamUserProfile(userId);
+}
