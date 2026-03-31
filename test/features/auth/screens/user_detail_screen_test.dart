@@ -42,10 +42,7 @@ AppUser _superAdmin() => _testUser(
   role: 'superAdmin',
 );
 
-Widget _wrap({
-  required AppUser viewedUser,
-  required AppUser currentUser,
-}) {
+Widget _wrap({required AppUser viewedUser, required AppUser currentUser}) {
   final fakeFirestore = FakeFirebaseFirestore();
   final fakeAuth = MockFirebaseAuth();
   final fs = FirestoreService(firestore: fakeFirestore);
@@ -74,9 +71,9 @@ Widget _wrap({
     overrides: [
       authServiceProvider.overrideWithValue(auth),
       userServiceProvider.overrideWithValue(users),
-      userProfileProvider(viewedUser.id).overrideWith(
-        (ref) => Stream.value(viewedUser),
-      ),
+      userProfileProvider(
+        viewedUser.id,
+      ).overrideWith((ref) => Stream.value(viewedUser)),
       currentUserProfileProvider.overrideWith(
         (ref) => Stream.value(currentUser),
       ),
@@ -121,7 +118,9 @@ void main() {
   // ---------------------------------------------------------------------------
 
   group('UserDetailScreen actions', () {
-    testWidgets('shows all 4 action items for a different user', (tester) async {
+    testWidgets('shows all 4 action items for a different user', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _wrap(viewedUser: _testUser(), currentUser: _superAdmin()),
       );

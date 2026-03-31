@@ -59,7 +59,9 @@ class _UserDetailBody extends ConsumerWidget {
             children: [
               CircleAvatar(
                 radius: 40,
-                backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.12),
+                backgroundColor: theme.colorScheme.primary.withValues(
+                  alpha: 0.12,
+                ),
                 child: Icon(
                   Icons.person,
                   size: 48,
@@ -84,7 +86,9 @@ class _UserDetailBody extends ConsumerWidget {
               Text(
                 'Role: ${user.isSuperAdmin ? 'Super Admin' : 'Admin'}',
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: user.isSuperAdmin ? AppColors.primary : AppColors.success,
+                  color: user.isSuperAdmin
+                      ? AppColors.primary
+                      : AppColors.success,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -116,7 +120,9 @@ class _UserDetailBody extends ConsumerWidget {
             title: 'Change Role',
             subtitle: isSelf ? 'Cannot change your own role' : null,
             showChevron: true,
-            onTap: isSelf ? null : () => _showChangeRoleDialog(context, ref, user),
+            onTap: isSelf
+                ? null
+                : () => _showChangeRoleDialog(context, ref, user),
           ),
 
           const SizedBox(height: AppSpacing.sm),
@@ -150,7 +156,9 @@ class _UserDetailBody extends ConsumerWidget {
             AppCard(
               leadingIcon: Icons.delete_outline,
               leadingIconColor: AppColors.error,
-              leadingIconBackgroundColor: AppColors.error.withValues(alpha: 0.1),
+              leadingIconBackgroundColor: AppColors.error.withValues(
+                alpha: 0.1,
+              ),
               title: 'Delete Account',
               subtitle: 'This cannot be undone',
               onTap: () => _showDeleteDialog(context, ref, user),
@@ -162,7 +170,11 @@ class _UserDetailBody extends ConsumerWidget {
     );
   }
 
-  void _showChangeRoleDialog(BuildContext context, WidgetRef ref, AppUser user) {
+  void _showChangeRoleDialog(
+    BuildContext context,
+    WidgetRef ref,
+    AppUser user,
+  ) {
     String selectedRole = user.role;
 
     showDialog<void>(
@@ -182,10 +194,15 @@ class _UserDetailBody extends ConsumerWidget {
                   value: selectedRole,
                   items: const [
                     DropdownMenuItem(value: 'admin', child: Text('Admin')),
-                    DropdownMenuItem(value: 'superAdmin', child: Text('Super Admin')),
+                    DropdownMenuItem(
+                      value: 'superAdmin',
+                      child: Text('Super Admin'),
+                    ),
                   ],
                   onChanged: (value) {
-                    if (value != null) setDialogState(() => selectedRole = value);
+                    if (value != null) {
+                      setDialogState(() => selectedRole = value);
+                    }
                   },
                 ),
               ],
@@ -209,14 +226,21 @@ class _UserDetailBody extends ConsumerWidget {
     );
   }
 
-  Future<void> _updateRole(BuildContext context, WidgetRef ref, String newRole) async {
-    final currentUserId = ref.read(currentUserProfileProvider).asData?.value?.id ?? '';
+  Future<void> _updateRole(
+    BuildContext context,
+    WidgetRef ref,
+    String newRole,
+  ) async {
+    final currentUserId =
+        ref.read(currentUserProfileProvider).asData?.value?.id ?? '';
     try {
-      await ref.read(userServiceProvider).updateUserRole(
-        userId: userId,
-        newRole: newRole,
-        updatedBy: currentUserId,
-      );
+      await ref
+          .read(userServiceProvider)
+          .updateUserRole(
+            userId: userId,
+            newRole: newRole,
+            updatedBy: currentUserId,
+          );
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Role updated successfully')),
@@ -224,20 +248,26 @@ class _UserDetailBody extends ConsumerWidget {
       }
     } on AuthException catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.message)));
       }
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to update role. Please try again.')),
+          const SnackBar(
+            content: Text('Failed to update role. Please try again.'),
+          ),
         );
       }
     }
   }
 
-  Future<void> _resetPassword(BuildContext context, WidgetRef ref, String email) async {
+  Future<void> _resetPassword(
+    BuildContext context,
+    WidgetRef ref,
+    String email,
+  ) async {
     try {
       await ref.read(authServiceProvider).sendPasswordResetEmail(email: email);
       if (context.mounted) {
@@ -247,14 +277,16 @@ class _UserDetailBody extends ConsumerWidget {
       }
     } on AuthException catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.message)));
       }
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to send reset email. Please try again.')),
+          const SnackBar(
+            content: Text('Failed to send reset email. Please try again.'),
+          ),
         );
       }
     }
@@ -288,28 +320,30 @@ class _UserDetailBody extends ConsumerWidget {
   }
 
   Future<void> _deleteAccount(BuildContext context, WidgetRef ref) async {
-    final currentUserId = ref.read(currentUserProfileProvider).asData?.value?.id ?? '';
+    final currentUserId =
+        ref.read(currentUserProfileProvider).asData?.value?.id ?? '';
     try {
-      await ref.read(userServiceProvider).deleteUserProfile(
-        userId: userId,
-        deletedBy: currentUserId,
-      );
+      await ref
+          .read(userServiceProvider)
+          .deleteUserProfile(userId: userId, deletedBy: currentUserId);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Account deleted')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Account deleted')));
         context.pop();
       }
     } on AuthException catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.message)));
       }
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to delete account. Please try again.')),
+          const SnackBar(
+            content: Text('Failed to delete account. Please try again.'),
+          ),
         );
       }
     }

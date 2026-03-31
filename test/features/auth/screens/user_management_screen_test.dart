@@ -45,9 +45,7 @@ Widget _wrap(Widget child, {required Stream<List<AppUser>> usersStream}) {
     ],
   );
   return ProviderScope(
-    overrides: [
-      allUsersProvider.overrideWith((ref) => usersStream),
-    ],
+    overrides: [allUsersProvider.overrideWith((ref) => usersStream)],
     child: MaterialApp.router(routerConfig: router),
   );
 }
@@ -60,10 +58,7 @@ void main() {
   group('UserManagementScreen app bar', () {
     testWidgets('shows add user button', (tester) async {
       await tester.pumpWidget(
-        _wrap(
-          const UserManagementScreen(),
-          usersStream: const Stream.empty(),
-        ),
+        _wrap(const UserManagementScreen(), usersStream: const Stream.empty()),
       );
       await tester.pump();
       expect(find.byIcon(Icons.person_add_outlined), findsOneWidget);
@@ -75,7 +70,9 @@ void main() {
   // ---------------------------------------------------------------------------
 
   group('UserManagementScreen loading', () {
-    testWidgets('shows ShimmerList while stream has no data yet', (tester) async {
+    testWidgets('shows ShimmerList while stream has no data yet', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _wrap(
           const UserManagementScreen(),
@@ -94,10 +91,7 @@ void main() {
   group('UserManagementScreen empty state', () {
     testWidgets('shows empty state when user list is empty', (tester) async {
       await tester.pumpWidget(
-        _wrap(
-          const UserManagementScreen(),
-          usersStream: Stream.value([]),
-        ),
+        _wrap(const UserManagementScreen(), usersStream: Stream.value([])),
       );
       await tester.pumpAndSettle();
       expect(find.text('No Family Members'), findsOneWidget);
@@ -122,10 +116,7 @@ void main() {
 
     testWidgets('renders all user display names', (tester) async {
       await tester.pumpWidget(
-        _wrap(
-          const UserManagementScreen(),
-          usersStream: Stream.value(users),
-        ),
+        _wrap(const UserManagementScreen(), usersStream: Stream.value(users)),
       );
       await tester.pumpAndSettle();
       expect(find.text('Dutch'), findsOneWidget);
@@ -134,22 +125,18 @@ void main() {
 
     testWidgets('renders all user emails', (tester) async {
       await tester.pumpWidget(
-        _wrap(
-          const UserManagementScreen(),
-          usersStream: Stream.value(users),
-        ),
+        _wrap(const UserManagementScreen(), usersStream: Stream.value(users)),
       );
       await tester.pumpAndSettle();
       expect(find.text('dutch@home.com'), findsOneWidget);
       expect(find.text('wife@home.com'), findsOneWidget);
     });
 
-    testWidgets('renders role badges for Super Admin and Admin', (tester) async {
+    testWidgets('renders role badges for Super Admin and Admin', (
+      tester,
+    ) async {
       await tester.pumpWidget(
-        _wrap(
-          const UserManagementScreen(),
-          usersStream: Stream.value(users),
-        ),
+        _wrap(const UserManagementScreen(), usersStream: Stream.value(users)),
       );
       await tester.pumpAndSettle();
       expect(find.text('Super Admin'), findsOneWidget);
@@ -158,10 +145,7 @@ void main() {
 
     testWidgets('tapping a user navigates to detail screen', (tester) async {
       await tester.pumpWidget(
-        _wrap(
-          const UserManagementScreen(),
-          usersStream: Stream.value(users),
-        ),
+        _wrap(const UserManagementScreen(), usersStream: Stream.value(users)),
       );
       await tester.pumpAndSettle();
       await tester.tap(find.text('Dutch'));

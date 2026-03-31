@@ -75,7 +75,9 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Account created for $displayName. Please sign in again.'),
+            content: Text(
+              'Account created for $displayName. Please sign in again.',
+            ),
             duration: const Duration(seconds: 4),
           ),
         );
@@ -123,12 +125,20 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                     padding: const EdgeInsets.all(AppSpacing.md),
                     decoration: BoxDecoration(
                       color: AppColors.warning.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(AppSpacing.borderRadiusSm),
-                      border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
+                      borderRadius: BorderRadius.circular(
+                        AppSpacing.borderRadiusSm,
+                      ),
+                      border: Border.all(
+                        color: AppColors.warning.withValues(alpha: 0.3),
+                      ),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.info_outline, color: AppColors.warning, size: 18),
+                        const Icon(
+                          Icons.info_outline,
+                          color: AppColors.warning,
+                          size: 18,
+                        ),
                         const SizedBox(width: AppSpacing.sm),
                         Expanded(
                           child: Text(
@@ -152,7 +162,9 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                     prefixIcon: const Icon(Icons.person_outlined),
                     enabled: !_isLoading,
                     onChanged: (_) {
-                      if (_errorMessage != null) setState(() => _errorMessage = null);
+                      if (_errorMessage != null) {
+                        setState(() => _errorMessage = null);
+                      }
                     },
                   ),
 
@@ -167,7 +179,9 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                     prefixIcon: const Icon(Icons.email_outlined),
                     enabled: !_isLoading,
                     onChanged: (_) {
-                      if (_errorMessage != null) setState(() => _errorMessage = null);
+                      if (_errorMessage != null) {
+                        setState(() => _errorMessage = null);
+                      }
                     },
                   ),
 
@@ -186,11 +200,14 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                             ? Icons.visibility_outlined
                             : Icons.visibility_off_outlined,
                       ),
-                      onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                      onPressed: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
                     ),
                     enabled: !_isLoading,
                     onChanged: (_) {
-                      if (_errorMessage != null) setState(() => _errorMessage = null);
+                      if (_errorMessage != null) {
+                        setState(() => _errorMessage = null);
+                      }
                     },
                   ),
 
@@ -202,7 +219,10 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                     enabled: !_isLoading,
                     items: const [
                       DropdownMenuItem(value: 'admin', child: Text('Admin')),
-                      DropdownMenuItem(value: 'superAdmin', child: Text('Super Admin')),
+                      DropdownMenuItem(
+                        value: 'superAdmin',
+                        child: Text('Super Admin'),
+                      ),
                     ],
                     onChanged: (value) {
                       if (value != null) setState(() => _selectedRole = value);
@@ -213,7 +233,9 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                     const SizedBox(height: AppSpacing.sm),
                     Text(
                       _errorMessage!,
-                      style: theme.textTheme.bodySmall?.copyWith(color: AppColors.error),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: AppColors.error,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ],

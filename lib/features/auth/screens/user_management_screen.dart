@@ -31,9 +31,16 @@ class UserManagementScreen extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.error_outline, size: 48, color: AppColors.error),
+                const Icon(
+                  Icons.error_outline,
+                  size: 48,
+                  color: AppColors.error,
+                ),
                 const SizedBox(height: AppSpacing.sm),
-                Text('Failed to load users', style: Theme.of(context).textTheme.titleMedium),
+                Text(
+                  'Failed to load users',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
                 const SizedBox(height: AppSpacing.xs),
                 Text('$e', style: Theme.of(context).textTheme.bodySmall),
                 const SizedBox(height: AppSpacing.md),
@@ -49,7 +56,8 @@ class UserManagementScreen extends ConsumerWidget {
               return EmptyState(
                 icon: Icons.group_outlined,
                 title: 'No Family Members',
-                message: 'Add your first family member to share household management.',
+                message:
+                    'Add your first family member to share household management.',
                 actionLabel: 'Add Family Member',
                 onAction: () => context.push('/users/add'),
               );
@@ -57,7 +65,8 @@ class UserManagementScreen extends ConsumerWidget {
             return ListView.separated(
               padding: const EdgeInsets.all(AppSpacing.screenPadding),
               itemCount: users.length,
-              separatorBuilder: (context, _) => const SizedBox(height: AppSpacing.sm),
+              separatorBuilder: (context, _) =>
+                  const SizedBox(height: AppSpacing.sm),
               itemBuilder: (context, index) {
                 final user = users[index];
                 return AppCard(

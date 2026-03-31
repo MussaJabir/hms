@@ -16,17 +16,18 @@ import 'package:hms/features/auth/services/user_service.dart';
 // Helpers
 // ---------------------------------------------------------------------------
 
-Widget _wrap({
-  AuthService? authService,
-  UserService? userService,
-}) {
+Widget _wrap({AuthService? authService, UserService? userService}) {
   final fakeFirestore = FakeFirebaseFirestore();
   final fakeAuth = MockFirebaseAuth();
   final fs = FirestoreService(firestore: fakeFirestore);
 
   final auth = authService ?? AuthService(auth: fakeAuth);
-  final users = userService ??
-      UserService(fs, ActivityLogService(FirestoreService(firestore: fakeFirestore)));
+  final users =
+      userService ??
+      UserService(
+        fs,
+        ActivityLogService(FirestoreService(firestore: fakeFirestore)),
+      );
 
   return ProviderScope(
     overrides: [
@@ -71,7 +72,9 @@ void main() {
   // ---------------------------------------------------------------------------
 
   group('AddUserScreen validation', () {
-    testWidgets('shows required error when display name is empty', (tester) async {
+    testWidgets('shows required error when display name is empty', (
+      tester,
+    ) async {
       await tester.pumpWidget(_wrap());
       await tester.pump();
 
@@ -82,7 +85,9 @@ void main() {
       expect(find.text('Display name is required'), findsOneWidget);
     });
 
-    testWidgets('shows min-length error for short display name', (tester) async {
+    testWidgets('shows min-length error for short display name', (
+      tester,
+    ) async {
       await tester.pumpWidget(_wrap());
       await tester.pump();
 
@@ -94,7 +99,9 @@ void main() {
       expect(find.text('Must be at least 2 characters'), findsOneWidget);
     });
 
-    testWidgets('shows email validation error for invalid email', (tester) async {
+    testWidgets('shows email validation error for invalid email', (
+      tester,
+    ) async {
       await tester.pumpWidget(_wrap());
       await tester.pump();
 
@@ -133,7 +140,9 @@ void main() {
       expect(find.text('Create Account'), findsNothing);
       expect(find.byType(CircularProgressIndicator), findsWidgets);
 
-      final button = tester.widget<FilledButton>(find.byType(FilledButton).first);
+      final button = tester.widget<FilledButton>(
+        find.byType(FilledButton).first,
+      );
       expect(button.onPressed, isNull);
 
       await tester.pump(const Duration(seconds: 31));
@@ -150,6 +159,9 @@ class _SlowAuthService extends AuthService {
     required String password,
   }) async {
     await Future<void>.delayed(const Duration(seconds: 30));
-    return super.createUserWithEmailAndPassword(email: email, password: password);
+    return super.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
   }
 }

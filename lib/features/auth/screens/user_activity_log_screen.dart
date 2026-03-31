@@ -20,9 +20,7 @@ class UserActivityLogScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(title: Text('Activity Log — $userName')),
-      body: OfflineBanner(
-        child: _ActivityLogBody(userId: userId),
-      ),
+      body: OfflineBanner(child: _ActivityLogBody(userId: userId)),
     );
   }
 }
@@ -85,13 +83,15 @@ class _ActivityLogBodyState extends ConsumerState<_ActivityLogBody> {
         return ListView.separated(
           padding: const EdgeInsets.all(AppSpacing.screenPadding),
           itemCount: logs.length,
-          separatorBuilder: (context, _) => const SizedBox(height: AppSpacing.sm),
+          separatorBuilder: (context, _) =>
+              const SizedBox(height: AppSpacing.sm),
           itemBuilder: (context, index) {
             final log = logs[index];
             return AppCard(
               leadingIcon: _iconForAction(log.action),
               title: log.description,
-              subtitle: '${_capitalizeModule(log.module)} module · ${timeAgo(log.createdAt)}',
+              subtitle:
+                  '${_capitalizeModule(log.module)} module · ${timeAgo(log.createdAt)}',
             );
           },
         );

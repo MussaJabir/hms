@@ -116,9 +116,8 @@ GoRouter appRouter(Ref ref) {
           ),
           GoRoute(
             path: ':userId',
-            builder: (context, state) => UserDetailScreen(
-              userId: state.pathParameters['userId']!,
-            ),
+            builder: (context, state) =>
+                UserDetailScreen(userId: state.pathParameters['userId']!),
             routes: [
               GoRoute(
                 path: 'activity',
