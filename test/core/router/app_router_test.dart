@@ -70,14 +70,7 @@ void main() {
   });
 
   group('authRedirect — firstTimeSetup state', () {
-    test('redirects to /setup from any other path', () {
-      expect(
-        authRedirect(
-          authState: AuthState.firstTimeSetup,
-          currentPath: '/login',
-        ),
-        '/setup',
-      );
+    test('redirects to /setup from paths other than /setup and /login', () {
       expect(
         authRedirect(authState: AuthState.firstTimeSetup, currentPath: '/'),
         '/setup',
@@ -100,6 +93,19 @@ void main() {
         isNull,
       );
     });
+
+    test(
+      'allows /login so existing users can sign in during first-time setup',
+      () {
+        expect(
+          authRedirect(
+            authState: AuthState.firstTimeSetup,
+            currentPath: '/login',
+          ),
+          isNull,
+        );
+      },
+    );
   });
 
   group('authRedirect — authenticated state', () {

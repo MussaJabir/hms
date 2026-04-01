@@ -34,13 +34,16 @@ class AuthNotifier extends _$AuthNotifier {
       return AuthState.loading;
     }
 
+    // Authenticated users always go home — check this first so a logged-in
+    // user is never trapped in firstTimeSetup state.
+    final user = authAsync.asData?.value;
+    if (user != null) return AuthState.authenticated;
+
+    // No authenticated user — check if initial setup is still needed.
     final isSetup = setupAsync.asData?.value ?? false;
     if (isSetup) return AuthState.firstTimeSetup;
 
-    final user = authAsync.asData?.value;
-    if (user == null) return AuthState.unauthenticated;
-
-    return AuthState.authenticated;
+    return AuthState.unauthenticated;
   }
 }
 
@@ -54,7 +57,8 @@ String? authRedirect({
 }) {
   return switch (authState) {
     AuthState.loading => currentPath != '/splash' ? '/splash' : null,
-    AuthState.firstTimeSetup => currentPath != '/setup' ? '/setup' : null,
+    AuthState.firstTimeSetup =>
+      (currentPath != '/setup' && currentPath != '/login') ? '/setup' : null,
     AuthState.unauthenticated =>
       (currentPath != '/login' && currentPath != '/setup') ? '/login' : null,
     AuthState.authenticated =>
