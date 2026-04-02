@@ -203,4 +203,4 @@ lib/
 
 ### Phase 2 — Dashboard
 
-- Branch: `phase-2/grounds-selector` — Created GroundFilter enum, GroundsSelector segmented toggle widget, updated currentGroundProvider to use GroundFilter, added to HomeScreen ⏳ in progress
+- Branch: `phase-2/grounds-selector` — Created GroundFilter enum, GroundsSelector segmented toggle widget, updated currentGroundProvider to use GroundFilter, added to HomeScreen ✅ merged
