@@ -1,0 +1,158 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isSuperAdmin() {
+      return isAuthenticated() && getUserRole() == 'superAdmin';
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (getUserRole() == 'superAdmin' || getUserRole() == 'admin');
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Users
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isSuperAdmin() || (isAuthenticated() && request.auth.uid == userId);
+      allow update: if isSuperAdmin() || (isOwner(userId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'updatedAt', 'updatedBy']));
+      allow delete: if isSuperAdmin();
+    }
+
+    // Grounds + all subcollections
+    match /grounds/{groundId} {
+      allow read: if isAuthenticated();
+      allow create: if isSuperAdmin();
+      allow update: if isAdmin();
+      allow delete: if isSuperAdmin();
+
+      match /rental_units/{unitId} {
+        allow read: if isAuthenticated();
+        allow create, update: if isAdmin();
+        allow delete: if isSuperAdmin();
+
+        match /tenants/{tenantId} {
+          allow read: if isAuthenticated();
+          allow create, update: if isAdmin();
+          allow delete: if isSuperAdmin();
+        }
+        match /rent_payments/{paymentId} {
+          allow read: if isAuthenticated();
+          allow create, update: if isAdmin();
+          allow delete: if isSuperAdmin();
+        }
+        match /contracts/{contractId} {
+          allow read: if isAuthenticated();
+          allow create, update: if isAdmin();
+          allow delete: if isSuperAdmin();
+        }
+        match /meter_registry/{meterId} {
+          allow read: if isAuthenticated();
+          allow create, update: if isAdmin();
+          allow delete: if isSuperAdmin();
+        }
+        match /meter_readings/{readingId} {
+          allow read: if isAuthenticated();
+          allow create, update: if isAdmin();
+          allow delete: if isSuperAdmin();
+        }
+      }
+
+      match /water_bills/{billId} {
+        allow read: if isAuthenticated();
+        allow create, update: if isAdmin();
+        allow delete: if isSuperAdmin();
+      }
+      match /water_contributions/{contributionId} {
+        allow read: if isAuthenticated();
+        allow create, update: if isAdmin();
+        allow delete: if isSuperAdmin();
+      }
+    }
+
+    // Top-level data collections
+    match /household_items/{itemId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAdmin();
+      allow delete: if isSuperAdmin();
+    }
+
+    match /children/{childId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAdmin();
+      allow delete: if isSuperAdmin();
+
+      match /expenses/{expenseId} {
+        allow read: if isAuthenticated();
+        allow create, update: if isAdmin();
+        allow delete: if isSuperAdmin();
+      }
+      match /reminders/{reminderId} {
+        allow read: if isAuthenticated();
+        allow create, update: if isAdmin();
+        allow delete: if isSuperAdmin();
+      }
+    }
+
+    match /budgets/{budgetId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAdmin();
+      allow delete: if isSuperAdmin();
+    }
+
+    match /incomes/{incomeId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAdmin();
+      allow delete: if isSuperAdmin();
+    }
+
+    match /expenses/{expenseId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAdmin();
+      allow delete: if isSuperAdmin();
+    }
+
+    // Activity logs — immutable audit trail
+    match /activity_logs/{logId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if false;
+    }
+
+    // Recurring configs
+    match /recurring_configs/{configId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAdmin();
+      allow delete: if isSuperAdmin();
+    }
+
+    // Notifications
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated();
+      allow delete: if false;
+    }
+
+    // App config — Super Admin only
+    match /app_config/{configId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isSuperAdmin();
+      allow delete: if false;
+    }
+
+    // Deny everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
