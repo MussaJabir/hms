@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hms/core/theme/theme.dart';
 import 'package:hms/core/widgets/widgets.dart';
 import 'package:hms/features/auth/providers/user_providers.dart';
+import 'package:hms/features/dashboard/widgets/grounds_selector.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -27,47 +28,56 @@ class HomeScreen extends ConsumerWidget {
       ),
       drawer: isSuperAdmin ? _AdminDrawer(displayName: displayName) : null,
       body: OfflineBanner(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Home Management System',
-                style: theme.textTheme.headlineMedium,
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                'Your household, organized.',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.textTheme.bodySmall?.color,
-                ),
-              ),
-              if (isSuperAdmin) ...[
-                const SizedBox(height: AppSpacing.xl),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.screenPadding,
-                  ),
-                  child: ListTile(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        AppSpacing.borderRadius,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const GroundsSelector(),
+            const Divider(height: 1),
+            Expanded(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Home Management System',
+                      style: theme.textTheme.headlineMedium,
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      'Your household, organized.',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.textTheme.bodySmall?.color,
                       ),
-                      side: BorderSide(color: AppColors.border),
                     ),
-                    leading: const Icon(
-                      Icons.group_outlined,
-                      color: AppColors.primary,
-                    ),
-                    title: const Text('User Management'),
-                    subtitle: const Text('Add and manage family members'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => context.go('/users'),
-                  ),
+                    if (isSuperAdmin) ...[
+                      const SizedBox(height: AppSpacing.xl),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.screenPadding,
+                        ),
+                        child: ListTile(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              AppSpacing.borderRadius,
+                            ),
+                            side: BorderSide(color: AppColors.border),
+                          ),
+                          leading: const Icon(
+                            Icons.group_outlined,
+                            color: AppColors.primary,
+                          ),
+                          title: const Text('User Management'),
+                          subtitle: const Text('Add and manage family members'),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => context.go('/users'),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-              ],
-            ],
-          ),
+              ),
+            ),
+          ],
         ),
       ),
     );

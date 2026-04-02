@@ -200,3 +200,7 @@ lib/
 - Branch: `phase-1/user-management-screen` — Created UserManagementScreen (user list with stream, role badges, empty state), AddUserScreen (create family member with sign-out-after-creation re-auth handling), UserDetailScreen (role change dialog, activity log nav, password reset, delete with confirmation, self-guard), UserActivityLogScreen (filtered activity logs with timeAgo), userProfile family provider, GoRouter routes for /users/*, Super Admin access guard per screen, updated HomeScreen with temp "Manage Users" button (SA only), 21 widget tests; fixed 2 navigation bugs: (1) GoRouter redirect blocked /login during firstTimeSetup state, (2) AuthNotifier checked isFirstTimeSetup before auth — caused post-login loading freeze; AuthNotifier now checks authenticated user first ✅
 - Branch: `phase-1/firestore-security-rules` — Created firestore.rules with role-based access (Super Admin full, Admin create/update, immutable activity logs, deny-all default), deployment guide at docs/FIRESTORE_RULES.md, security test plan at test/security/firestore_rules_test.dart ✅
 - **Phase 1 — Authentication & User Management: COMPLETE** ✅
+
+### Phase 2 — Dashboard
+
+- Branch: `phase-2/grounds-selector` — Created GroundFilter enum, GroundsSelector segmented toggle widget, updated currentGroundProvider to use GroundFilter, added to HomeScreen ⏳ in progress

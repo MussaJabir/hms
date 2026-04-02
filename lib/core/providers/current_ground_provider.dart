@@ -1,3 +1,4 @@
+import 'package:hms/features/grounds/models/ground_filter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'current_ground_provider.g.dart';
@@ -5,11 +6,7 @@ part 'current_ground_provider.g.dart';
 @riverpod
 class CurrentGround extends _$CurrentGround {
   @override
-  String? build() => null;
+  GroundFilter build() => GroundFilter.all;
 
-  void selectGround(String groundId) => state = groundId;
-
-  void clearSelection() => state = null;
-
-  void selectAll() => state = 'all';
+  void select(GroundFilter filter) => state = filter;
 }

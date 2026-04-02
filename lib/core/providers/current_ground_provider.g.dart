@@ -13,7 +13,7 @@ part of 'current_ground_provider.dart';
 final currentGroundProvider = CurrentGroundProvider._();
 
 final class CurrentGroundProvider
-    extends $NotifierProvider<CurrentGround, String?> {
+    extends $NotifierProvider<CurrentGround, GroundFilter> {
   CurrentGroundProvider._()
     : super(
         from: null,
@@ -33,27 +33,27 @@ final class CurrentGroundProvider
   CurrentGround create() => CurrentGround();
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(String? value) {
+  Override overrideWithValue(GroundFilter value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<String?>(value),
+      providerOverride: $SyncValueProvider<GroundFilter>(value),
     );
   }
 }
 
-String _$currentGroundHash() => r'4ae22f26a22ff0257a0fedf356137ef90dfa4546';
+String _$currentGroundHash() => r'4f70bd506b2e35ea817ea13dae9ea1bbd52a1cee';
 
-abstract class _$CurrentGround extends $Notifier<String?> {
-  String? build();
+abstract class _$CurrentGround extends $Notifier<GroundFilter> {
+  GroundFilter build();
   @$mustCallSuper
   @override
   void runBuild() {
-    final ref = this.ref as $Ref<String?, String?>;
+    final ref = this.ref as $Ref<GroundFilter, GroundFilter>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<String?, String?>,
-              String?,
+              AnyNotifier<GroundFilter, GroundFilter>,
+              GroundFilter,
               Object?,
               Object?
             >;
