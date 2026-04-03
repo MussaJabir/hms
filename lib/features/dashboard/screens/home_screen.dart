@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hms/core/theme/theme.dart';
 import 'package:hms/core/widgets/widgets.dart';
 import 'package:hms/features/auth/providers/user_providers.dart';
+import 'package:hms/features/dashboard/widgets/alert_feed.dart';
 import 'package:hms/features/dashboard/widgets/grounds_selector.dart';
 import 'package:hms/features/dashboard/widgets/health_score_card.dart';
 import 'package:hms/features/dashboard/widgets/quick_add_fab.dart';
@@ -31,81 +32,90 @@ class HomeScreen extends ConsumerWidget {
       drawer: isSuperAdmin ? _AdminDrawer(displayName: displayName) : null,
       floatingActionButton: const QuickAddFab(),
       body: OfflineBanner(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const GroundsSelector(),
-            const Divider(height: 1),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.screenPadding,
-                AppSpacing.md,
-                AppSpacing.screenPadding,
-                0,
-              ),
-              child: const HealthScoreCard(),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.screenPadding,
-                AppSpacing.sm,
-                AppSpacing.screenPadding,
-                0,
-              ),
-              child: TextButton.icon(
-                onPressed: () => context.push('/report'),
-                icon: const Icon(Icons.bar_chart_outlined, size: 18),
-                label: const Text('View Monthly Report →'),
-                style: TextButton.styleFrom(
-                  alignment: Alignment.centerLeft,
-                  padding: EdgeInsets.zero,
-                ),
-              ),
-            ),
-            Expanded(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Home Management System',
-                      style: theme.textTheme.headlineMedium,
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const GroundsSelector(),
+                  const Divider(height: 1),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.screenPadding,
+                      AppSpacing.md,
+                      AppSpacing.screenPadding,
+                      0,
                     ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Text(
-                      'Your household, organized.',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.textTheme.bodySmall?.color,
+                    child: const HealthScoreCard(),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.screenPadding,
+                      AppSpacing.sm,
+                      AppSpacing.screenPadding,
+                      0,
+                    ),
+                    child: TextButton.icon(
+                      onPressed: () => context.push('/report'),
+                      icon: const Icon(Icons.bar_chart_outlined, size: 18),
+                      label: const Text('View Monthly Report →'),
+                      style: TextButton.styleFrom(
+                        alignment: Alignment.centerLeft,
+                        padding: EdgeInsets.zero,
                       ),
                     ),
-                    if (isSuperAdmin) ...[
-                      const SizedBox(height: AppSpacing.xl),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.screenPadding,
+                  ),
+                  const Divider(height: AppSpacing.lg),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.screenPadding,
+                      0,
+                      AppSpacing.screenPadding,
+                      AppSpacing.xs,
+                    ),
+                    child: Text(
+                      'Alerts',
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.6,
                         ),
-                        child: ListTile(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                              AppSpacing.borderRadius,
-                            ),
-                            side: BorderSide(color: AppColors.border),
-                          ),
-                          leading: const Icon(
-                            Icons.group_outlined,
-                            color: AppColors.primary,
-                          ),
-                          title: const Text('User Management'),
-                          subtitle: const Text('Add and manage family members'),
-                          trailing: const Icon(Icons.chevron_right),
-                          onTap: () => context.go('/users'),
-                        ),
+                        letterSpacing: 0.5,
                       ),
-                    ],
-                  ],
-                ),
+                    ),
+                  ),
+                ],
               ),
             ),
+            const SliverToBoxAdapter(child: AlertFeed()),
+            if (isSuperAdmin)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.screenPadding,
+                    AppSpacing.md,
+                    AppSpacing.screenPadding,
+                    AppSpacing.screenPadding,
+                  ),
+                  child: ListTile(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        AppSpacing.borderRadius,
+                      ),
+                      side: BorderSide(color: AppColors.border),
+                    ),
+                    leading: const Icon(
+                      Icons.group_outlined,
+                      color: AppColors.primary,
+                    ),
+                    title: const Text('User Management'),
+                    subtitle: const Text('Add and manage family members'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.go('/users'),
+                  ),
+                ),
+              ),
+            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xl)),
           ],
         ),
       ),
