@@ -4,6 +4,7 @@ import 'package:hms/core/providers/providers.dart';
 import 'package:hms/features/auth/providers/first_time_setup_provider.dart';
 import 'package:hms/features/auth/screens/screens.dart';
 import 'package:hms/features/dashboard/screens/home_screen.dart';
+import 'package:hms/features/dashboard/screens/monthly_report_screen.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'app_router.g.dart';
@@ -110,6 +111,10 @@ GoRouter appRouter(Ref ref) {
       ),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
+      GoRoute(
+        path: '/report',
+        builder: (context, state) => const MonthlyReportScreen(),
+      ),
       GoRoute(
         path: '/users',
         builder: (context, state) => const UserManagementScreen(),

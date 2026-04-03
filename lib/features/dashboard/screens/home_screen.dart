@@ -45,6 +45,23 @@ class HomeScreen extends ConsumerWidget {
               ),
               child: const HealthScoreCard(),
             ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.screenPadding,
+                AppSpacing.sm,
+                AppSpacing.screenPadding,
+                0,
+              ),
+              child: TextButton.icon(
+                onPressed: () => context.push('/report'),
+                icon: const Icon(Icons.bar_chart_outlined, size: 18),
+                label: const Text('View Monthly Report →'),
+                style: TextButton.styleFrom(
+                  alignment: Alignment.centerLeft,
+                  padding: EdgeInsets.zero,
+                ),
+              ),
+            ),
             Expanded(
               child: Center(
                 child: Column(
