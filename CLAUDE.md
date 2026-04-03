@@ -205,3 +205,4 @@ lib/
 
 - Branch: `phase-2/grounds-selector` — Created GroundFilter enum, GroundsSelector segmented toggle widget, updated currentGroundProvider to use GroundFilter, added to HomeScreen ✅ merged
 - Branch: `phase-2/health-score` — Created HealthScore Freezed model (weighted calculation with inactive module redistribution, label, color), HealthScoreService (mock data, independent per-module score methods), health score Riverpod providers, HealthScoreCard widget (circular arc progress, score label, breakdown bottom sheet with per-factor progress bars), added to HomeScreen between GroundsSelector and content, 30 unit and widget tests ✅ merged
+- Branch: `phase-2/quick-add-fab` — Created QuickAddFab and QuickAddBottomSheet (4 quick actions: expense, meter reading, rent payment, inventory), placeholder navigation with snackbar, added FAB to HomeScreen ⏳ in progress

@@ -6,6 +6,7 @@ import 'package:hms/core/widgets/widgets.dart';
 import 'package:hms/features/auth/providers/user_providers.dart';
 import 'package:hms/features/dashboard/widgets/grounds_selector.dart';
 import 'package:hms/features/dashboard/widgets/health_score_card.dart';
+import 'package:hms/features/dashboard/widgets/quick_add_fab.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -28,6 +29,7 @@ class HomeScreen extends ConsumerWidget {
         ],
       ),
       drawer: isSuperAdmin ? _AdminDrawer(displayName: displayName) : null,
+      floatingActionButton: const QuickAddFab(),
       body: OfflineBanner(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
