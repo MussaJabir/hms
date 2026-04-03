@@ -5,6 +5,7 @@ import 'package:hms/core/theme/theme.dart';
 import 'package:hms/core/widgets/widgets.dart';
 import 'package:hms/features/auth/providers/user_providers.dart';
 import 'package:hms/features/dashboard/widgets/grounds_selector.dart';
+import 'package:hms/features/dashboard/widgets/health_score_card.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -33,6 +34,15 @@ class HomeScreen extends ConsumerWidget {
           children: [
             const GroundsSelector(),
             const Divider(height: 1),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.screenPadding,
+                AppSpacing.md,
+                AppSpacing.screenPadding,
+                0,
+              ),
+              child: const HealthScoreCard(),
+            ),
             Expanded(
               child: Center(
                 child: Column(
