@@ -43,7 +43,8 @@ class _AlertFeedState extends ConsumerState<AlertFeed> {
         vertical: AppSpacing.md,
       ),
       itemCount: visible.length,
-      separatorBuilder: (context, index) => const SizedBox(height: AppSpacing.sm),
+      separatorBuilder: (context, index) =>
+          const SizedBox(height: AppSpacing.sm),
       itemBuilder: (context, index) {
         final alert = visible[index];
         return _AlertFeedItem(

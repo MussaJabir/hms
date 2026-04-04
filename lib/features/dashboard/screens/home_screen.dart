@@ -1,121 +1,219 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hms/core/services/services.dart';
 import 'package:hms/core/theme/theme.dart';
 import 'package:hms/core/widgets/widgets.dart';
 import 'package:hms/features/auth/providers/user_providers.dart';
-import 'package:hms/features/dashboard/widgets/alert_feed.dart';
-import 'package:hms/features/dashboard/widgets/grounds_selector.dart';
-import 'package:hms/features/dashboard/widgets/health_score_card.dart';
-import 'package:hms/features/dashboard/widgets/quick_add_fab.dart';
+import 'package:hms/features/dashboard/providers/alert_provider.dart';
+import 'package:hms/features/dashboard/widgets/widgets.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    // Watch the stream directly — avoids the FutureProvider race condition
-    // where isSuperAdminProvider resolves false before the Firestore profile loads.
+    // Use the stream profile directly to avoid FutureProvider race condition.
     final profileAsync = ref.watch(currentUserProfileProvider);
-    final isSuperAdmin = profileAsync.asData?.value?.isSuperAdmin ?? false;
-    final displayName = profileAsync.asData?.value?.displayName ?? 'Loading...';
+    final profile = profileAsync.asData?.value;
+    final isSuperAdmin = profile?.isSuperAdmin ?? false;
+    final displayName = profile?.displayName ?? '';
+    final email = profile?.email ?? '';
+    final alertCount = ref.watch(alertsProvider).length;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('HMS'),
-        actions: const [
-          ConnectionStatus(compact: true),
-          SizedBox(width: AppSpacing.sm),
+        actions: [
+          _NotificationBell(alertCount: alertCount),
+          const ConnectionStatus(compact: true),
+          const SizedBox(width: AppSpacing.sm),
         ],
       ),
-      drawer: isSuperAdmin ? _AdminDrawer(displayName: displayName) : null,
+      drawer: _AppDrawer(
+        displayName: displayName,
+        email: email,
+        isSuperAdmin: isSuperAdmin,
+      ),
       floatingActionButton: const QuickAddFab(),
       body: OfflineBanner(
-        child: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const GroundsSelector(),
-                  const Divider(height: 1),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.screenPadding,
-                      AppSpacing.md,
-                      AppSpacing.screenPadding,
-                      0,
-                    ),
-                    child: const HealthScoreCard(),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.screenPadding,
-                      AppSpacing.sm,
-                      AppSpacing.screenPadding,
-                      0,
-                    ),
-                    child: TextButton.icon(
-                      onPressed: () => context.push('/report'),
-                      icon: const Icon(Icons.bar_chart_outlined, size: 18),
-                      label: const Text('View Monthly Report →'),
-                      style: TextButton.styleFrom(
-                        alignment: Alignment.centerLeft,
-                        padding: EdgeInsets.zero,
-                      ),
-                    ),
-                  ),
-                  const Divider(height: AppSpacing.lg),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.screenPadding,
-                      0,
-                      AppSpacing.screenPadding,
-                      AppSpacing.xs,
-                    ),
-                    child: Text(
-                      'Alerts',
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(
-                          alpha: 0.6,
-                        ),
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ),
-                ],
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const GroundsSelector(),
+              const Divider(height: 1),
+              // ── Health Score ────────────────────────────────────────────
+              const Padding(
+                padding: EdgeInsets.fromLTRB(
+                  AppSpacing.screenPadding,
+                  AppSpacing.md,
+                  AppSpacing.screenPadding,
+                  0,
+                ),
+                child: HealthScoreCard(),
               ),
-            ),
-            const SliverToBoxAdapter(child: AlertFeed()),
-            if (isSuperAdmin)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.screenPadding,
-                    AppSpacing.md,
-                    AppSpacing.screenPadding,
-                    AppSpacing.screenPadding,
-                  ),
-                  child: ListTile(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        AppSpacing.borderRadius,
-                      ),
-                      side: BorderSide(color: AppColors.border),
-                    ),
-                    leading: const Icon(
-                      Icons.group_outlined,
-                      color: AppColors.primary,
-                    ),
-                    title: const Text('User Management'),
-                    subtitle: const Text('Add and manage family members'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => context.go('/users'),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.screenPadding,
+                  AppSpacing.sm,
+                  AppSpacing.screenPadding,
+                  0,
+                ),
+                child: TextButton.icon(
+                  onPressed: () => context.push('/report'),
+                  icon: const Icon(Icons.bar_chart_outlined, size: 18),
+                  label: const Text('View Monthly Report →'),
+                  style: TextButton.styleFrom(
+                    alignment: Alignment.centerLeft,
+                    padding: EdgeInsets.zero,
                   ),
                 ),
               ),
-            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xl)),
+              // ── Needs Attention ─────────────────────────────────────────
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.screenPadding,
+                  AppSpacing.lg,
+                  AppSpacing.screenPadding,
+                  0,
+                ),
+                child: DashboardSectionHeader(
+                  title: 'Needs Attention',
+                  badgeCount: alertCount > 0 ? alertCount : null,
+                ),
+              ),
+              const AlertFeed(),
+              // FAB clearance
+              const SizedBox(height: 80),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Notification bell with alert count badge ───────────────────────────────
+
+class _NotificationBell extends StatelessWidget {
+  const _NotificationBell({required this.alertCount});
+
+  final int alertCount;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.notifications_outlined),
+          tooltip: 'Alerts',
+          onPressed: () {
+            // Placeholder — notification centre comes in a later phase.
+          },
+        ),
+        if (alertCount > 0)
+          Positioned(
+            right: 6,
+            top: 6,
+            child: Container(
+              width: 16,
+              height: 16,
+              decoration: const BoxDecoration(
+                color: AppColors.error,
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Text(
+                  alertCount > 9 ? '9+' : '$alertCount',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+// ── App drawer ─────────────────────────────────────────────────────────────
+
+class _AppDrawer extends ConsumerWidget {
+  const _AppDrawer({
+    required this.displayName,
+    required this.email,
+    required this.isSuperAdmin,
+  });
+
+  final String displayName;
+  final String email;
+  final bool isSuperAdmin;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Drawer(
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // ── Header ──────────────────────────────────────────────────
+            _DrawerHeader(displayName: displayName, email: email),
+            const Divider(height: 1),
+            // ── Navigation items ────────────────────────────────────────
+            _DrawerNavItem(
+              icon: Icons.dashboard_outlined,
+              title: 'Dashboard',
+              onTap: () {
+                Navigator.of(context).pop();
+                context.go('/');
+              },
+            ),
+            _DrawerNavItem(
+              icon: Icons.assessment_outlined,
+              title: 'Monthly Report',
+              onTap: () {
+                Navigator.of(context).pop();
+                context.push('/report');
+              },
+            ),
+            if (isSuperAdmin)
+              _DrawerNavItem(
+                icon: Icons.people_outlined,
+                title: 'User Management',
+                onTap: () {
+                  Navigator.of(context).pop();
+                  context.go('/users');
+                },
+              ),
+            _DrawerNavItem(
+              icon: Icons.settings_outlined,
+              title: 'Settings',
+              onTap: () {
+                final messenger = ScaffoldMessenger.of(context);
+                Navigator.of(context).pop();
+                messenger.showSnackBar(
+                  const SnackBar(content: Text('Coming in Phase 12')),
+                );
+              },
+            ),
+            const Spacer(),
+            const Divider(height: 1),
+            // ── Sign out ────────────────────────────────────────────────
+            _DrawerNavItem(
+              icon: Icons.logout,
+              title: 'Sign Out',
+              iconColor: AppColors.error,
+              titleColor: AppColors.error,
+              onTap: () async {
+                Navigator.of(context).pop();
+                await ref.read(authServiceProvider).signOut();
+              },
+            ),
           ],
         ),
       ),
@@ -123,79 +221,85 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-class _AdminDrawer extends StatelessWidget {
-  const _AdminDrawer({required this.displayName});
+class _DrawerHeader extends StatelessWidget {
+  const _DrawerHeader({required this.displayName, required this.email});
 
   final String displayName;
+  final String email;
 
   @override
   Widget build(BuildContext context) {
-    return Drawer(
-      child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CircleAvatar(
-                    radius: 28,
-                    backgroundColor: AppColors.primary.withValues(alpha: 0.12),
-                    child: const Icon(
-                      Icons.person,
-                      color: AppColors.primary,
-                      size: 28,
-                    ),
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 24,
+            backgroundColor: AppColors.primary.withValues(alpha: 0.12),
+            child: const Icon(Icons.person, color: AppColors.primary, size: 24),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  displayName.isEmpty ? 'HMS' : displayName,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(height: AppSpacing.sm),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (email.isNotEmpty)
                   Text(
-                    displayName,
-                    style: Theme.of(context).textTheme.titleMedium,
+                    email,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: AppSpacing.xs),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Text(
-                      'Super Admin',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              ],
             ),
-            const Divider(height: 1),
-            ListTile(
-              leading: const Icon(Icons.home_outlined),
-              title: const Text('Home'),
-              onTap: () {
-                Navigator.of(context).pop();
-                context.go('/');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.group_outlined),
-              title: const Text('User Management'),
-              onTap: () {
-                Navigator.of(context).pop();
-                context.go('/users');
-              },
-            ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DrawerNavItem extends StatelessWidget {
+  const _DrawerNavItem({
+    required this.icon,
+    required this.title,
+    required this.onTap,
+    this.iconColor,
+    this.titleColor,
+  });
+
+  final IconData icon;
+  final String title;
+  final VoidCallback onTap;
+  final Color? iconColor;
+  final Color? titleColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final defaultColor = theme.colorScheme.onSurface;
+
+    return ListTile(
+      leading: Icon(icon, color: iconColor ?? defaultColor),
+      title: Text(
+        title,
+        style: theme.textTheme.bodyMedium?.copyWith(
+          color: titleColor ?? defaultColor,
         ),
       ),
+      onTap: onTap,
+      dense: true,
     );
   }
 }
