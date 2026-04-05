@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hms/core/models/ground.dart';
 import 'package:hms/features/grounds/providers/ground_providers.dart';
+import 'package:hms/features/grounds/providers/rental_unit_providers.dart';
 import 'package:hms/features/grounds/screens/grounds_list_screen.dart';
 
 // ---------------------------------------------------------------------------
@@ -23,7 +24,10 @@ Ground _ground({required String id, required String name}) {
   );
 }
 
-Widget _wrap(Stream<List<Ground>> groundsStream) {
+Widget _wrap(
+  Stream<List<Ground>> groundsStream, {
+  Map<String, int> unitCounts = const {},
+}) {
   final router = GoRouter(
     initialLocation: '/grounds',
     routes: [
@@ -42,7 +46,12 @@ Widget _wrap(Stream<List<Ground>> groundsStream) {
     ],
   );
   return ProviderScope(
-    overrides: [allGroundsProvider.overrideWith((ref) => groundsStream)],
+    overrides: [
+      allGroundsProvider.overrideWith((ref) => groundsStream),
+      // Override unitCount for each ground id supplied
+      for (final entry in unitCounts.entries)
+        unitCountProvider(entry.key).overrideWith((ref) async => entry.value),
+    ],
     child: MaterialApp.router(routerConfig: router),
   );
 }
@@ -69,17 +78,25 @@ void main() {
         _ground(id: 'g2', name: 'Minor Ground'),
       ];
 
-      await tester.pumpWidget(_wrap(Stream.value(grounds)));
+      await tester.pumpWidget(
+        _wrap(Stream.value(grounds), unitCounts: {'g1': 4, 'g2': 4}),
+      );
       await tester.pump();
 
       expect(find.text('Main Ground'), findsOneWidget);
       expect(find.text('Minor Ground'), findsOneWidget);
     });
 
-    testWidgets('shows unit count as trailing text', (tester) async {
+    testWidgets('shows unit count as trailing text from provider', (
+      tester,
+    ) async {
       final grounds = [_ground(id: 'g1', name: 'Main Ground')];
 
-      await tester.pumpWidget(_wrap(Stream.value(grounds)));
+      await tester.pumpWidget(
+        _wrap(Stream.value(grounds), unitCounts: {'g1': 4}),
+      );
+      // pump once for data, once for async provider to resolve
+      await tester.pump();
       await tester.pump();
 
       expect(find.text('4 units'), findsOneWidget);

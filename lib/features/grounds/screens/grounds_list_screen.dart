@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hms/core/models/ground.dart';
 import 'package:hms/core/theme/app_spacing.dart';
 import 'package:hms/core/widgets/widgets.dart';
 import 'package:hms/features/grounds/providers/ground_providers.dart';
+import 'package:hms/features/grounds/providers/rental_unit_providers.dart';
 
 class GroundsListScreen extends ConsumerWidget {
   const GroundsListScreen({super.key});
@@ -50,18 +52,36 @@ class GroundsListScreen extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.sm),
             itemBuilder: (context, index) {
               final ground = grounds[index];
-              return AppCard(
-                leadingIcon: Icons.home_work_outlined,
-                title: ground.name,
-                subtitle: ground.location,
-                trailingText: '${ground.numberOfUnits} units',
-                showChevron: true,
-                onTap: () => context.push('/grounds/${ground.id}'),
-              );
+              return _GroundCard(ground: ground);
             },
           );
         },
       ),
+    );
+  }
+}
+
+class _GroundCard extends ConsumerWidget {
+  const _GroundCard({required this.ground});
+
+  final Ground ground;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final countAsync = ref.watch(unitCountProvider(ground.id));
+    final unitLabel = countAsync.when(
+      data: (n) => '$n units',
+      loading: () => '… units',
+      error: (err, st) => '? units',
+    );
+
+    return AppCard(
+      leadingIcon: Icons.home_work_outlined,
+      title: ground.name,
+      subtitle: ground.location,
+      trailingText: unitLabel,
+      showChevron: true,
+      onTap: () => context.push('/grounds/${ground.id}'),
     );
   }
 }

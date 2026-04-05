@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hms/core/providers/providers.dart';
 import 'package:hms/core/theme/app_spacing.dart';
+import 'package:hms/core/utils/currency_formatter.dart';
 import 'package:hms/core/widgets/widgets.dart';
 import 'package:hms/features/auth/providers/user_providers.dart';
 import 'package:hms/features/dashboard/widgets/widgets.dart';
 import 'package:hms/features/grounds/providers/ground_providers.dart';
+import 'package:hms/features/grounds/providers/rental_unit_providers.dart';
 
 class GroundDetailScreen extends ConsumerWidget {
   const GroundDetailScreen({super.key, required this.groundId});
@@ -16,6 +18,7 @@ class GroundDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final groundAsync = ref.watch(groundByIdProvider(groundId));
+    final unitsAsync = ref.watch(allUnitsProvider(groundId));
     final isSuperAdmin =
         ref.watch(currentUserProfileProvider).asData?.value?.isSuperAdmin ??
         false;
@@ -36,6 +39,10 @@ class GroundDetailScreen extends ConsumerWidget {
             body: const Center(child: Text('Property not found.')),
           );
         }
+
+        final units = unitsAsync.asData?.value ?? [];
+        final occupied = units.where((u) => u.isOccupied).length;
+        final vacant = units.where((u) => u.isVacant).length;
 
         return Scaffold(
           appBar: AppBar(
@@ -66,13 +73,80 @@ class GroundDetailScreen extends ConsumerWidget {
                   leadingIcon: Icons.home_work_outlined,
                   title: ground.name,
                   subtitle: ground.location,
-                  trailingText: '${ground.numberOfUnits} units',
+                  trailingText: '${units.length} units',
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 // ── Rental Units section ───────────────────────────────────
-                const DashboardSectionHeader(title: 'Rental Units'),
-                const SizedBox(height: AppSpacing.sm),
-                EmptyStatePresets.noTenants(),
+                DashboardSectionHeader(
+                  title: 'Rental Units',
+                  badgeCount: units.isNotEmpty ? units.length : null,
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                if (units.isNotEmpty) ...[
+                  Text(
+                    '$occupied occupied · $vacant vacant',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                ],
+                // ── Compact unit list (up to 3) ───────────────────────────
+                if (unitsAsync.isLoading)
+                  const ShimmerList(itemCount: 3)
+                else if (units.isEmpty)
+                  EmptyState(
+                    icon: Icons.door_front_door_outlined,
+                    title: 'No Units Yet',
+                    message: 'Add your first rental unit to this property.',
+                    actionLabel: 'Add Unit',
+                    onAction: () =>
+                        context.push('/grounds/$groundId/units/add'),
+                  )
+                else ...[
+                  ...units
+                      .take(3)
+                      .map(
+                        (unit) => Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                          child: AppCard(
+                            leadingIcon: Icons.door_front_door_outlined,
+                            title: unit.name,
+                            subtitle: '${formatTZS(unit.rentAmount)} /month',
+                            trailing: StatusBadge(
+                              status: unit.isOccupied
+                                  ? PaymentStatus.active
+                                  : PaymentStatus.vacant,
+                              small: true,
+                            ),
+                          ),
+                        ),
+                      ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () =>
+                              context.push('/grounds/$groundId/units'),
+                          icon: const Icon(Icons.list_outlined, size: 18),
+                          label: const Text('View All Units'),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: FilledButton.icon(
+                          onPressed: () =>
+                              context.push('/grounds/$groundId/units/add'),
+                          icon: const Icon(Icons.add, size: 18),
+                          label: const Text('Add Unit'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: 80),
               ],
             ),

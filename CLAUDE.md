@@ -214,3 +214,4 @@ lib/
 ### Phase 3 — Grounds, Units & Tenants
 
 - Branch: `phase-3/grounds-crud` — Created RentalUnit model, GroundService (CRUD with Firestore), ground providers (stream all/by ID), GroundsListScreen, AddGroundScreen (create/edit), GroundDetailScreen, GoRouter routes, Drawer navigation, barrel exports, tests ✅ merged
+- Branch: `phase-3/rental-units-crud` — Created RentalUnitService (CRUD with subcollection paths), rental unit providers (stream all/by ID/count/vacant), UnitListScreen, AddUnitScreen (create/edit with currency field), updated GroundDetailScreen with real unit data, updated GroundsListScreen with unit counts, GoRouter routes, tests ⏳ in progress
