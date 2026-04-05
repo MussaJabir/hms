@@ -4,8 +4,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hms/core/models/ground.dart';
 import 'package:hms/features/grounds/models/rental_unit.dart';
+import 'package:hms/features/grounds/models/tenant.dart';
 import 'package:hms/features/grounds/providers/ground_providers.dart';
 import 'package:hms/features/grounds/providers/rental_unit_providers.dart';
+import 'package:hms/features/grounds/providers/tenant_providers.dart';
 import 'package:hms/features/grounds/screens/unit_list_screen.dart';
 
 // ---------------------------------------------------------------------------
@@ -45,7 +47,25 @@ RentalUnit _unit({
   );
 }
 
-Widget _wrap(Stream<List<RentalUnit>> unitsStream) {
+Tenant _tenant({required String unitId}) {
+  final now = DateTime(2026, 4, 5);
+  return Tenant(
+    id: 'tenant-$unitId',
+    groundId: _groundId,
+    unitId: unitId,
+    fullName: 'Amina Salim',
+    phoneNumber: '0712345678',
+    moveInDate: DateTime(2025, 1, 1),
+    createdAt: now,
+    updatedAt: now,
+    updatedBy: 'user-1',
+  );
+}
+
+Widget _wrap(
+  Stream<List<RentalUnit>> unitsStream, {
+  Map<String, Tenant?> tenants = const {},
+}) {
   final router = GoRouter(
     initialLocation: '/grounds/$_groundId/units',
     routes: [
@@ -58,6 +78,14 @@ Widget _wrap(Stream<List<RentalUnit>> unitsStream) {
         path: '/grounds/:groundId/units/add',
         builder: (ctx, st) => const Scaffold(body: Text('Add Unit')),
       ),
+      GoRoute(
+        path: '/grounds/:groundId/units/:unitId/tenant',
+        builder: (ctx, st) => const Scaffold(body: Text('Tenant Detail')),
+      ),
+      GoRoute(
+        path: '/grounds/:groundId/units/:unitId/tenant/add',
+        builder: (ctx, st) => const Scaffold(body: Text('Add Tenant')),
+      ),
     ],
   );
   return ProviderScope(
@@ -66,6 +94,11 @@ Widget _wrap(Stream<List<RentalUnit>> unitsStream) {
       groundByIdProvider(
         _groundId,
       ).overrideWith((ref) => Stream.value(_ground())),
+      for (final entry in tenants.entries)
+        currentTenantProvider(
+          _groundId,
+          entry.key,
+        ).overrideWith((ref) => Stream.value(entry.value)),
     ],
     child: MaterialApp.router(routerConfig: router),
   );
@@ -93,26 +126,52 @@ void main() {
         _unit(id: 'u2', name: 'Room 2', status: 'vacant'),
       ];
 
-      await tester.pumpWidget(_wrap(Stream.value(units)));
+      await tester.pumpWidget(
+        _wrap(
+          Stream.value(units),
+          tenants: {
+            'u1': _tenant(unitId: 'u1'),
+            'u2': null,
+          },
+        ),
+      );
       await tester.pump();
 
       expect(find.text('Room 1'), findsOneWidget);
       expect(find.text('Room 2'), findsOneWidget);
     });
 
-    testWidgets('shows rent amount as subtitle', (tester) async {
+    testWidgets('shows vacant subtitle for vacant unit', (tester) async {
       await tester.pumpWidget(
-        _wrap(Stream.value([_unit(id: 'u1', name: 'Room 1')])),
+        _wrap(
+          Stream.value([_unit(id: 'u1', name: 'Room 1')]),
+          tenants: {'u1': null},
+        ),
       );
       await tester.pump();
 
-      expect(find.textContaining('150,000'), findsOneWidget);
+      expect(find.textContaining('Vacant'), findsWidgets);
+    });
+
+    testWidgets('shows tenant name as subtitle for occupied unit', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          Stream.value([_unit(id: 'u1', name: 'Room 1', status: 'occupied')]),
+          tenants: {'u1': _tenant(unitId: 'u1')},
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Amina Salim'), findsOneWidget);
     });
 
     testWidgets('shows status badge for occupied unit', (tester) async {
       await tester.pumpWidget(
         _wrap(
           Stream.value([_unit(id: 'u1', name: 'Room 1', status: 'occupied')]),
+          tenants: {'u1': _tenant(unitId: 'u1')},
         ),
       );
       await tester.pump();
@@ -124,6 +183,7 @@ void main() {
       await tester.pumpWidget(
         _wrap(
           Stream.value([_unit(id: 'u1', name: 'Room 1', status: 'vacant')]),
+          tenants: {'u1': null},
         ),
       );
       await tester.pump();

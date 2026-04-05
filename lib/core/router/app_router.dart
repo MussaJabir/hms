@@ -7,6 +7,7 @@ import 'package:hms/features/dashboard/screens/home_screen.dart';
 import 'package:hms/features/dashboard/screens/monthly_report_screen.dart';
 import 'package:hms/core/models/ground.dart';
 import 'package:hms/features/grounds/models/rental_unit.dart';
+import 'package:hms/features/grounds/models/tenant.dart';
 import 'package:hms/features/grounds/screens/screens.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -152,6 +153,28 @@ GoRouter appRouter(Ref ref) {
                     builder: (context, state) => AddUnitScreen(
                       groundId: state.pathParameters['groundId']!,
                       unit: state.extra as RentalUnit?,
+                    ),
+                  ),
+                  GoRoute(
+                    path: ':unitId/tenant',
+                    builder: (context, state) => TenantDetailScreen(
+                      groundId: state.pathParameters['groundId']!,
+                      unitId: state.pathParameters['unitId']!,
+                    ),
+                  ),
+                  GoRoute(
+                    path: ':unitId/tenant/add',
+                    builder: (context, state) => AddTenantScreen(
+                      groundId: state.pathParameters['groundId']!,
+                      unitId: state.pathParameters['unitId']!,
+                    ),
+                  ),
+                  GoRoute(
+                    path: ':unitId/tenant/edit',
+                    builder: (context, state) => AddTenantScreen(
+                      groundId: state.pathParameters['groundId']!,
+                      unitId: state.pathParameters['unitId']!,
+                      tenant: state.extra as Tenant?,
                     ),
                   ),
                 ],

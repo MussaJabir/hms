@@ -4,8 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:hms/core/theme/app_spacing.dart';
 import 'package:hms/core/utils/currency_formatter.dart';
 import 'package:hms/core/widgets/widgets.dart';
+import 'package:hms/features/grounds/models/rental_unit.dart';
 import 'package:hms/features/grounds/providers/ground_providers.dart';
 import 'package:hms/features/grounds/providers/rental_unit_providers.dart';
+import 'package:hms/features/grounds/providers/tenant_providers.dart';
 
 class UnitListScreen extends ConsumerWidget {
   const UnitListScreen({super.key, required this.groundId});
@@ -60,30 +62,53 @@ class UnitListScreen extends ConsumerWidget {
             separatorBuilder: (ctx, idx) =>
                 const SizedBox(height: AppSpacing.sm),
             itemBuilder: (context, index) {
-              final unit = units[index];
-              final status = unit.isOccupied
-                  ? PaymentStatus.active
-                  : PaymentStatus.vacant;
-
-              return AppCard(
-                leadingIcon: Icons.door_front_door_outlined,
-                title: unit.name,
-                subtitle: '${formatTZS(unit.rentAmount)} /month',
-                trailing: StatusBadge(status: status),
-                showChevron: true,
-                onTap: () {
-                  // Unit detail screen comes in the tenant branch.
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Unit details coming in the next phase.'),
-                    ),
-                  );
-                },
-              );
+              return _UnitCard(groundId: groundId, unit: units[index]);
             },
           );
         },
       ),
+    );
+  }
+}
+
+class _UnitCard extends ConsumerWidget {
+  const _UnitCard({required this.groundId, required this.unit});
+
+  final String groundId;
+  final RentalUnit unit;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tenantAsync = ref.watch(currentTenantProvider(groundId, unit.id));
+    final tenant = tenantAsync.asData?.value;
+
+    final String subtitle;
+    final VoidCallback onTap;
+
+    if (unit.isOccupied && tenant != null) {
+      subtitle = tenant.fullName;
+      onTap = () => context.push('/grounds/$groundId/units/${unit.id}/tenant');
+    } else if (unit.isOccupied) {
+      // Occupied but tenant not loaded yet
+      subtitle = '${formatTZS(unit.rentAmount)} /month';
+      onTap = () => context.push('/grounds/$groundId/units/${unit.id}/tenant');
+    } else {
+      subtitle = 'Vacant — tap to add tenant';
+      onTap = () =>
+          context.push('/grounds/$groundId/units/${unit.id}/tenant/add');
+    }
+
+    final status = unit.isOccupied
+        ? PaymentStatus.active
+        : PaymentStatus.vacant;
+
+    return AppCard(
+      leadingIcon: Icons.door_front_door_outlined,
+      title: unit.name,
+      subtitle: subtitle,
+      trailing: StatusBadge(status: status),
+      showChevron: true,
+      onTap: onTap,
     );
   }
 }
