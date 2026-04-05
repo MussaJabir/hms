@@ -5,6 +5,8 @@ import 'package:hms/features/auth/providers/first_time_setup_provider.dart';
 import 'package:hms/features/auth/screens/screens.dart';
 import 'package:hms/features/dashboard/screens/home_screen.dart';
 import 'package:hms/features/dashboard/screens/monthly_report_screen.dart';
+import 'package:hms/core/models/ground.dart';
+import 'package:hms/features/grounds/screens/screens.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'app_router.g.dart';
@@ -114,6 +116,28 @@ GoRouter appRouter(Ref ref) {
       GoRoute(
         path: '/report',
         builder: (context, state) => const MonthlyReportScreen(),
+      ),
+      GoRoute(
+        path: '/grounds',
+        builder: (context, state) => const GroundsListScreen(),
+        routes: [
+          GoRoute(
+            path: 'add',
+            builder: (context, state) => const AddGroundScreen(),
+          ),
+          GoRoute(
+            path: ':groundId',
+            builder: (context, state) =>
+                GroundDetailScreen(groundId: state.pathParameters['groundId']!),
+            routes: [
+              GoRoute(
+                path: 'edit',
+                builder: (context, state) =>
+                    AddGroundScreen(ground: state.extra as Ground?),
+              ),
+            ],
+          ),
+        ],
       ),
       GoRoute(
         path: '/users',

@@ -181,6 +181,14 @@ class _AppDrawer extends ConsumerWidget {
                 context.push('/report');
               },
             ),
+            _DrawerNavItem(
+              icon: Icons.home_work_outlined,
+              title: 'Properties',
+              onTap: () {
+                Navigator.of(context).pop();
+                context.go('/grounds');
+              },
+            ),
             if (isSuperAdmin)
               _DrawerNavItem(
                 icon: Icons.people_outlined,
