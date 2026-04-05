@@ -210,3 +210,7 @@ lib/
 - Branch: `phase-2/alert-feed` — Created DashboardAlert Freezed model (in-memory, no Firestore), AlertGeneratorService (placeholder per-module generators + severity sorter), alertsProvider with 3 sample alerts (critical/warning/info), AlertFeed ConsumerStatefulWidget with dismiss, 10-alert cap, empty state, added to HomeScreen in scrollable CustomScrollView; 9 tests (4 model + 5 widget) ✅ merged
 - Branch: `phase-2/dashboard-layout` — Finalized HomeScreen layout (AppBar with notification bell badge + ConnectionStatus, Drawer with navigation and sign out, scrollable body with GroundsSelector → HealthScore → AlertFeed sections), DashboardSectionHeader widget, barrel exports for dashboard widgets and screens ✅ merged
 - **Phase 2 — Dashboard: COMPLETE** ✅
+
+### Phase 3 — Grounds, Units & Tenants
+
+- Branch: `phase-3/grounds-crud` — Created RentalUnit model, GroundService (CRUD with Firestore), ground providers (stream all/by ID), GroundsListScreen, AddGroundScreen (create/edit), GroundDetailScreen, GoRouter routes, Drawer navigation, barrel exports, tests ✅ merged
