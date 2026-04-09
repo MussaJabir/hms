@@ -54,4 +54,4 @@ final class AlertsProvider
   }
 }
 
-String _$alertsHash() => r'c7a7a5d67e84c8f44d8685b52257c7ceeddec490';
+String _$alertsHash() => r'1d19585da59d41aa2aee9bf69fe0f883d5bc496c';

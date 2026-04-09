@@ -1,12 +1,13 @@
-import 'package:hms/features/grounds/models/ground_filter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'current_ground_provider.g.dart';
 
+/// Holds the currently selected ground ID, or null when "All" is selected.
 @riverpod
 class CurrentGround extends _$CurrentGround {
   @override
-  GroundFilter build() => GroundFilter.all;
+  String? build() => null; // null = "All grounds"
 
-  void select(GroundFilter filter) => state = filter;
+  /// Select a specific ground by ID.
+  void select(String? groundId) => state = groundId;
 }

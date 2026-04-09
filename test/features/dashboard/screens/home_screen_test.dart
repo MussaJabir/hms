@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hms/core/models/app_user.dart';
+import 'package:hms/core/models/ground.dart';
 import 'package:hms/core/providers/connectivity_provider.dart';
 import 'package:hms/core/widgets/alert_severity.dart';
 import 'package:hms/features/auth/providers/user_providers.dart';
@@ -12,8 +13,26 @@ import 'package:hms/features/dashboard/widgets/alert_feed.dart';
 import 'package:hms/features/dashboard/widgets/grounds_selector.dart';
 import 'package:hms/features/dashboard/widgets/health_score_card.dart';
 import 'package:hms/features/dashboard/widgets/quick_add_fab.dart';
+import 'package:hms/features/grounds/providers/ground_providers.dart';
 
 // ── Test data ──────────────────────────────────────────────────────────────
+
+final _now = DateTime(2026, 4, 9);
+
+Ground _makeGround(String id, String name) => Ground(
+  id: id,
+  name: name,
+  location: 'Dar es Salaam',
+  numberOfUnits: 5,
+  createdAt: _now,
+  updatedAt: _now,
+  updatedBy: 'user-1',
+);
+
+final _defaultGrounds = [
+  _makeGround('g-1', 'Main Ground'),
+  _makeGround('g-2', 'Minor Ground'),
+];
 
 final _adminUser = AppUser(
   id: 'admin-id',
@@ -47,13 +66,19 @@ final _sampleAlert = DashboardAlert(
 
 // ── Test wrapper ───────────────────────────────────────────────────────────
 
-Widget _wrap({AppUser? user, List<DashboardAlert>? alerts}) {
+Widget _wrap({
+  AppUser? user,
+  List<DashboardAlert>? alerts,
+  List<Ground>? grounds,
+}) {
+  final groundList = grounds ?? _defaultGrounds;
   return ProviderScope(
     overrides: [
       currentUserProfileProvider.overrideWith(
         (ref) => Stream.value(user ?? _adminUser),
       ),
       connectivityProvider.overrideWith((ref) => Stream.value(true)),
+      allGroundsProvider.overrideWith((ref) => Stream.value(groundList)),
       if (alerts != null) alertsProvider.overrideWithValue(alerts),
     ],
     child: const MaterialApp(home: HomeScreen()),
@@ -157,6 +182,43 @@ void main() {
       await openDrawer(tester);
 
       expect(find.text('Admin User'), findsOneWidget);
+    });
+  });
+
+  group('HomeScreen — setup prompt (no grounds)', () {
+    testWidgets('shows welcome prompt when no grounds exist', (tester) async {
+      await tester.pumpWidget(_wrap(grounds: []));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Add Your First Property'), findsOneWidget);
+    });
+
+    testWidgets('hides HealthScoreCard when no grounds exist', (tester) async {
+      await tester.pumpWidget(_wrap(grounds: []));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(HealthScoreCard), findsNothing);
+    });
+
+    testWidgets('hides AlertFeed when no grounds exist', (tester) async {
+      await tester.pumpWidget(_wrap(grounds: []));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AlertFeed), findsNothing);
+    });
+
+    testWidgets('hides QuickAddFab when no grounds exist', (tester) async {
+      await tester.pumpWidget(_wrap(grounds: []));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(QuickAddFab), findsNothing);
+    });
+
+    testWidgets('shows HealthScoreCard when grounds exist', (tester) async {
+      await tester.pumpWidget(_wrap());
+      await tester.pumpAndSettle();
+
+      expect(find.byType(HealthScoreCard), findsOneWidget);
     });
   });
 }

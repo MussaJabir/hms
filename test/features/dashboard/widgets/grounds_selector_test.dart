@@ -1,13 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hms/core/models/ground.dart';
 import 'package:hms/core/providers/providers.dart';
 import 'package:hms/features/dashboard/widgets/grounds_selector.dart';
 import 'package:hms/features/grounds/models/ground_filter.dart';
+import 'package:hms/features/grounds/providers/ground_providers.dart';
 
-Widget _wrap(Widget child) => ProviderScope(
-  child: MaterialApp(home: Scaffold(body: child)),
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+final _now = DateTime(2026, 4, 9);
+
+Ground _makeGround(String id, String name) => Ground(
+  id: id,
+  name: name,
+  location: 'Dar es Salaam',
+  numberOfUnits: 5,
+  createdAt: _now,
+  updatedAt: _now,
+  updatedBy: 'user-1',
 );
+
+Widget _wrap(List<Ground> grounds) {
+  final router = GoRouter(
+    initialLocation: '/',
+    routes: [
+      GoRoute(
+        path: '/',
+        builder: (ctx, st) => Scaffold(body: const GroundsSelector()),
+      ),
+      GoRoute(
+        path: '/grounds/add',
+        builder: (ctx, st) => const Scaffold(body: Text('Add Ground')),
+      ),
+    ],
+  );
+
+  return ProviderScope(
+    overrides: [
+      allGroundsProvider.overrideWith((ref) => Stream.value(grounds)),
+    ],
+    child: MaterialApp.router(routerConfig: router),
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Tests
+// ---------------------------------------------------------------------------
 
 void main() {
   group('GroundFilter enum', () {
@@ -28,26 +70,38 @@ void main() {
     });
   });
 
-  group('GroundsSelector widget', () {
-    testWidgets('renders all 3 filter options', (tester) async {
-      await tester.pumpWidget(_wrap(const GroundsSelector()));
+  group('GroundsSelector widget — with grounds', () {
+    testWidgets('renders "All" chip plus each ground name', (tester) async {
+      await tester.pumpWidget(
+        _wrap([
+          _makeGround('g-1', 'Main Ground'),
+          _makeGround('g-2', 'Minor Ground'),
+        ]),
+      );
+      await tester.pumpAndSettle();
 
       expect(find.text('All'), findsOneWidget);
       expect(find.text('Main Ground'), findsOneWidget);
       expect(find.text('Minor Ground'), findsOneWidget);
     });
 
-    testWidgets('defaults to All selected', (tester) async {
-      await tester.pumpWidget(_wrap(const GroundsSelector()));
+    testWidgets('defaults to "All" selected (currentGroundProvider is null)', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_wrap([_makeGround('g-1', 'Main Ground')]));
+      await tester.pumpAndSettle();
 
       final container = ProviderScope.containerOf(
         tester.element(find.byType(GroundsSelector)),
       );
-      expect(container.read(currentGroundProvider), GroundFilter.all);
+      expect(container.read(currentGroundProvider), isNull);
     });
 
-    testWidgets('tapping Main Ground updates selection', (tester) async {
-      await tester.pumpWidget(_wrap(const GroundsSelector()));
+    testWidgets('tapping a ground chip sets currentGroundProvider to its ID', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_wrap([_makeGround('g-1', 'Main Ground')]));
+      await tester.pumpAndSettle();
 
       await tester.tap(find.text('Main Ground'));
       await tester.pump();
@@ -55,52 +109,75 @@ void main() {
       final container = ProviderScope.containerOf(
         tester.element(find.byType(GroundsSelector)),
       );
-      expect(container.read(currentGroundProvider), GroundFilter.mainGround);
+      expect(container.read(currentGroundProvider), equals('g-1'));
     });
 
-    testWidgets('tapping Minor Ground updates selection', (tester) async {
-      await tester.pumpWidget(_wrap(const GroundsSelector()));
+    testWidgets('tapping "All" sets currentGroundProvider back to null', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_wrap([_makeGround('g-1', 'Main Ground')]));
+      await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Minor Ground'));
+      // First select a ground
+      await tester.tap(find.text('Main Ground'));
+      await tester.pump();
+
+      // Then tap "All"
+      await tester.tap(find.text('All'));
       await tester.pump();
 
       final container = ProviderScope.containerOf(
         tester.element(find.byType(GroundsSelector)),
       );
-      expect(container.read(currentGroundProvider), GroundFilter.minorGround);
+      expect(container.read(currentGroundProvider), isNull);
     });
 
-    testWidgets('selected option has primary color background', (tester) async {
-      await tester.pumpWidget(_wrap(const GroundsSelector()));
+    testWidgets('selected chip has primary color background', (tester) async {
+      await tester.pumpWidget(_wrap([_makeGround('g-1', 'Main Ground')]));
+      await tester.pumpAndSettle();
 
-      // Tap Main Ground so it becomes selected
       await tester.tap(find.text('Main Ground'));
       await tester.pumpAndSettle();
 
-      // Selected chip uses AppColors.primary (0xFF1B4F72) as background
       final containers = tester
           .widgetList<AnimatedContainer>(find.byType(AnimatedContainer))
           .toList();
 
-      // The selected one should have primary color decoration
-      final selectedContainer = containers[1]; // index 1 = Main Ground
-      final decoration = selectedContainer.decoration as BoxDecoration;
-      expect(decoration.color, const Color(0xFF1B4F72));
+      // index 1 = Main Ground chip (after "All")
+      final decoration = containers[1].decoration as BoxDecoration;
+      expect(decoration.color, const Color(0xFF1B4F72)); // AppColors.primary
     });
+  });
 
-    testWidgets('unselected options have surface color background', (
+  group('GroundsSelector widget — no grounds', () {
+    testWidgets('shows "Add Property" button when no grounds exist', (
       tester,
     ) async {
-      await tester.pumpWidget(_wrap(const GroundsSelector()));
+      await tester.pumpWidget(_wrap([]));
+      await tester.pumpAndSettle();
 
-      // Default: All is selected, others should be surface color
-      final containers = tester
-          .widgetList<AnimatedContainer>(find.byType(AnimatedContainer))
-          .toList();
+      expect(find.text('Add Property'), findsOneWidget);
+    });
 
-      final unselectedContainer = containers[1]; // Main Ground, not selected
-      final decoration = unselectedContainer.decoration as BoxDecoration;
-      expect(decoration.color, const Color(0xFFFFFFFF)); // AppColors.surface
+    testWidgets('does not show "All" chip when no grounds exist', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_wrap([]));
+      await tester.pumpAndSettle();
+
+      expect(find.text('All'), findsNothing);
+    });
+
+    testWidgets('"Add Property" button navigates to /grounds/add', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_wrap([]));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Add Property'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Add Ground'), findsOneWidget);
     });
   });
 }

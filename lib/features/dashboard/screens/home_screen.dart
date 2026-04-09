@@ -7,6 +7,7 @@ import 'package:hms/core/widgets/widgets.dart';
 import 'package:hms/features/auth/providers/user_providers.dart';
 import 'package:hms/features/dashboard/providers/alert_provider.dart';
 import 'package:hms/features/dashboard/widgets/widgets.dart';
+import 'package:hms/features/grounds/providers/ground_providers.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -20,6 +21,8 @@ class HomeScreen extends ConsumerWidget {
     final displayName = profile?.displayName ?? '';
     final email = profile?.email ?? '';
     final alertCount = ref.watch(alertsProvider).length;
+    final groundsAsync = ref.watch(allGroundsProvider);
+    final hasGrounds = groundsAsync.asData?.value.isNotEmpty ?? true;
 
     return Scaffold(
       appBar: AppBar(
@@ -35,7 +38,7 @@ class HomeScreen extends ConsumerWidget {
         email: email,
         isSuperAdmin: isSuperAdmin,
       ),
-      floatingActionButton: const QuickAddFab(),
+      floatingActionButton: hasGrounds ? const QuickAddFab() : null,
       body: OfflineBanner(
         child: SingleChildScrollView(
           child: Column(
@@ -43,52 +46,115 @@ class HomeScreen extends ConsumerWidget {
             children: [
               const GroundsSelector(),
               const Divider(height: 1),
-              // ── Health Score ────────────────────────────────────────────
-              const Padding(
-                padding: EdgeInsets.fromLTRB(
-                  AppSpacing.screenPadding,
-                  AppSpacing.md,
-                  AppSpacing.screenPadding,
-                  0,
+              // ── First-time setup prompt ─────────────────────────────────
+              if (groundsAsync.asData?.value.isEmpty == true)
+                _SetupPrompt(displayName: displayName)
+              else ...[
+                // ── Health Score ──────────────────────────────────────────
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    AppSpacing.screenPadding,
+                    AppSpacing.md,
+                    AppSpacing.screenPadding,
+                    0,
+                  ),
+                  child: HealthScoreCard(),
                 ),
-                child: HealthScoreCard(),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.screenPadding,
-                  AppSpacing.sm,
-                  AppSpacing.screenPadding,
-                  0,
-                ),
-                child: TextButton.icon(
-                  onPressed: () => context.push('/report'),
-                  icon: const Icon(Icons.bar_chart_outlined, size: 18),
-                  label: const Text('View Monthly Report →'),
-                  style: TextButton.styleFrom(
-                    alignment: Alignment.centerLeft,
-                    padding: EdgeInsets.zero,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.screenPadding,
+                    AppSpacing.sm,
+                    AppSpacing.screenPadding,
+                    0,
+                  ),
+                  child: TextButton.icon(
+                    onPressed: () => context.push('/report'),
+                    icon: const Icon(Icons.bar_chart_outlined, size: 18),
+                    label: const Text('View Monthly Report →'),
+                    style: TextButton.styleFrom(
+                      alignment: Alignment.centerLeft,
+                      padding: EdgeInsets.zero,
+                    ),
                   ),
                 ),
-              ),
-              // ── Needs Attention ─────────────────────────────────────────
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.screenPadding,
-                  AppSpacing.lg,
-                  AppSpacing.screenPadding,
-                  0,
+                // ── Needs Attention ───────────────────────────────────────
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.screenPadding,
+                    AppSpacing.lg,
+                    AppSpacing.screenPadding,
+                    0,
+                  ),
+                  child: DashboardSectionHeader(
+                    title: 'Needs Attention',
+                    badgeCount: alertCount > 0 ? alertCount : null,
+                  ),
                 ),
-                child: DashboardSectionHeader(
-                  title: 'Needs Attention',
-                  badgeCount: alertCount > 0 ? alertCount : null,
-                ),
-              ),
-              const AlertFeed(),
+                const AlertFeed(),
+              ],
               // FAB clearance
               const SizedBox(height: 80),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ── First-time setup prompt ────────────────────────────────────────────────
+
+class _SetupPrompt extends StatelessWidget {
+  const _SetupPrompt({required this.displayName});
+
+  final String displayName;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final greeting = displayName.isEmpty
+        ? 'Welcome!'
+        : 'Welcome, $displayName!';
+    return Padding(
+      padding: const EdgeInsets.all(AppSpacing.screenPadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SizedBox(height: AppSpacing.xl),
+          Icon(
+            Icons.home_work_outlined,
+            size: 64,
+            color: AppColors.primary.withValues(alpha: 0.6),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          Text(
+            greeting,
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            'Start by adding your first property to manage\nyour rental units and tenants.',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: AppColors.textSecondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          FilledButton.icon(
+            onPressed: () => context.push('/grounds/add'),
+            icon: const Icon(Icons.add_home_outlined),
+            label: const Text('Add Your First Property'),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          OutlinedButton.icon(
+            onPressed: () => context.go('/grounds'),
+            icon: const Icon(Icons.home_work_outlined, size: 18),
+            label: const Text('Go to Properties'),
+          ),
+        ],
       ),
     );
   }

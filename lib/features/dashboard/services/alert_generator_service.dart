@@ -18,7 +18,9 @@ class AlertGeneratorService {
   List<DashboardAlert> generateBudgetAlerts() => [];
 
   /// Combines all module alerts, sorted by severity (critical first) then date.
-  List<DashboardAlert> getAllAlerts() {
+  /// [groundId] is null when "All" grounds are selected; each generator will
+  /// filter by groundId once real module data is wired up.
+  List<DashboardAlert> getAllAlerts({String? groundId}) {
     final all = [
       ...generateRentAlerts(),
       ...generateElectricityAlerts(),
@@ -48,7 +50,8 @@ class AlertGeneratorService {
 }
 
 /// Sample alerts used until real data modules are built.
-List<DashboardAlert> sampleAlerts() {
+/// [groundId] is ignored for now; filtering will be added with each module.
+List<DashboardAlert> sampleAlerts({String? groundId}) {
   final now = DateTime.now();
   return [
     DashboardAlert(
