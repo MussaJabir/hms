@@ -48,7 +48,7 @@ final class TenantServiceProvider
   }
 }
 
-String _$tenantServiceHash() => r'46d9d259f6cb75c5cf6267413ee63d2b0eee571e';
+String _$tenantServiceHash() => r'db7085ed4b5a9a5ea2c3d0c0cb90a9dfc9ee1e9b';
 
 @ProviderFor(currentTenant)
 final currentTenantProvider = CurrentTenantFamily._();

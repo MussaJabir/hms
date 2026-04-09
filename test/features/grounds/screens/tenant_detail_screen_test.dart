@@ -5,10 +5,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hms/core/services/activity_log_service.dart';
 import 'package:hms/core/services/firestore_service.dart';
+import 'package:hms/core/services/recurring_transaction_service.dart';
 import 'package:hms/features/grounds/models/tenant.dart';
 import 'package:hms/features/grounds/providers/tenant_providers.dart';
 import 'package:hms/features/grounds/screens/tenant_detail_screen.dart';
+import 'package:hms/features/grounds/services/rental_unit_service.dart';
 import 'package:hms/features/grounds/services/tenant_service.dart';
+import 'package:hms/features/rent/services/rent_config_service.dart';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -38,7 +41,22 @@ Widget _wrap(Tenant? tenant) {
   final fakeFirestore = FakeFirebaseFirestore();
   final firestoreService = FirestoreService(firestore: fakeFirestore);
   final activityLogService = ActivityLogService(firestoreService);
-  final fakeTenantService = TenantService(firestoreService, activityLogService);
+  final recurringService = RecurringTransactionService(
+    firestoreService,
+    activityLogService,
+  );
+  final rentConfigService = RentConfigService(recurringService);
+  final rentalUnitService = RentalUnitService(
+    firestoreService,
+    activityLogService,
+    rentConfigService,
+  );
+  final fakeTenantService = TenantService(
+    firestoreService,
+    activityLogService,
+    rentalUnitService,
+    recurringService,
+  );
 
   final router = GoRouter(
     initialLocation: '/grounds/$_groundId/units/$_unitId/tenant',

@@ -219,3 +219,7 @@ lib/
 - Branch: `phase-3/tenant-move-out` — Created Settlement model, MoveOutService (creates settlement, deactivates recurring configs, sets unit vacant), MoveOutScreen (form with outstanding balances, confirmation), SettlementHistoryScreen, updated TenantDetailScreen with move-out action, GoRouter routes, tests ✅ merged
 - Branch: `phase-3/grounds-navigation` — Connected GroundsSelector to real Firestore grounds data, updated currentGroundProvider for dynamic ground selection (String? groundId), added first-time setup prompt on dashboard, verified full navigation flow (grounds → units → tenants → move-out), tests ✅ merged
 - **Phase 3 — Grounds, Units & Tenants: COMPLETE** ✅
+
+### Phase 4 — Rent Payment Tracking
+
+- Branch: `phase-4/rent-config-setup` — Updated TenantService to auto-create rent RecurringConfig on tenant creation, updated MoveOutService to deactivate rent configs on move-out, updated RentalUnitService to propagate rent amount changes to active config, created RentConfigService and providers, feature folder structure, unit tests ⏳ in progress

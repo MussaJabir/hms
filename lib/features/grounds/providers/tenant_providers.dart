@@ -1,5 +1,6 @@
 import 'package:hms/core/services/services.dart';
 import 'package:hms/features/grounds/models/tenant.dart';
+import 'package:hms/features/grounds/providers/rental_unit_providers.dart';
 import 'package:hms/features/grounds/services/tenant_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -7,9 +8,12 @@ part 'tenant_providers.g.dart';
 
 @riverpod
 TenantService tenantService(Ref ref) {
-  final firestore = ref.watch(firestoreServiceProvider);
-  final activityLog = ref.watch(activityLogServiceProvider);
-  return TenantService(firestore, activityLog);
+  return TenantService(
+    ref.watch(firestoreServiceProvider),
+    ref.watch(activityLogServiceProvider),
+    ref.watch(rentalUnitServiceProvider),
+    ref.watch(recurringTransactionServiceProvider),
+  );
 }
 
 @riverpod

@@ -2,8 +2,10 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hms/core/services/activity_log_service.dart';
 import 'package:hms/core/services/firestore_service.dart';
+import 'package:hms/core/services/recurring_transaction_service.dart';
 import 'package:hms/features/grounds/models/rental_unit.dart';
 import 'package:hms/features/grounds/services/rental_unit_service.dart';
+import 'package:hms/features/rent/services/rent_config_service.dart';
 
 void main() {
   late FakeFirebaseFirestore fakeFirestore;
@@ -30,7 +32,16 @@ void main() {
     fakeFirestore = FakeFirebaseFirestore();
     firestoreService = FirestoreService(firestore: fakeFirestore);
     activityLogService = ActivityLogService(firestoreService);
-    rentalUnitService = RentalUnitService(firestoreService, activityLogService);
+    final recurringService = RecurringTransactionService(
+      firestoreService,
+      activityLogService,
+    );
+    final rentConfigService = RentConfigService(recurringService);
+    rentalUnitService = RentalUnitService(
+      firestoreService,
+      activityLogService,
+      rentConfigService,
+    );
   });
 
   group('RentalUnitService.createUnit', () {
@@ -141,5 +152,68 @@ void main() {
       final occupied = await rentalUnitService.getOccupiedUnits(groundId);
       expect(occupied, isEmpty);
     });
+  });
+
+  group('RentalUnitService.updateUnit — rent propagation', () {
+    test(
+      'propagates rentAmount change to active config when unit is occupied',
+      () async {
+        const unitId = 'unit-pv-1';
+        const tenantId = 'tenant-pv-1';
+
+        // Create occupied unit
+        await fakeFirestore
+            .collection('grounds/$groundId/rental_units')
+            .doc(unitId)
+            .set({
+              'status': 'occupied',
+              'name': 'Room PV',
+              'rentAmount': 150000.0,
+              'groundId': groundId,
+              'createdAt': DateTime.now().toIso8601String(),
+              'updatedAt': DateTime.now().toIso8601String(),
+              'updatedBy': 'user-1',
+              'schemaVersion': 1,
+            });
+
+        // Create tenant doc
+        await fakeFirestore
+            .collection('grounds/$groundId/rental_units/$unitId/tenants')
+            .doc(tenantId)
+            .set({'id': tenantId, 'fullName': 'Test Tenant'});
+
+        // Create active rent config for this tenant
+        await fakeFirestore
+            .collection('recurring_configs')
+            .doc('rent_$tenantId')
+            .set({
+              'id': 'rent_$tenantId',
+              'type': 'rent',
+              'linkedEntityId': tenantId,
+              'linkedEntityName': 'Test Tenant — Room PV',
+              'collectionPath':
+                  'grounds/$groundId/rental_units/$unitId/rent_payments',
+              'amount': 150000.0,
+              'frequency': 'monthly',
+              'dayOfMonth': 1,
+              'isActive': true,
+              'createdAt': DateTime.now().toIso8601String(),
+              'updatedAt': DateTime.now().toIso8601String(),
+              'updatedBy': 'user-1',
+              'schemaVersion': 1,
+            });
+
+        await rentalUnitService.updateUnit(groundId, unitId, {
+          'rentAmount': 200000.0,
+        }, 'user-1');
+
+        final cfg = await fakeFirestore
+            .collection('recurring_configs')
+            .doc('rent_$tenantId')
+            .get();
+
+        expect(cfg.data()!['amount'], equals(200000.0));
+      },
+    );
   });
 }

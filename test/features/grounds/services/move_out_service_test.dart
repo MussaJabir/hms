@@ -5,6 +5,7 @@ import 'package:hms/core/services/firestore_service.dart';
 import 'package:hms/core/services/recurring_transaction_service.dart';
 import 'package:hms/features/grounds/services/move_out_service.dart';
 import 'package:hms/features/grounds/services/rental_unit_service.dart';
+import 'package:hms/features/rent/services/rent_config_service.dart';
 
 void main() {
   late FakeFirebaseFirestore fakeFirestore;
@@ -24,10 +25,15 @@ void main() {
     fakeFirestore = FakeFirebaseFirestore();
     firestoreService = FirestoreService(firestore: fakeFirestore);
     activityLogService = ActivityLogService(firestoreService);
-    rentalUnitService = RentalUnitService(firestoreService, activityLogService);
     recurringTransactionService = RecurringTransactionService(
       firestoreService,
       activityLogService,
+    );
+    final rentConfigService = RentConfigService(recurringTransactionService);
+    rentalUnitService = RentalUnitService(
+      firestoreService,
+      activityLogService,
+      rentConfigService,
     );
     moveOutService = MoveOutService(
       firestoreService,

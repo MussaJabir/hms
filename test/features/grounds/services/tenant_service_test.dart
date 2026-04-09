@@ -2,8 +2,11 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hms/core/services/activity_log_service.dart';
 import 'package:hms/core/services/firestore_service.dart';
+import 'package:hms/core/services/recurring_transaction_service.dart';
 import 'package:hms/features/grounds/models/tenant.dart';
+import 'package:hms/features/grounds/services/rental_unit_service.dart';
 import 'package:hms/features/grounds/services/tenant_service.dart';
+import 'package:hms/features/rent/services/rent_config_service.dart';
 
 void main() {
   late FakeFirebaseFirestore fakeFirestore;
@@ -31,13 +34,37 @@ void main() {
     fakeFirestore = FakeFirebaseFirestore();
     firestoreService = FirestoreService(firestore: fakeFirestore);
     activityLogService = ActivityLogService(firestoreService);
-    tenantService = TenantService(firestoreService, activityLogService);
+    final recurringService = RecurringTransactionService(
+      firestoreService,
+      activityLogService,
+    );
+    final rentConfigService = RentConfigService(recurringService);
+    final rentalUnitService = RentalUnitService(
+      firestoreService,
+      activityLogService,
+      rentConfigService,
+    );
+    tenantService = TenantService(
+      firestoreService,
+      activityLogService,
+      rentalUnitService,
+      recurringService,
+    );
 
-    // Pre-create the unit document so updateUnit calls don't fail.
+    // Pre-create the unit document so updateUnit calls and getUnit don't fail.
     await fakeFirestore
         .collection('grounds/$groundId/rental_units')
         .doc(unitId)
-        .set({'status': 'vacant', 'name': 'Room 1'});
+        .set({
+          'groundId': groundId,
+          'name': 'Room 1',
+          'rentAmount': 150000.0,
+          'status': 'vacant',
+          'createdAt': now.toIso8601String(),
+          'updatedAt': now.toIso8601String(),
+          'updatedBy': 'user-1',
+          'schemaVersion': 1,
+        });
   });
 
   group('TenantService.createTenant', () {
@@ -81,6 +108,56 @@ void main() {
         (d) => d.data()['module'] == 'tenants',
       );
       expect(tenantLog.data()['action'], equals('create'));
+    });
+
+    test('creates a recurring rent config for the new tenant', () async {
+      final id = await tenantService.createTenant(
+        groundId,
+        unitId,
+        makeTenant(),
+        'u-1',
+      );
+
+      final configs = await fakeFirestore.collection('recurring_configs').get();
+      expect(configs.docs.length, equals(1));
+
+      final config = configs.docs.first.data();
+      expect(config['type'], equals('rent'));
+      expect(config['linkedEntityId'], equals(id));
+    });
+
+    test('sets linkedEntityId on the rent config to the tenant ID', () async {
+      final id = await tenantService.createTenant(
+        groundId,
+        unitId,
+        makeTenant(),
+        'u-1',
+      );
+
+      final configs = await fakeFirestore.collection('recurring_configs').get();
+      expect(configs.docs.first.data()['linkedEntityId'], equals(id));
+    });
+
+    test('uses the unit rentAmount for the config amount', () async {
+      // Overwrite unit with a specific rentAmount
+      await fakeFirestore
+          .collection('grounds/$groundId/rental_units')
+          .doc(unitId)
+          .set({
+            'groundId': groundId,
+            'name': 'Room 1',
+            'rentAmount': 300000.0,
+            'status': 'vacant',
+            'createdAt': now.toIso8601String(),
+            'updatedAt': now.toIso8601String(),
+            'updatedBy': 'user-1',
+            'schemaVersion': 1,
+          });
+
+      await tenantService.createTenant(groundId, unitId, makeTenant(), 'u-1');
+
+      final configs = await fakeFirestore.collection('recurring_configs').get();
+      expect(configs.docs.first.data()['amount'], equals(300000.0));
     });
   });
 }

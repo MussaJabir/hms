@@ -12,6 +12,7 @@ import 'package:hms/features/grounds/providers/move_out_providers.dart';
 import 'package:hms/features/grounds/screens/move_out_screen.dart';
 import 'package:hms/features/grounds/services/move_out_service.dart';
 import 'package:hms/features/grounds/services/rental_unit_service.dart';
+import 'package:hms/features/rent/services/rent_config_service.dart';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -46,13 +47,15 @@ Widget _wrap({MoveOutService? fakeService}) {
   final fakeFirestore = FakeFirebaseFirestore();
   final firestoreService = FirestoreService(firestore: fakeFirestore);
   final activityLogService = ActivityLogService(firestoreService);
-  final rentalUnitService = RentalUnitService(
-    firestoreService,
-    activityLogService,
-  );
   final recurringService = RecurringTransactionService(
     firestoreService,
     activityLogService,
+  );
+  final rentConfigService = RentConfigService(recurringService);
+  final rentalUnitService = RentalUnitService(
+    firestoreService,
+    activityLogService,
+    rentConfigService,
   );
   final service =
       fakeService ??

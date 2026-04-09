@@ -1,12 +1,18 @@
 import 'package:hms/core/services/activity_log_service.dart';
 import 'package:hms/core/services/firestore_service.dart';
 import 'package:hms/features/grounds/models/rental_unit.dart';
+import 'package:hms/features/rent/services/rent_config_service.dart';
 
 class RentalUnitService {
-  RentalUnitService(this._firestore, this._activityLog);
+  RentalUnitService(
+    this._firestore,
+    this._activityLog,
+    this._rentConfigService,
+  );
 
   final FirestoreService _firestore;
   final ActivityLogService _activityLog;
+  final RentConfigService _rentConfigService;
 
   static String _col(String groundId) => 'grounds/$groundId/rental_units';
 
@@ -53,6 +59,32 @@ class RentalUnitService {
       data: updates,
       userId: userId,
     );
+
+    // Propagate rent amount change to the tenant's active recurring config
+    if (updates.containsKey('rentAmount')) {
+      final newAmount = (updates['rentAmount'] as num).toDouble();
+      final unit = await getUnit(groundId, unitId);
+      if (unit != null && unit.isOccupied) {
+        // Get current tenant by fetching the most-recently-created tenant
+        final tenants = await _firestore.getAll(
+          collectionPath: 'grounds/$groundId/rental_units/$unitId/tenants',
+          orderBy: 'createdAt',
+          descending: true,
+          limit: 1,
+        );
+        if (tenants.isNotEmpty) {
+          final tenantId = tenants.first['id'] as String? ?? '';
+          if (tenantId.isNotEmpty) {
+            await _rentConfigService.updateRentAmount(
+              tenantId: tenantId,
+              newAmount: newAmount,
+              userId: userId,
+            );
+          }
+        }
+      }
+    }
+
     await _activityLog.log(
       userId: userId,
       action: 'update',

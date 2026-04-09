@@ -54,7 +54,7 @@ final class RentalUnitServiceProvider
   }
 }
 
-String _$rentalUnitServiceHash() => r'6afca34e1043d06a5371a5e56a22809330dbbcbe';
+String _$rentalUnitServiceHash() => r'a428e9863a367e1a0e40f386808e82cce6e688de';
 
 @ProviderFor(allUnits)
 final allUnitsProvider = AllUnitsFamily._();

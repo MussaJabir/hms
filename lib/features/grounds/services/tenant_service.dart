@@ -1,13 +1,23 @@
+import 'package:hms/core/models/recurring_config.dart';
 import 'package:hms/core/services/activity_log_service.dart';
 import 'package:hms/core/services/firestore_service.dart';
+import 'package:hms/core/services/recurring_transaction_service.dart';
 import 'package:hms/features/grounds/models/communication_log.dart';
 import 'package:hms/features/grounds/models/tenant.dart';
+import 'package:hms/features/grounds/services/rental_unit_service.dart';
 
 class TenantService {
-  TenantService(this._firestore, this._activityLog);
+  TenantService(
+    this._firestore,
+    this._activityLog,
+    this._rentalUnitService,
+    this._recurringTransactionService,
+  );
 
   final FirestoreService _firestore;
   final ActivityLogService _activityLog;
+  final RentalUnitService _rentalUnitService;
+  final RecurringTransactionService _recurringTransactionService;
 
   static String _tenantCol(String groundId, String unitId) =>
       'grounds/$groundId/rental_units/$unitId/tenants';
@@ -51,6 +61,15 @@ class TenantService {
       userId: userId,
     );
 
+    // Create recurring rent config for this tenant
+    await _createRentConfig(
+      groundId: groundId,
+      unitId: unitId,
+      tenantId: id,
+      tenantName: tenant.fullName,
+      userId: userId,
+    );
+
     await _activityLog.log(
       userId: userId,
       action: 'create',
@@ -60,6 +79,39 @@ class TenantService {
       collectionPath: _tenantCol(groundId, unitId),
     );
     return id;
+  }
+
+  Future<void> _createRentConfig({
+    required String groundId,
+    required String unitId,
+    required String tenantId,
+    required String tenantName,
+    required String userId,
+  }) async {
+    final unit = await _rentalUnitService.getUnit(groundId, unitId);
+    final rentAmount = unit?.rentAmount ?? 0.0;
+    final unitName = unit?.name ?? unitId;
+
+    final now = DateTime.now();
+    final config = RecurringConfig(
+      id: 'rent_$tenantId',
+      type: 'rent',
+      collectionPath: 'grounds/$groundId/rental_units/$unitId/rent_payments',
+      linkedEntityId: tenantId,
+      linkedEntityName: '$tenantName — $unitName',
+      amount: rentAmount,
+      frequency: 'monthly',
+      dayOfMonth: 1,
+      isActive: true,
+      createdAt: now,
+      updatedAt: now,
+      updatedBy: userId,
+    );
+
+    await _recurringTransactionService.createConfig(
+      config: config,
+      userId: userId,
+    );
   }
 
   Future<void> updateTenant(

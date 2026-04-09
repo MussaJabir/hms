@@ -1,15 +1,18 @@
 import 'package:hms/core/services/services.dart';
 import 'package:hms/features/grounds/models/rental_unit.dart';
 import 'package:hms/features/grounds/services/rental_unit_service.dart';
+import 'package:hms/features/rent/providers/rent_config_providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'rental_unit_providers.g.dart';
 
 @riverpod
 RentalUnitService rentalUnitService(Ref ref) {
-  final firestore = ref.watch(firestoreServiceProvider);
-  final activityLog = ref.watch(activityLogServiceProvider);
-  return RentalUnitService(firestore, activityLog);
+  return RentalUnitService(
+    ref.watch(firestoreServiceProvider),
+    ref.watch(activityLogServiceProvider),
+    ref.watch(rentConfigServiceProvider),
+  );
 }
 
 @riverpod
