@@ -222,4 +222,4 @@ lib/
 
 ### Phase 4 — Rent Payment Tracking
 
-- Branch: `phase-4/rent-config-setup` — Updated TenantService to auto-create rent RecurringConfig on tenant creation, updated MoveOutService to deactivate rent configs on move-out, updated RentalUnitService to propagate rent amount changes to active config, created RentConfigService and providers, feature folder structure, unit tests ⏳ in progress
+- Branch: `phase-4/rent-config-setup` — Updated TenantService to auto-create rent RecurringConfig on tenant creation, updated MoveOutService to deactivate rent configs on move-out, updated RentalUnitService to propagate rent amount changes to active config, created RentConfigService and providers, feature folder structure, unit tests ✅ merged
