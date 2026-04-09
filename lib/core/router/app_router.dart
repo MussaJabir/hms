@@ -177,6 +177,26 @@ GoRouter appRouter(Ref ref) {
                       tenant: state.extra as Tenant?,
                     ),
                   ),
+                  GoRoute(
+                    path: ':unitId/move-out',
+                    builder: (context, state) {
+                      final extra = state.extra as (Tenant, RentalUnit);
+                      return MoveOutScreen(
+                        groundId: state.pathParameters['groundId']!,
+                        unitId: state.pathParameters['unitId']!,
+                        tenant: extra.$1,
+                        unit: extra.$2,
+                      );
+                    },
+                  ),
+                  GoRoute(
+                    path: ':unitId/settlements',
+                    builder: (context, state) => SettlementHistoryScreen(
+                      groundId: state.pathParameters['groundId']!,
+                      unitId: state.pathParameters['unitId']!,
+                      unitName: state.extra as String? ?? 'Unit',
+                    ),
+                  ),
                 ],
               ),
             ],

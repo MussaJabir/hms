@@ -9,7 +9,8 @@ enum PaymentStatus {
   inactive('Inactive', 'inactive'),
   low('Low Stock', 'low'),
   adequate('Adequate', 'adequate'),
-  high('High', 'high');
+  high('High', 'high'),
+  waived('Waived', 'waived');
 
   final String label;
   final String value;

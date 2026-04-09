@@ -147,6 +147,26 @@ class GroundDetailScreen extends ConsumerWidget {
                     ],
                   ),
                 ],
+                const SizedBox(height: AppSpacing.lg),
+                // ── Settlement History quick link ───────────────────────────
+                if (units.isNotEmpty) ...[
+                  DashboardSectionHeader(title: 'Settlement History'),
+                  const SizedBox(height: AppSpacing.sm),
+                  ...units.map(
+                    (unit) => Padding(
+                      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                      child: AppCard(
+                        leadingIcon: Icons.receipt_long_outlined,
+                        title: unit.name,
+                        subtitle: 'Past tenant settlements',
+                        onTap: () => context.push(
+                          '/grounds/$groundId/units/${unit.id}/settlements',
+                          extra: unit.name,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 80),
               ],
             ),

@@ -35,6 +35,10 @@ class StatusBadge extends StatelessWidget {
         background: AppColors.border.withValues(alpha: 0.30),
         text: AppColors.textSecondary,
       ),
+      PaymentStatus.waived => (
+        background: AppColors.warning.withValues(alpha: 0.15),
+        text: AppColors.warning,
+      ),
     };
   }
 

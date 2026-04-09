@@ -8,6 +8,7 @@ import 'package:hms/core/utils/time_ago.dart';
 import 'package:hms/core/widgets/widgets.dart';
 import 'package:hms/features/dashboard/widgets/widgets.dart';
 import 'package:hms/features/grounds/models/tenant.dart';
+import 'package:hms/features/grounds/providers/rental_unit_providers.dart';
 import 'package:hms/features/grounds/providers/tenant_providers.dart';
 import 'package:intl/intl.dart';
 
@@ -182,6 +183,13 @@ class _TenantViewState extends ConsumerState<_TenantView> {
               unitId: widget.unitId,
               tenantId: tenant.id,
             ),
+            const SizedBox(height: AppSpacing.xl),
+            // ── Move Out action ──────────────────────────────────────────────
+            _MoveOutButton(
+              groundId: widget.groundId,
+              unitId: widget.unitId,
+              tenant: tenant,
+            ),
             const SizedBox(height: 80),
           ],
         ),
@@ -294,6 +302,46 @@ class _CommunicationLogList extends ConsumerWidget {
               .toList(),
         );
       },
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Move Out button — watches unit to pass it to MoveOutScreen
+// ---------------------------------------------------------------------------
+
+class _MoveOutButton extends ConsumerWidget {
+  const _MoveOutButton({
+    required this.groundId,
+    required this.unitId,
+    required this.tenant,
+  });
+
+  final String groundId;
+  final String unitId;
+  final Tenant tenant;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final unitAsync = ref.watch(unitByIdProvider(groundId, unitId));
+    final unit = unitAsync.asData?.value;
+
+    if (unit == null || !unit.isOccupied) return const SizedBox.shrink();
+
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Theme.of(context).colorScheme.error,
+          side: BorderSide(color: Theme.of(context).colorScheme.error),
+        ),
+        onPressed: () => context.push(
+          '/grounds/$groundId/units/$unitId/move-out',
+          extra: (tenant, unit),
+        ),
+        icon: const Icon(Icons.exit_to_app_outlined),
+        label: const Text('Move Out'),
+      ),
     );
   }
 }
