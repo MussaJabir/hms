@@ -146,7 +146,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.chevron_left), findsOneWidget);
-      expect(find.byIcon(Icons.chevron_right), findsOneWidget);
+      // chevron_right appears in both the month navigation and rent cards (AppCard showChevron)
+      expect(find.byIcon(Icons.chevron_right), findsAtLeastNWidgets(1));
     });
 
     testWidgets('tapping previous arrow changes displayed period', (

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hms/core/theme/theme.dart';
 
 class _QuickAction {
@@ -104,6 +105,10 @@ class _ActionTile extends StatelessWidget {
     return InkWell(
       onTap: () {
         Navigator.of(context).pop();
+        if (action.module == 'Rent') {
+          context.push('/rent');
+          return;
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(

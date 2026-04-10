@@ -138,3 +138,44 @@ final class RentRecordsForPeriodFamily extends $Family
   @override
   String toString() => r'rentRecordsForPeriodProvider';
 }
+
+@ProviderFor(rentConfigPathMap)
+final rentConfigPathMapProvider = RentConfigPathMapProvider._();
+
+final class RentConfigPathMapProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Map<String, String>>,
+          Map<String, String>,
+          FutureOr<Map<String, String>>
+        >
+    with
+        $FutureModifier<Map<String, String>>,
+        $FutureProvider<Map<String, String>> {
+  RentConfigPathMapProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'rentConfigPathMapProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$rentConfigPathMapHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<Map<String, String>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Map<String, String>> create(Ref ref) {
+    return rentConfigPathMap(ref);
+  }
+}
+
+String _$rentConfigPathMapHash() => r'1beb763bfa3272e4967141a2b4fb5dd7ec8cb955';

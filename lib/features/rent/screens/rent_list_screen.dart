@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hms/core/providers/providers.dart';
 import 'package:hms/core/theme/theme.dart';
 import 'package:hms/core/utils/currency_formatter.dart';
 import 'package:hms/core/widgets/widgets.dart';
+import 'package:hms/features/rent/providers/rent_config_providers.dart';
 import 'package:hms/features/rent/providers/rent_generation_providers.dart';
+import 'package:hms/features/rent/screens/rent_payment_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -57,6 +60,13 @@ Future<List<RecurringRecord>> rentRecordsForPeriod(
   return svc.getRecordsForPeriod(period);
 }
 
+// Maps configId → collectionPath so the list screen can build navigation args
+@riverpod
+Future<Map<String, String>> rentConfigPathMap(Ref ref) async {
+  final configs = await ref.watch(activeRentConfigsProvider.future);
+  return {for (final c in configs) c.id: c.collectionPath};
+}
+
 // ---------------------------------------------------------------------------
 // Screen
 // ---------------------------------------------------------------------------
@@ -73,6 +83,8 @@ class RentListScreen extends ConsumerWidget {
 
     final recordsAsync = ref.watch(rentRecordsForPeriodProvider(period));
     final isGeneratedAsync = ref.watch(isCurrentMonthGeneratedProvider);
+    final configPathMapAsync = ref.watch(rentConfigPathMapProvider);
+    final configPathMap = configPathMapAsync.asData?.value ?? {};
     // selectedGroundId reserved for future ground-scoped filtering
     ref.watch(currentGroundProvider);
 
@@ -170,7 +182,10 @@ class RentListScreen extends ConsumerWidget {
                     itemCount: records.length,
                     separatorBuilder: (context2, index2) =>
                         const SizedBox(height: AppSpacing.sm),
-                    itemBuilder: (context, i) => _RentCard(record: records[i]),
+                    itemBuilder: (context, i) => _RentCard(
+                      record: records[i],
+                      collectionPath: configPathMap[records[i].configId] ?? '',
+                    ),
                   ),
                 ),
               ],
@@ -285,13 +300,15 @@ class _MonthNavigation extends StatelessWidget {
 }
 
 class _RentCard extends StatelessWidget {
-  const _RentCard({required this.record});
+  const _RentCard({required this.record, required this.collectionPath});
 
   final RecurringRecord record;
+  final String collectionPath;
 
   @override
   Widget build(BuildContext context) {
     final status = PaymentStatus.fromString(record.status);
+    final isPaid = record.status == 'paid';
     final dueFormatted =
         '${record.dueDate.day.toString().padLeft(2, '0')}/'
         '${record.dueDate.month.toString().padLeft(2, '0')}/'
@@ -299,20 +316,127 @@ class _RentCard extends StatelessWidget {
 
     return AppCard(
       leadingIcon: Icons.payments_outlined,
+      leadingIconColor: isPaid ? AppColors.success : null,
       title: record.linkedEntityName,
       subtitle: 'Due: $dueFormatted',
       trailing: StatusBadge(status: status),
       trailingText: formatTZS(record.amount),
+      showChevron: !isPaid,
       onTap: () {
-        // TODO(phase-4): navigate to payment flow in the next branch
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Payment flow coming next — ${record.linkedEntityName}',
+        if (isPaid) {
+          _showPaidDetails(context);
+        } else {
+          context.push(
+            '/rent/pay',
+            extra: RentPaymentArgs(
+              record: record,
+              collectionPath: collectionPath,
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  void _showPaidDetails(BuildContext context) {
+    final theme = Theme.of(context);
+    showModalBottomSheet<void>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppSpacing.borderRadiusLg),
+        ),
+      ),
+      builder: (ctx) {
+        final paidDate = record.paidDate;
+        final paidDateStr = paidDate != null
+            ? '${paidDate.day.toString().padLeft(2, '0')}/'
+                  '${paidDate.month.toString().padLeft(2, '0')}/'
+                  '${paidDate.year}'
+            : '—';
+        final methodLabel = switch (record.paymentMethod) {
+          'mobile_money' => 'Mobile Money',
+          'bank_transfer' => 'Bank Transfer',
+          _ => 'Cash',
+        };
+
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.screenPadding),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                    decoration: BoxDecoration(
+                      color: AppColors.border,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.check_circle,
+                      color: AppColors.success,
+                      size: 20,
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Text(
+                      'Payment Recorded',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _DetailRow(label: 'Tenant', value: record.linkedEntityName),
+                _DetailRow(
+                  label: 'Amount Paid',
+                  value: formatTZS(record.amountPaid),
+                ),
+                _DetailRow(label: 'Paid On', value: paidDateStr),
+                _DetailRow(label: 'Method', value: methodLabel),
+                if (record.notes != null && record.notes!.isNotEmpty)
+                  _DetailRow(label: 'Notes', value: record.notes!),
+                const SizedBox(height: AppSpacing.md),
+              ],
             ),
           ),
         );
       },
+    );
+  }
+}
+
+class _DetailRow extends StatelessWidget {
+  const _DetailRow({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: AppColors.textSecondary,
+            ),
+          ),
+          Text(value, style: theme.textTheme.bodyMedium),
+        ],
+      ),
     );
   }
 }

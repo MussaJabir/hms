@@ -207,6 +207,18 @@ GoRouter appRouter(Ref ref) {
       GoRoute(
         path: '/rent',
         builder: (context, state) => const RentListScreen(),
+        routes: [
+          GoRoute(
+            path: 'pay',
+            builder: (context, state) {
+              final args = state.extra as RentPaymentArgs;
+              return RentPaymentScreen(
+                record: args.record,
+                collectionPath: args.collectionPath,
+              );
+            },
+          ),
+        ],
       ),
       GoRoute(
         path: '/users',

@@ -26,6 +26,7 @@ class HmsDropdown<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<T>(
+      isExpanded: true,
       initialValue: value,
       items: items,
       onChanged: enabled ? onChanged : null,
