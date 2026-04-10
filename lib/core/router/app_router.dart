@@ -179,6 +179,15 @@ GoRouter appRouter(Ref ref) {
                     ),
                   ),
                   GoRoute(
+                    path: ':unitId/tenant/:tenantId/rent-history',
+                    builder: (context, state) => TenantRentHistoryScreen(
+                      groundId: state.pathParameters['groundId']!,
+                      unitId: state.pathParameters['unitId']!,
+                      tenantId: state.pathParameters['tenantId']!,
+                      tenantName: state.extra as String? ?? '',
+                    ),
+                  ),
+                  GoRoute(
                     path: ':unitId/move-out',
                     builder: (context, state) {
                       final extra = state.extra as (Tenant, RentalUnit);

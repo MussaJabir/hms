@@ -171,6 +171,20 @@ class _TenantViewState extends ConsumerState<_TenantView> {
               ),
             ),
             const SizedBox(height: AppSpacing.lg),
+            // ── Rent history shortcut ────────────────────────────────────────
+            AppCard(
+              leadingIcon: Icons.receipt_long_outlined,
+              leadingIconColor: AppColors.primary,
+              title: 'Rent History',
+              subtitle: 'View all payment records',
+              showChevron: true,
+              onTap: () => context.push(
+                '/grounds/${widget.groundId}/units/${widget.unitId}'
+                '/tenant/${tenant.id}/rent-history',
+                extra: tenant.fullName,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
             // ── Communication log section ────────────────────────────────────
             DashboardSectionHeader(
               title: 'Communication Log',
