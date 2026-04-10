@@ -255,6 +255,14 @@ class _AppDrawer extends ConsumerWidget {
                 context.go('/grounds');
               },
             ),
+            _DrawerNavItem(
+              icon: Icons.payments_outlined,
+              title: 'Rent',
+              onTap: () {
+                Navigator.of(context).pop();
+                context.go('/rent');
+              },
+            ),
             if (isSuperAdmin)
               _DrawerNavItem(
                 icon: Icons.people_outlined,

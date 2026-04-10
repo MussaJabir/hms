@@ -9,6 +9,7 @@ import 'package:hms/core/models/ground.dart';
 import 'package:hms/features/grounds/models/rental_unit.dart';
 import 'package:hms/features/grounds/models/tenant.dart';
 import 'package:hms/features/grounds/screens/screens.dart';
+import 'package:hms/features/rent/screens/screens.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'app_router.g.dart';
@@ -202,6 +203,10 @@ GoRouter appRouter(Ref ref) {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: '/rent',
+        builder: (context, state) => const RentListScreen(),
       ),
       GoRoute(
         path: '/users',
