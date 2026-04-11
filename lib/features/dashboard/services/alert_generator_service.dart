@@ -1,34 +1,81 @@
 import 'package:flutter/material.dart';
+import 'package:hms/core/utils/currency_formatter.dart';
 import 'package:hms/core/widgets/alert_severity.dart';
 import 'package:hms/features/dashboard/models/dashboard_alert.dart';
+import 'package:hms/features/rent/services/rent_summary_service.dart';
 
 class AlertGeneratorService {
-  const AlertGeneratorService();
+  AlertGeneratorService(this._rentSummaryService);
 
-  List<DashboardAlert> generateRentAlerts() => [];
+  final RentSummaryService _rentSummaryService;
 
-  List<DashboardAlert> generateElectricityAlerts() => [];
+  /// Returns overdue rent alerts, filtered by [groundId] when non-null.
+  /// Critical if > 7 days overdue, warning if ≤ 7 days.
+  Future<List<DashboardAlert>> generateRentAlerts({String? groundId}) async {
+    final overdue = await _rentSummaryService.getOverdueRecords(
+      groundId: groundId,
+    );
+    final now = DateTime.now();
 
-  List<DashboardAlert> generateWaterAlerts() => [];
+    final alerts = overdue.map((record) {
+      final daysOverdue = now.difference(record.dueDate).inDays.abs();
+      final severity = daysOverdue > 7
+          ? AlertSeverity.critical
+          : AlertSeverity.warning;
+      return DashboardAlert(
+        id: 'rent-overdue-${record.id}',
+        title: 'Rent Overdue',
+        message:
+            '${record.linkedEntityName} — $daysOverdue days overdue, '
+            '${formatTZS(record.remainingAmount)} outstanding',
+        severity: severity,
+        icon: Icons.payments_outlined,
+        module: 'rent',
+        createdAt: record.dueDate,
+        targetRoute: '/rent',
+        actionLabel: 'Mark Paid',
+      );
+    }).toList();
 
-  List<DashboardAlert> generateInventoryAlerts() => [];
+    // Most days overdue first.
+    alerts.sort((a, b) {
+      final daysA = now.difference(a.createdAt).inDays;
+      final daysB = now.difference(b.createdAt).inDays;
+      return daysB.compareTo(daysA);
+    });
 
-  List<DashboardAlert> generateSchoolAlerts() => [];
+    return alerts;
+  }
 
-  List<DashboardAlert> generateBudgetAlerts() => [];
+  Future<List<DashboardAlert>> generateElectricityAlerts({
+    String? groundId,
+  }) async => [];
+
+  Future<List<DashboardAlert>> generateWaterAlerts({String? groundId}) async =>
+      [];
+
+  Future<List<DashboardAlert>> generateInventoryAlerts({
+    String? groundId,
+  }) async => [];
+
+  Future<List<DashboardAlert>> generateSchoolAlerts({String? groundId}) async =>
+      [];
+
+  Future<List<DashboardAlert>> generateBudgetAlerts({String? groundId}) async =>
+      [];
 
   /// Combines all module alerts, sorted by severity (critical first) then date.
-  /// [groundId] is null when "All" grounds are selected; each generator will
-  /// filter by groundId once real module data is wired up.
-  List<DashboardAlert> getAllAlerts({String? groundId}) {
-    final all = [
-      ...generateRentAlerts(),
-      ...generateElectricityAlerts(),
-      ...generateWaterAlerts(),
-      ...generateInventoryAlerts(),
-      ...generateSchoolAlerts(),
-      ...generateBudgetAlerts(),
-    ];
+  Future<List<DashboardAlert>> getAllAlerts({String? groundId}) async {
+    final results = await Future.wait([
+      generateRentAlerts(groundId: groundId),
+      generateElectricityAlerts(groundId: groundId),
+      generateWaterAlerts(groundId: groundId),
+      generateInventoryAlerts(groundId: groundId),
+      generateSchoolAlerts(groundId: groundId),
+      generateBudgetAlerts(groundId: groundId),
+    ]);
+
+    final all = results.expand((list) => list).toList();
 
     all.sort((a, b) {
       final severityOrder = _severityOrder(
@@ -47,41 +94,4 @@ class AlertGeneratorService {
     AlertSeverity.info => 2,
     AlertSeverity.success => 3,
   };
-}
-
-/// Sample alerts used until real data modules are built.
-/// [groundId] is ignored for now; filtering will be added with each module.
-List<DashboardAlert> sampleAlerts({String? groundId}) {
-  final now = DateTime.now();
-  return [
-    DashboardAlert(
-      id: 'sample-rent-overdue',
-      title: 'Rent Overdue',
-      message: 'Room 3 — 15 days overdue. Follow up with tenant.',
-      severity: AlertSeverity.critical,
-      icon: Icons.payments_outlined,
-      module: 'rent',
-      createdAt: now.subtract(const Duration(days: 15)),
-      actionLabel: 'View Rent',
-    ),
-    DashboardAlert(
-      id: 'sample-water-due',
-      title: 'Water Bill Due Soon',
-      message: 'Water bill payment is due in 3 days.',
-      severity: AlertSeverity.warning,
-      icon: Icons.water_drop_outlined,
-      module: 'water',
-      createdAt: now.subtract(const Duration(hours: 6)),
-      actionLabel: 'View Bill',
-    ),
-    DashboardAlert(
-      id: 'sample-meter-reminder',
-      title: 'Meter Reading Reminder',
-      message: 'Sunday is the usual meter reading day.',
-      severity: AlertSeverity.info,
-      icon: Icons.electric_meter_outlined,
-      module: 'electricity',
-      createdAt: now.subtract(const Duration(hours: 1)),
-    ),
-  ];
 }

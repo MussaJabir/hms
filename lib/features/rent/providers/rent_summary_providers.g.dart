@@ -105,6 +105,48 @@ final class RentIncomeLinkServiceProvider
 String _$rentIncomeLinkServiceHash() =>
     r'de53965d8f95beed1a8fadfae3365af4442ed03e';
 
+@ProviderFor(rentNotificationService)
+final rentNotificationServiceProvider = RentNotificationServiceProvider._();
+
+final class RentNotificationServiceProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<RentNotificationService>,
+          RentNotificationService,
+          FutureOr<RentNotificationService>
+        >
+    with
+        $FutureModifier<RentNotificationService>,
+        $FutureProvider<RentNotificationService> {
+  RentNotificationServiceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'rentNotificationServiceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$rentNotificationServiceHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<RentNotificationService> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<RentNotificationService> create(Ref ref) {
+    return rentNotificationService(ref);
+  }
+}
+
+String _$rentNotificationServiceHash() =>
+    r'4ea05547ad20219d72698da01e6ccd942c43dc97';
+
 /// Current month's total expected rent, filtered by selected ground.
 
 @ProviderFor(currentMonthExpected)

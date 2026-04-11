@@ -1,8 +1,9 @@
+import 'package:hms/core/models/recurring_record.dart';
 import 'package:hms/core/providers/providers.dart';
 import 'package:hms/core/services/services.dart';
-import 'package:hms/core/models/recurring_record.dart';
 import 'package:hms/features/rent/providers/rent_config_providers.dart';
 import 'package:hms/features/rent/services/rent_income_link_service.dart';
+import 'package:hms/features/rent/services/rent_notification_service.dart';
 import 'package:hms/features/rent/services/rent_summary_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -19,6 +20,17 @@ RentSummaryService rentSummaryService(Ref ref) {
 @riverpod
 RentIncomeLinkService rentIncomeLinkService(Ref ref) {
   return RentIncomeLinkService(ref.watch(firestoreServiceProvider));
+}
+
+@riverpod
+Future<RentNotificationService> rentNotificationService(Ref ref) async {
+  final notificationService = await ref.watch(
+    notificationServiceProvider.future,
+  );
+  return RentNotificationService(
+    notificationService,
+    ref.watch(rentSummaryServiceProvider),
+  );
 }
 
 /// Current month's total expected rent, filtered by selected ground.

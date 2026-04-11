@@ -1,16 +1,22 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hms/core/widgets/alert_card.dart';
 import 'package:hms/core/widgets/alert_severity.dart';
 import 'package:hms/core/widgets/empty_state.dart';
+import 'package:hms/core/widgets/shimmer/shimmer.dart';
 import 'package:hms/features/dashboard/models/dashboard_alert.dart';
 import 'package:hms/features/dashboard/providers/alert_provider.dart';
 import 'package:hms/features/dashboard/widgets/alert_feed.dart';
 
 Widget _wrap(Widget child, {List<DashboardAlert>? alerts}) {
   return ProviderScope(
-    overrides: [if (alerts != null) alertsProvider.overrideWithValue(alerts)],
+    overrides: [
+      if (alerts != null)
+        alertsProvider.overrideWith((ref) => Future.value(alerts)),
+    ],
     child: MaterialApp(
       home: Scaffold(body: SingleChildScrollView(child: child)),
     ),
@@ -36,7 +42,7 @@ void main() {
   group('AlertFeed', () {
     testWidgets('shows EmptyState when no alerts', (tester) async {
       await tester.pumpWidget(_wrap(const AlertFeed(), alerts: []));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.byType(EmptyState), findsOneWidget);
       expect(find.text('All Good!'), findsOneWidget);
@@ -49,17 +55,13 @@ void main() {
       ]);
 
       await tester.pumpWidget(_wrap(const AlertFeed(), alerts: alerts));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.byType(AlertCard), findsNWidgets(2));
       expect(find.byType(EmptyState), findsNothing);
     });
 
     testWidgets('critical alerts appear before warning alerts', (tester) async {
-      // Provide warning first, critical second — feed must re-sort by severity
-      // since the provider is overridden with unsorted data.
-      // But AlertFeed displays in provider order; sorting is the provider's job.
-      // So override with correctly sorted list and verify order in UI.
       final alerts = _makeAlerts([
         ('critical-1', AlertSeverity.critical),
         ('warning-1', AlertSeverity.warning),
@@ -67,7 +69,7 @@ void main() {
       ]);
 
       await tester.pumpWidget(_wrap(const AlertFeed(), alerts: alerts));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       final cards = tester
           .widgetList<AlertCard>(find.byType(AlertCard))
@@ -92,7 +94,7 @@ void main() {
       );
 
       await tester.pumpWidget(_wrap(const AlertFeed(), alerts: alerts));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.byType(AlertCard), findsNWidgets(10));
     });
@@ -104,7 +106,7 @@ void main() {
       ]);
 
       await tester.pumpWidget(_wrap(const AlertFeed(), alerts: alerts));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.byType(AlertCard), findsNWidgets(2));
 
@@ -113,6 +115,22 @@ void main() {
       await tester.pump();
 
       expect(find.byType(AlertCard), findsOneWidget);
+    });
+
+    testWidgets('shows ShimmerList while loading', (tester) async {
+      // Use a Completer that never resolves — keeps the provider in loading.
+      final completer = Completer<List<DashboardAlert>>();
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [alertsProvider.overrideWith((ref) => completer.future)],
+          child: const MaterialApp(
+            home: Scaffold(body: SingleChildScrollView(child: AlertFeed())),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.byType(ShimmerList), findsOneWidget);
     });
   });
 }

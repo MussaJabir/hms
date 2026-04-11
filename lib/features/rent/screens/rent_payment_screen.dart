@@ -132,6 +132,14 @@ class _RentPaymentScreenState extends ConsumerState<RentPaymentScreen> {
             );
       }
 
+      // Cancel any overdue / due-reminder notifications for this record.
+      ref
+          .read(rentNotificationServiceProvider)
+          .asData
+          ?.value
+          .cancelRentNotifications(widget.record.id)
+          .catchError((e) => null);
+
       if (!mounted) return;
 
       // Invalidate generation service so RentListScreen refreshes

@@ -9,17 +9,75 @@ part of 'alert_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
+@ProviderFor(alertGeneratorService)
+final alertGeneratorServiceProvider = AlertGeneratorServiceProvider._();
+
+final class AlertGeneratorServiceProvider
+    extends
+        $FunctionalProvider<
+          AlertGeneratorService,
+          AlertGeneratorService,
+          AlertGeneratorService
+        >
+    with $Provider<AlertGeneratorService> {
+  AlertGeneratorServiceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'alertGeneratorServiceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$alertGeneratorServiceHash();
+
+  @$internal
+  @override
+  $ProviderElement<AlertGeneratorService> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  AlertGeneratorService create(Ref ref) {
+    return alertGeneratorService(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AlertGeneratorService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AlertGeneratorService>(value),
+    );
+  }
+}
+
+String _$alertGeneratorServiceHash() =>
+    r'61e5e12a7fe24b4e3133f8a9627279302a41b0bb';
+
+/// Async provider — returns real alerts from all module generators.
+/// Re-runs when the selected ground changes.
+
 @ProviderFor(alerts)
 final alertsProvider = AlertsProvider._();
+
+/// Async provider — returns real alerts from all module generators.
+/// Re-runs when the selected ground changes.
 
 final class AlertsProvider
     extends
         $FunctionalProvider<
+          AsyncValue<List<DashboardAlert>>,
           List<DashboardAlert>,
-          List<DashboardAlert>,
-          List<DashboardAlert>
+          FutureOr<List<DashboardAlert>>
         >
-    with $Provider<List<DashboardAlert>> {
+    with
+        $FutureModifier<List<DashboardAlert>>,
+        $FutureProvider<List<DashboardAlert>> {
+  /// Async provider — returns real alerts from all module generators.
+  /// Re-runs when the selected ground changes.
   AlertsProvider._()
     : super(
         from: null,
@@ -36,22 +94,14 @@ final class AlertsProvider
 
   @$internal
   @override
-  $ProviderElement<List<DashboardAlert>> $createElement(
+  $FutureProviderElement<List<DashboardAlert>> $createElement(
     $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
+  ) => $FutureProviderElement(pointer);
 
   @override
-  List<DashboardAlert> create(Ref ref) {
+  FutureOr<List<DashboardAlert>> create(Ref ref) {
     return alerts(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(List<DashboardAlert> value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<List<DashboardAlert>>(value),
-    );
   }
 }
 
-String _$alertsHash() => r'1d19585da59d41aa2aee9bf69fe0f883d5bc496c';
+String _$alertsHash() => r'b2b409ab517365ef8d5251a48bb6bd0906565182';

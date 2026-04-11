@@ -1,13 +1,22 @@
 import 'package:flutter/foundation.dart';
-import 'package:hms/core/services/activity_log_service.dart';
 import 'package:hms/core/models/recurring_record.dart';
+import 'package:hms/core/services/activity_log_service.dart';
 import 'package:hms/core/services/recurring_transaction_service.dart';
+import 'package:hms/features/rent/services/rent_notification_service.dart';
 
 class RentGenerationService {
-  RentGenerationService(this._recurringService, this._activityLogService);
+  RentGenerationService(
+    this._recurringService,
+    this._activityLogService, {
+    this.notificationService,
+  });
 
   final RecurringTransactionService _recurringService;
   final ActivityLogService _activityLogService;
+
+  /// Optional — injected after the notification service is ready.
+  /// Null in tests that don't need notification side-effects.
+  final RentNotificationService? notificationService;
 
   /// Returns the current period string in "YYYY-MM" format.
   String getCurrentPeriod() {
@@ -23,8 +32,6 @@ class RentGenerationService {
   }
 
   /// Generates rent records for the current month.
-  /// Delegates to [RecurringTransactionService.generateMonthlyRecords] and
-  /// filters to count only records of type "rent".
   /// Idempotent — safe to call on every app startup.
   Future<int> generateCurrentMonth({required String userId}) async {
     return generateForMonth(
@@ -36,6 +43,7 @@ class RentGenerationService {
 
   /// Generates rent records for a specific month (useful for backfilling).
   /// Returns the number of rent records newly created.
+  /// Schedules due-reminder notifications for each newly created record.
   Future<int> generateForMonth({
     required String userId,
     required int year,
@@ -47,32 +55,44 @@ class RentGenerationService {
       forDate: forDate,
     );
 
-    // Count only rent-type records by fetching what was created.
-    // generateMonthlyRecords creates records across all config types; we need
-    // just the rent count for the caller.
     final period = _periodFor(year, month);
     final rentRecords = await _recurringService.getRecordsForPeriod(
       type: 'rent',
       period: period,
     );
 
-    final newRentCount = rentRecords
+    final newRecords = rentRecords
         .where((r) => createdIds.contains(r.id))
-        .length;
+        .toList();
 
-    if (newRentCount > 0) {
+    if (newRecords.isNotEmpty) {
       debugPrint(
-        'RentGenerationService: $newRentCount rent records created for $period',
+        'RentGenerationService: ${newRecords.length} rent records created for $period',
       );
       await _activityLogService.log(
         userId: userId,
         action: 'created',
         module: 'rent',
-        description: 'Auto-generated $newRentCount rent records for $period',
+        description:
+            'Auto-generated ${newRecords.length} rent records for $period',
       );
+
+      // Schedule due-reminder notifications for each new record.
+      if (notificationService != null) {
+        for (final record in newRecords) {
+          notificationService!
+              .scheduleRentDueReminder(rentRecord: record, userId: userId)
+              .catchError((e) {
+                debugPrint(
+                  'Failed to schedule due reminder for ${record.id}: $e',
+                );
+                return;
+              });
+        }
+      }
     }
 
-    return newRentCount;
+    return newRecords.length;
   }
 
   /// Returns true if at least one rent record exists for the current month.

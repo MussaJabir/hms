@@ -6,6 +6,7 @@ import 'package:hms/core/providers/providers.dart';
 import 'package:hms/core/router/app_router.dart';
 import 'package:hms/core/theme/theme.dart';
 import 'package:hms/features/rent/providers/rent_generation_providers.dart';
+import 'package:hms/features/rent/providers/rent_summary_providers.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,6 +38,15 @@ class HmsApp extends ConsumerWidget {
           svc.generateCurrentMonth(userId: uid).catchError((e) {
             debugPrint('Auto rent generation failed: $e');
             return 0;
+          });
+
+          // Schedule overdue notifications after the notification service
+          // is ready (it's async — use .asData to avoid blocking startup).
+          ref.read(rentNotificationServiceProvider.future).then((notifSvc) {
+            notifSvc.scheduleOverdueNotifications(userId: uid).catchError((e) {
+              debugPrint('Overdue notification scheduling failed: $e');
+              return;
+            });
           });
         });
       }

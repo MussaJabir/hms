@@ -22,7 +22,7 @@ class HomeScreen extends ConsumerWidget {
     final isSuperAdmin = profile?.isSuperAdmin ?? false;
     final displayName = profile?.displayName ?? '';
     final email = profile?.email ?? '';
-    final alertCount = ref.watch(alertsProvider).length;
+    final alertCount = ref.watch(alertsProvider).asData?.value.length ?? 0;
     final groundsAsync = ref.watch(allGroundsProvider);
     final hasGrounds = groundsAsync.asData?.value.isNotEmpty ?? true;
 

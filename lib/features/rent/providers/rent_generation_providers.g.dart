@@ -55,7 +55,7 @@ final class RentGenerationServiceProvider
 }
 
 String _$rentGenerationServiceHash() =>
-    r'ac6600ebb6d62dfc885a9d0d4d25ccb29877b0ff';
+    r'f7c9de2f67608d0990de929495c3e122a04f388e';
 
 /// Returns true when at least one rent record exists for the current month.
 

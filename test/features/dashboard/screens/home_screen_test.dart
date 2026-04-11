@@ -79,7 +79,8 @@ Widget _wrap({
       ),
       connectivityProvider.overrideWith((ref) => Stream.value(true)),
       allGroundsProvider.overrideWith((ref) => Stream.value(groundList)),
-      if (alerts != null) alertsProvider.overrideWithValue(alerts),
+      if (alerts != null)
+        alertsProvider.overrideWith((ref) => Future.value(alerts)),
     ],
     child: const MaterialApp(home: HomeScreen()),
   );

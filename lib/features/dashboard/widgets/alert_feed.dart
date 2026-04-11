@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hms/core/theme/app_spacing.dart';
-import 'package:hms/core/widgets/alert_card.dart';
-import 'package:hms/core/widgets/empty_state_presets.dart';
+import 'package:hms/core/widgets/widgets.dart';
 import 'package:hms/features/dashboard/models/dashboard_alert.dart';
 import 'package:hms/features/dashboard/providers/alert_provider.dart';
 
@@ -19,43 +18,70 @@ class _AlertFeedState extends ConsumerState<AlertFeed> {
 
   @override
   Widget build(BuildContext context) {
-    final allAlerts = ref.watch(alertsProvider);
-    final visible = allAlerts
-        .where((a) => !_dismissed.contains(a.id))
-        .take(10)
-        .toList();
+    final alertsAsync = ref.watch(alertsProvider);
 
-    if (visible.isEmpty) {
-      return Padding(
+    return alertsAsync.when(
+      loading: () => const Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: AppSpacing.screenPadding,
+          vertical: AppSpacing.md,
+        ),
+        child: ShimmerList(itemCount: 3, type: ShimmerListType.alertCard),
+      ),
+      error: (e, _) => Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.screenPadding,
           vertical: AppSpacing.lg,
         ),
-        child: EmptyStatePresets.noAlerts(),
-      );
-    }
-
-    return ListView.separated(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.screenPadding,
-        vertical: AppSpacing.md,
+        child: Column(
+          children: [
+            Text('Could not load alerts: $e'),
+            TextButton(
+              onPressed: () => ref.invalidate(alertsProvider),
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
       ),
-      itemCount: visible.length,
-      separatorBuilder: (context, index) =>
-          const SizedBox(height: AppSpacing.sm),
-      itemBuilder: (context, index) {
-        final alert = visible[index];
-        return _AlertFeedItem(
-          alert: alert,
-          onDismiss: () => setState(() => _dismissed.add(alert.id)),
-          onTap: alert.targetRoute != null
-              ? () => context.push(alert.targetRoute!)
-              : null,
-          onAction: alert.targetRoute != null && alert.actionLabel != null
-              ? () => context.push(alert.targetRoute!)
-              : null,
+      data: (allAlerts) {
+        final visible = allAlerts
+            .where((a) => !_dismissed.contains(a.id))
+            .take(10)
+            .toList();
+
+        if (visible.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.screenPadding,
+              vertical: AppSpacing.lg,
+            ),
+            child: EmptyStatePresets.noAlerts(),
+          );
+        }
+
+        return ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.screenPadding,
+            vertical: AppSpacing.md,
+          ),
+          itemCount: visible.length,
+          separatorBuilder: (context, index) =>
+              const SizedBox(height: AppSpacing.sm),
+          itemBuilder: (context, index) {
+            final alert = visible[index];
+            return _AlertFeedItem(
+              alert: alert,
+              onDismiss: () => setState(() => _dismissed.add(alert.id)),
+              onTap: alert.targetRoute != null
+                  ? () => context.push(alert.targetRoute!)
+                  : null,
+              onAction: alert.targetRoute != null && alert.actionLabel != null
+                  ? () => context.push(alert.targetRoute!)
+                  : null,
+            );
+          },
         );
       },
     );
