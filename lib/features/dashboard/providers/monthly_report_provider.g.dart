@@ -55,19 +55,27 @@ final class MonthlyReportServiceProvider
 }
 
 String _$monthlyReportServiceHash() =>
-    r'2774b86b554e55fb58b9347d9960aadfd5c93368';
+    r'725529490ed8ca31c40592c15122aad4451cf1b0';
 
 /// Returns the report for [period] ("yyyy-MM"). Defaults to current month.
+/// Reacts to the selected ground via [currentGroundProvider].
 
 @ProviderFor(monthlyReport)
 final monthlyReportProvider = MonthlyReportFamily._();
 
 /// Returns the report for [period] ("yyyy-MM"). Defaults to current month.
+/// Reacts to the selected ground via [currentGroundProvider].
 
 final class MonthlyReportProvider
-    extends $FunctionalProvider<MonthlyReport, MonthlyReport, MonthlyReport>
-    with $Provider<MonthlyReport> {
+    extends
+        $FunctionalProvider<
+          AsyncValue<MonthlyReport>,
+          MonthlyReport,
+          FutureOr<MonthlyReport>
+        >
+    with $FutureModifier<MonthlyReport>, $FutureProvider<MonthlyReport> {
   /// Returns the report for [period] ("yyyy-MM"). Defaults to current month.
+  /// Reacts to the selected ground via [currentGroundProvider].
   MonthlyReportProvider._({
     required MonthlyReportFamily super.from,
     required String? super.argument,
@@ -91,21 +99,14 @@ final class MonthlyReportProvider
 
   @$internal
   @override
-  $ProviderElement<MonthlyReport> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
+  $FutureProviderElement<MonthlyReport> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
 
   @override
-  MonthlyReport create(Ref ref) {
+  FutureOr<MonthlyReport> create(Ref ref) {
     final argument = this.argument as String?;
     return monthlyReport(ref, period: argument);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(MonthlyReport value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<MonthlyReport>(value),
-    );
   }
 
   @override
@@ -119,12 +120,13 @@ final class MonthlyReportProvider
   }
 }
 
-String _$monthlyReportHash() => r'aa40d42b4c8f5a4ea7ecbceb189e2119c40fdc01';
+String _$monthlyReportHash() => r'6ad786670490e594acf7b86615e196d6d7170cc6';
 
 /// Returns the report for [period] ("yyyy-MM"). Defaults to current month.
+/// Reacts to the selected ground via [currentGroundProvider].
 
 final class MonthlyReportFamily extends $Family
-    with $FunctionalFamilyOverride<MonthlyReport, String?> {
+    with $FunctionalFamilyOverride<FutureOr<MonthlyReport>, String?> {
   MonthlyReportFamily._()
     : super(
         retry: null,
@@ -135,6 +137,7 @@ final class MonthlyReportFamily extends $Family
       );
 
   /// Returns the report for [period] ("yyyy-MM"). Defaults to current month.
+  /// Reacts to the selected ground via [currentGroundProvider].
 
   MonthlyReportProvider call({String? period}) =>
       MonthlyReportProvider._(argument: period, from: this);

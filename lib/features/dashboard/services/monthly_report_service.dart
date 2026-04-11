@@ -1,28 +1,37 @@
 import 'package:hms/features/dashboard/models/monthly_report.dart';
+import 'package:hms/features/rent/services/rent_summary_service.dart';
 
 /// Generates the monthly financial report.
 ///
-/// Each section is independently computable so modules can be wired one by one.
-/// Real data will be sourced from the Finance module (Phase 7).
+/// Rent data is sourced from [RentSummaryService]. Other modules (expenses,
+/// budgets, stock) still use mock data until their phases are built.
 class MonthlyReportService {
-  const MonthlyReportService();
+  const MonthlyReportService(this._rentSummaryService);
+
+  final RentSummaryService _rentSummaryService;
 
   /// Returns the report for [period] in "yyyy-MM" format.
-  MonthlyReport getReport(String period) {
-    return _mockReport(period);
-  }
+  /// [groundId] filters by ground when non-null.
+  Future<MonthlyReport> getReport(String period, {String? groundId}) async {
+    final rentExpected = await _rentSummaryService.getCurrentMonthExpected(
+      groundId: groundId,
+    );
+    final rentCollected = await _rentSummaryService.getCurrentMonthCollected(
+      groundId: groundId,
+    );
 
-  // ---------------------------------------------------------------------------
-  // Mock data — replace per-section when each module is built
-  // ---------------------------------------------------------------------------
+    // Non-rent income/expense data is mock until Phase 7 (Finance).
+    // totalIncome = collected rent + other mock income (200k placeholder).
+    const otherIncome = 200000.0;
+    final totalIncome = rentCollected + otherIncome;
+    const totalExpenses = 620000.0;
 
-  MonthlyReport _mockReport(String period) {
     return MonthlyReport(
       period: period,
-      totalIncome: 850000,
-      totalExpenses: 620000,
-      rentExpected: 750000,
-      rentCollected: 650000,
+      totalIncome: totalIncome,
+      totalExpenses: totalExpenses,
+      rentExpected: rentExpected,
+      rentCollected: rentCollected,
       topExpenses: const [
         ExpenseCategory(name: 'Electricity', amount: 180000),
         ExpenseCategory(name: 'Water Bills', amount: 120000),
@@ -32,20 +41,16 @@ class MonthlyReportService {
       ],
       overdueItems: const [
         OverdueItem(
-          title: 'Unit 4B — Rent Payment',
-          module: 'Rent',
-          daysOverdue: 5,
-        ),
-        OverdueItem(
           title: 'TANESCO Bill — Main Ground',
           module: 'Electricity',
           daysOverdue: 2,
         ),
       ],
-      mainGroundIncome: 540000,
-      mainGroundExpenses: 380000,
-      minorGroundIncome: 310000,
-      minorGroundExpenses: 240000,
+      // Per-ground breakdowns require Finance data; kept as mock for now.
+      mainGroundIncome: totalIncome * 0.63,
+      mainGroundExpenses: totalExpenses * 0.61,
+      minorGroundIncome: totalIncome * 0.37,
+      minorGroundExpenses: totalExpenses * 0.39,
     );
   }
 }

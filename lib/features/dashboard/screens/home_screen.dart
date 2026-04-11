@@ -4,10 +4,12 @@ import 'package:go_router/go_router.dart';
 import 'package:hms/core/services/services.dart';
 import 'package:hms/core/theme/theme.dart';
 import 'package:hms/core/widgets/widgets.dart';
+import 'package:hms/core/utils/currency_formatter.dart';
 import 'package:hms/features/auth/providers/user_providers.dart';
 import 'package:hms/features/dashboard/providers/alert_provider.dart';
 import 'package:hms/features/dashboard/widgets/widgets.dart';
 import 'package:hms/features/grounds/providers/ground_providers.dart';
+import 'package:hms/features/rent/providers/rent_summary_providers.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -77,6 +79,8 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
+                // ── Rent Summary ─────────────────────────────────────────
+                const _RentSummaryTile(),
                 // ── Needs Attention ───────────────────────────────────────
                 Padding(
                   padding: const EdgeInsets.fromLTRB(
@@ -96,6 +100,61 @@ class HomeScreen extends ConsumerWidget {
               const SizedBox(height: 80),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Rent summary tile ─────────────────────────────────────────────────────
+
+class _RentSummaryTile extends ConsumerWidget {
+  const _RentSummaryTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final collectedAsync = ref.watch(currentMonthCollectedProvider);
+    final expectedAsync = ref.watch(currentMonthExpectedProvider);
+    final rateAsync = ref.watch(currentMonthCollectionRateProvider);
+
+    final collected = collectedAsync.asData?.value ?? 0.0;
+    final expected = expectedAsync.asData?.value ?? 0.0;
+    final rate = rateAsync.asData?.value ?? 0.0;
+
+    final isLoading = collectedAsync.isLoading || expectedAsync.isLoading;
+
+    if (isLoading) {
+      return const Padding(
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.screenPadding,
+          AppSpacing.md,
+          AppSpacing.screenPadding,
+          0,
+        ),
+        child: ShimmerBox(height: 72, borderRadius: AppSpacing.borderRadius),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.screenPadding,
+        AppSpacing.md,
+        AppSpacing.screenPadding,
+        0,
+      ),
+      child: InkWell(
+        onTap: () => context.push('/rent'),
+        borderRadius: BorderRadius.circular(AppSpacing.borderRadius),
+        child: SummaryTile(
+          label: 'Rent This Month',
+          value:
+              '${formatTZS(collected, short: true)} / ${formatTZS(expected, short: true)}',
+          icon: Icons.home_work_outlined,
+          trend: rate >= 80
+              ? TrendDirection.up
+              : (rate > 0 ? TrendDirection.flat : null),
+          trendText: rate > 0 ? '${rate.toStringAsFixed(0)}% collected' : null,
+          compact: true,
         ),
       ),
     );

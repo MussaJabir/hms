@@ -57,12 +57,26 @@ final class HealthScoreServiceProvider
 String _$healthScoreServiceHash() =>
     r'4c97369c268a377fede6f8d9d47e2dc7019b9751';
 
+/// Health score computed with real rent data.
+///
+/// Watches [currentMonthCollectionRateProvider] (async) and falls back to 0
+/// while the data is loading or on error, so the card always renders.
+
 @ProviderFor(healthScore)
 final healthScoreProvider = HealthScoreProvider._();
+
+/// Health score computed with real rent data.
+///
+/// Watches [currentMonthCollectionRateProvider] (async) and falls back to 0
+/// while the data is loading or on error, so the card always renders.
 
 final class HealthScoreProvider
     extends $FunctionalProvider<HealthScore, HealthScore, HealthScore>
     with $Provider<HealthScore> {
+  /// Health score computed with real rent data.
+  ///
+  /// Watches [currentMonthCollectionRateProvider] (async) and falls back to 0
+  /// while the data is loading or on error, so the card always renders.
   HealthScoreProvider._()
     : super(
         from: null,
@@ -96,4 +110,4 @@ final class HealthScoreProvider
   }
 }
 
-String _$healthScoreHash() => r'ebf55ad961ba3653fe25624c403a8cd0e3bb9e30';
+String _$healthScoreHash() => r'6af8e775298e65e5327dca1b113671116c8b9a7c';

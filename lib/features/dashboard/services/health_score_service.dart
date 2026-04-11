@@ -8,18 +8,6 @@ import 'package:hms/features/dashboard/models/health_score.dart';
 class HealthScoreService {
   const HealthScoreService();
 
-  /// Returns the current month's health score.
-  ///
-  /// Scoring logic per module (to be wired later):
-  /// - rent:    % of active units with rent paid on time this month
-  /// - bills:   % of bills paid before due date
-  /// - stock:   % of tracked items above minimum threshold
-  /// - overdue: inverse of % overdue items (0 overdue = 100)
-  /// - budget:  % of budget categories within planned limit
-  HealthScore calculateScore() {
-    return _mockScore();
-  }
-
   /// Calculates the rent score independently (0–100).
   /// [paidOnTime] units paid on time, [total] active units.
   double calculateRentScore({required int paidOnTime, required int total}) {
@@ -56,14 +44,16 @@ class HealthScoreService {
     return (withinLimit / total) * 100;
   }
 
-  // ---------------------------------------------------------------------------
-  // Mock data — remove and replace with real calculations when modules are built
-  // ---------------------------------------------------------------------------
-
-  HealthScore _mockScore() {
-    return const HealthScore(
-      rentScore: 75,
-      rentActive: true,
+  /// Builds a [HealthScore] using real rent data plus mock data for modules
+  /// that have not yet been wired (bills, stock, overdue, budget).
+  ///
+  /// [rentRate] is the rent collection rate (0–100).
+  /// [rentActive] is true when at least one rent record exists this month.
+  HealthScore buildScore({required double rentRate, required bool rentActive}) {
+    return HealthScore(
+      rentScore: rentRate,
+      rentActive: rentActive,
+      // Remaining modules use mock values until their phases are built.
       budgetScore: 60,
       budgetActive: true,
     );

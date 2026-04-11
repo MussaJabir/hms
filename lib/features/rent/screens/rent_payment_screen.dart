@@ -7,6 +7,7 @@ import 'package:hms/core/theme/theme.dart';
 import 'package:hms/core/utils/currency_formatter.dart';
 import 'package:hms/core/widgets/widgets.dart';
 import 'package:hms/features/rent/providers/rent_generation_providers.dart';
+import 'package:hms/features/rent/providers/rent_summary_providers.dart';
 import 'package:hms/features/rent/widgets/widgets.dart';
 import 'package:intl/intl.dart';
 
@@ -111,6 +112,25 @@ class _RentPaymentScreenState extends ConsumerState<RentPaymentScreen> {
         documentId: widget.record.id,
         collectionPath: widget.collectionPath,
       );
+
+      // Auto-link payment as income so Phase 7 (Finance) picks it up.
+      final pathParts = widget.collectionPath.split('/');
+      // collectionPath: grounds/{groundId}/rental_units/{unitId}/rent_payments
+      if (pathParts.length >= 4) {
+        final groundId = pathParts[1];
+        final unitId = pathParts[3];
+        await ref
+            .read(rentIncomeLinkServiceProvider)
+            .createIncomeFromRentPayment(
+              groundId: groundId,
+              tenantId: widget.record.linkedEntityId,
+              tenantName: widget.record.linkedEntityName,
+              unitName: unitId,
+              rentRecordId: widget.record.id,
+              amount: _amount,
+              userId: uid,
+            );
+      }
 
       if (!mounted) return;
 

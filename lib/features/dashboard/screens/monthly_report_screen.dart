@@ -53,33 +53,40 @@ class _MonthlyReportScreenState extends ConsumerState<MonthlyReportScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final report = ref.watch(monthlyReportProvider(period: _period));
+    final reportAsync = ref.watch(monthlyReportProvider(period: _period));
 
     return Scaffold(
       appBar: AppBar(title: const Text('Monthly Report')),
       body: OfflineBanner(
-        child: ListView(
-          padding: const EdgeInsets.all(AppSpacing.screenPadding),
-          children: [
-            _MonthHeader(
-              label: _headerLabel,
-              onPrev: _prevMonth,
-              onNext: _nextMonth,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            _NetPositionCard(report: report),
-            const SizedBox(height: AppSpacing.md),
-            _IncomeExpensesRow(report: report),
-            const SizedBox(height: AppSpacing.md),
-            _RentCollectionCard(report: report),
-            const SizedBox(height: AppSpacing.md),
-            _TopExpensesSection(expenses: report.topExpenses),
-            const SizedBox(height: AppSpacing.md),
-            _OverdueSection(items: report.overdueItems),
-            const SizedBox(height: AppSpacing.md),
-            _PerGroundSection(report: report),
-            const SizedBox(height: AppSpacing.lg),
-          ],
+        child: reportAsync.when(
+          loading: () => const Padding(
+            padding: EdgeInsets.all(AppSpacing.screenPadding),
+            child: ShimmerList(itemCount: 5),
+          ),
+          error: (e, _) => Center(child: Text('Error: $e')),
+          data: (report) => ListView(
+            padding: const EdgeInsets.all(AppSpacing.screenPadding),
+            children: [
+              _MonthHeader(
+                label: _headerLabel,
+                onPrev: _prevMonth,
+                onNext: _nextMonth,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _NetPositionCard(report: report),
+              const SizedBox(height: AppSpacing.md),
+              _IncomeExpensesRow(report: report),
+              const SizedBox(height: AppSpacing.md),
+              _RentCollectionCard(report: report),
+              const SizedBox(height: AppSpacing.md),
+              _TopExpensesSection(expenses: report.topExpenses),
+              const SizedBox(height: AppSpacing.md),
+              _OverdueSection(items: report.overdueItems),
+              const SizedBox(height: AppSpacing.md),
+              _PerGroundSection(report: report),
+              const SizedBox(height: AppSpacing.lg),
+            ],
+          ),
         ),
       ),
     );
