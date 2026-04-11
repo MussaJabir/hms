@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hms/core/providers/providers.dart';
 import 'package:hms/core/theme/theme.dart';
 
 class _QuickAction {
@@ -49,13 +51,14 @@ const _actions = [
   ),
 ];
 
-class QuickAddBottomSheet extends StatelessWidget {
+class QuickAddBottomSheet extends ConsumerWidget {
   const QuickAddBottomSheet({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final currentGroundId = ref.watch(currentGroundProvider);
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -83,7 +86,10 @@ class QuickAddBottomSheet extends StatelessWidget {
               ),
               child: Text('Quick Add', style: theme.textTheme.headlineSmall),
             ),
-            ..._actions.map((action) => _ActionTile(action: action)),
+            ..._actions.map(
+              (action) =>
+                  _ActionTile(action: action, currentGroundId: currentGroundId),
+            ),
             const SizedBox(height: AppSpacing.md),
           ],
         ),
@@ -93,9 +99,10 @@ class QuickAddBottomSheet extends StatelessWidget {
 }
 
 class _ActionTile extends StatelessWidget {
-  const _ActionTile({required this.action});
+  const _ActionTile({required this.action, required this.currentGroundId});
 
   final _QuickAction action;
+  final String? currentGroundId;
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +114,19 @@ class _ActionTile extends StatelessWidget {
         Navigator.of(context).pop();
         if (action.module == 'Rent') {
           context.push('/rent');
+          return;
+        }
+        if (action.module == 'Electricity') {
+          if (currentGroundId != null) {
+            context.push('/grounds/$currentGroundId/quick-reading');
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Select a ground first'),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
           return;
         }
         ScaffoldMessenger.of(context).showSnackBar(

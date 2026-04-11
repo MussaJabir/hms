@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hms/core/theme/app_spacing.dart';
 import 'package:intl/intl.dart';
+import 'package:hms/core/theme/app_spacing.dart';
 import 'package:hms/core/widgets/widgets.dart';
 import 'package:hms/features/electricity/models/electricity_meter.dart';
 import 'package:hms/features/electricity/providers/meter_providers.dart';
@@ -23,7 +23,16 @@ class ElectricityOverviewScreen extends ConsumerWidget {
     final groundName = groundAsync.asData?.value?.name ?? 'Ground';
 
     return Scaffold(
-      appBar: AppBar(title: Text('$groundName — Electricity')),
+      appBar: AppBar(
+        title: Text('$groundName — Electricity'),
+        actions: [
+          TextButton.icon(
+            onPressed: () => context.push('/grounds/$groundId/quick-reading'),
+            icon: const Icon(Icons.bolt_outlined, size: 18),
+            label: const Text('Quick Reading'),
+          ),
+        ],
+      ),
       body: unitsAsync.when(
         loading: () => const Padding(
           padding: EdgeInsets.all(AppSpacing.screenPadding),
@@ -116,8 +125,7 @@ class _UnitMeterCard extends ConsumerWidget {
           '${meter.meterNumber} · ${meter.currentReading.toStringAsFixed(1)} units\n$lastReadingText',
       showChevron: true,
       onTap: () => context.push(
-        '/grounds/$groundId/units/${unit.id}/meter/register',
-        extra: meter,
+        '/grounds/$groundId/units/${unit.id}/meter/${meter.id}/record',
       ),
     );
   }

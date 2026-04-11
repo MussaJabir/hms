@@ -147,6 +147,12 @@ GoRouter appRouter(Ref ref) {
                 ),
               ),
               GoRoute(
+                path: 'quick-reading',
+                builder: (context, state) => QuickReadingScreen(
+                  groundId: state.pathParameters['groundId']!,
+                ),
+              ),
+              GoRoute(
                 path: 'units',
                 builder: (context, state) =>
                     UnitListScreen(groundId: state.pathParameters['groundId']!),
@@ -185,6 +191,14 @@ GoRouter appRouter(Ref ref) {
                       groundId: state.pathParameters['groundId']!,
                       unitId: state.pathParameters['unitId']!,
                       currentMeterId: state.extra as String,
+                    ),
+                  ),
+                  GoRoute(
+                    path: ':unitId/meter/:meterId/record',
+                    builder: (context, state) => RecordReadingScreen(
+                      groundId: state.pathParameters['groundId']!,
+                      unitId: state.pathParameters['unitId']!,
+                      meterId: state.pathParameters['meterId']!,
                     ),
                   ),
                   GoRoute(
