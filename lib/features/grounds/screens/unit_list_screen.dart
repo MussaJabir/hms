@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hms/core/theme/app_spacing.dart';
 import 'package:hms/core/utils/currency_formatter.dart';
 import 'package:hms/core/widgets/widgets.dart';
+import 'package:hms/features/electricity/providers/meter_providers.dart';
 import 'package:hms/features/grounds/models/rental_unit.dart';
 import 'package:hms/features/grounds/providers/ground_providers.dart';
 import 'package:hms/features/grounds/providers/rental_unit_providers.dart';
@@ -81,6 +82,8 @@ class _UnitCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final tenantAsync = ref.watch(currentTenantProvider(groundId, unit.id));
     final tenant = tenantAsync.asData?.value;
+    final meterAsync = ref.watch(activeMeterProvider(groundId, unit.id));
+    final hasMeter = meterAsync.asData?.value != null;
 
     final String subtitle;
     final VoidCallback onTap;
@@ -89,11 +92,10 @@ class _UnitCard extends ConsumerWidget {
       subtitle = tenant.fullName;
       onTap = () => context.push('/grounds/$groundId/units/${unit.id}/tenant');
     } else if (unit.isOccupied) {
-      // Occupied but tenant not loaded yet
       subtitle = '${formatTZS(unit.rentAmount)} /month';
       onTap = () => context.push('/grounds/$groundId/units/${unit.id}/tenant');
     } else {
-      subtitle = 'Vacant — tap to add tenant';
+      subtitle = hasMeter ? 'Vacant' : 'Vacant — no meter';
       onTap = () =>
           context.push('/grounds/$groundId/units/${unit.id}/tenant/add');
     }
@@ -106,7 +108,21 @@ class _UnitCard extends ConsumerWidget {
       leadingIcon: Icons.door_front_door_outlined,
       title: unit.name,
       subtitle: subtitle,
-      trailing: StatusBadge(status: status),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (hasMeter)
+            Padding(
+              padding: const EdgeInsets.only(right: AppSpacing.xs),
+              child: Icon(
+                Icons.electric_meter_outlined,
+                size: 16,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          StatusBadge(status: status),
+        ],
+      ),
       showChevron: true,
       onTap: onTap,
     );

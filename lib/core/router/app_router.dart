@@ -6,6 +6,8 @@ import 'package:hms/features/auth/screens/screens.dart';
 import 'package:hms/features/dashboard/screens/home_screen.dart';
 import 'package:hms/features/dashboard/screens/monthly_report_screen.dart';
 import 'package:hms/core/models/ground.dart';
+import 'package:hms/features/electricity/models/electricity_meter.dart';
+import 'package:hms/features/electricity/screens/screens.dart';
 import 'package:hms/features/grounds/models/rental_unit.dart';
 import 'package:hms/features/grounds/models/tenant.dart';
 import 'package:hms/features/grounds/screens/screens.dart';
@@ -139,6 +141,12 @@ GoRouter appRouter(Ref ref) {
                     AddGroundScreen(ground: state.extra as Ground?),
               ),
               GoRoute(
+                path: 'electricity',
+                builder: (context, state) => ElectricityOverviewScreen(
+                  groundId: state.pathParameters['groundId']!,
+                ),
+              ),
+              GoRoute(
                 path: 'units',
                 builder: (context, state) =>
                     UnitListScreen(groundId: state.pathParameters['groundId']!),
@@ -154,6 +162,29 @@ GoRouter appRouter(Ref ref) {
                     builder: (context, state) => AddUnitScreen(
                       groundId: state.pathParameters['groundId']!,
                       unit: state.extra as RentalUnit?,
+                    ),
+                  ),
+                  GoRoute(
+                    path: ':unitId/meter/register',
+                    builder: (context, state) => MeterRegistrationScreen(
+                      groundId: state.pathParameters['groundId']!,
+                      unitId: state.pathParameters['unitId']!,
+                    ),
+                  ),
+                  GoRoute(
+                    path: ':unitId/meter/edit',
+                    builder: (context, state) => MeterRegistrationScreen(
+                      groundId: state.pathParameters['groundId']!,
+                      unitId: state.pathParameters['unitId']!,
+                      meter: state.extra as ElectricityMeter?,
+                    ),
+                  ),
+                  GoRoute(
+                    path: ':unitId/meter/replace',
+                    builder: (context, state) => MeterReplacementScreen(
+                      groundId: state.pathParameters['groundId']!,
+                      unitId: state.pathParameters['unitId']!,
+                      currentMeterId: state.extra as String,
                     ),
                   ),
                   GoRoute(

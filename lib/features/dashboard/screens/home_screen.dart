@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hms/core/providers/providers.dart';
 import 'package:hms/core/services/services.dart';
 import 'package:hms/core/theme/theme.dart';
 import 'package:hms/core/widgets/widgets.dart';
@@ -281,6 +282,8 @@ class _AppDrawer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final currentGroundId = ref.watch(currentGroundProvider);
+
     return Drawer(
       child: SafeArea(
         child: Column(
@@ -320,6 +323,18 @@ class _AppDrawer extends ConsumerWidget {
               onTap: () {
                 Navigator.of(context).pop();
                 context.go('/rent');
+              },
+            ),
+            _DrawerNavItem(
+              icon: Icons.electric_meter_outlined,
+              title: 'Electricity',
+              onTap: () {
+                Navigator.of(context).pop();
+                if (currentGroundId != null) {
+                  context.push('/grounds/$currentGroundId/electricity');
+                } else {
+                  context.go('/grounds');
+                }
               },
             ),
             if (isSuperAdmin)
