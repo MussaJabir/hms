@@ -153,6 +153,12 @@ GoRouter appRouter(Ref ref) {
                 ),
               ),
               GoRoute(
+                path: 'electricity/ground-consumption',
+                builder: (context, state) => GroundConsumptionScreen(
+                  groundId: state.pathParameters['groundId']!,
+                ),
+              ),
+              GoRoute(
                 path: 'units',
                 builder: (context, state) =>
                     UnitListScreen(groundId: state.pathParameters['groundId']!),
@@ -196,6 +202,14 @@ GoRouter appRouter(Ref ref) {
                   GoRoute(
                     path: ':unitId/meter/:meterId/record',
                     builder: (context, state) => RecordReadingScreen(
+                      groundId: state.pathParameters['groundId']!,
+                      unitId: state.pathParameters['unitId']!,
+                      meterId: state.pathParameters['meterId']!,
+                    ),
+                  ),
+                  GoRoute(
+                    path: ':unitId/meter/:meterId/history',
+                    builder: (context, state) => ConsumptionHistoryScreen(
                       groundId: state.pathParameters['groundId']!,
                       unitId: state.pathParameters['unitId']!,
                       meterId: state.pathParameters['meterId']!,
