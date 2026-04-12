@@ -337,7 +337,7 @@ class _AppDrawer extends ConsumerWidget {
                 }
               },
             ),
-            if (isSuperAdmin)
+            if (isSuperAdmin) ...[
               _DrawerNavItem(
                 icon: Icons.people_outlined,
                 title: 'User Management',
@@ -346,6 +346,15 @@ class _AppDrawer extends ConsumerWidget {
                   context.go('/users');
                 },
               ),
+              _DrawerNavItem(
+                icon: Icons.tune_outlined,
+                title: 'TANESCO Settings',
+                onTap: () {
+                  Navigator.of(context).pop();
+                  context.push('/settings/tariffs');
+                },
+              ),
+            ],
             _DrawerNavItem(
               icon: Icons.settings_outlined,
               title: 'Settings',

@@ -275,6 +275,10 @@ GoRouter appRouter(Ref ref) {
         ],
       ),
       GoRoute(
+        path: '/settings/tariffs',
+        builder: (context, state) => const TariffConfigScreen(),
+      ),
+      GoRoute(
         path: '/users',
         builder: (context, state) => const UserManagementScreen(),
         routes: [

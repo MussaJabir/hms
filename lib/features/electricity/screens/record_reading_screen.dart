@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:hms/core/providers/providers.dart';
 import 'package:hms/core/theme/app_spacing.dart';
+import 'package:hms/core/utils/currency_formatter.dart';
 import 'package:hms/core/utils/validators.dart';
 import 'package:hms/core/widgets/widgets.dart';
 import 'package:hms/features/electricity/providers/meter_providers.dart';
 import 'package:hms/features/electricity/providers/meter_reading_providers.dart';
+import 'package:hms/features/electricity/providers/tariff_providers.dart';
 import 'package:hms/features/electricity/services/meter_reading_service.dart';
 import 'package:hms/features/grounds/providers/rental_unit_providers.dart';
 
@@ -156,11 +158,26 @@ class _RecordReadingScreenState extends ConsumerState<RecordReadingScreen> {
 
     // Live consumption display
     final isNegative = _liveConsumed != null && _liveConsumed! < prevReading;
+    final consumedUnits = (!isNegative && _liveConsumed != null)
+        ? _liveConsumed! - prevReading
+        : null;
     final consumedLabel = _liveConsumed == null
         ? '—'
         : isNegative
         ? 'Meter reset or replaced?'
-        : '${(_liveConsumed! - prevReading).toStringAsFixed(1)} units';
+        : '${consumedUnits!.toStringAsFixed(1)} units';
+
+    // Live cost estimate using current tariff tiers.
+    final tariffsAsync = ref.watch(currentTariffsProvider);
+    final tiers = tariffsAsync.asData?.value ?? [];
+    final liveCost = consumedUnits != null && tiers.isNotEmpty
+        ? ref
+              .read(tariffServiceProvider)
+              .calculateCostWithTiers(
+                unitsConsumed: consumedUnits,
+                tiers: tiers,
+              )
+        : null;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Record Reading')),
@@ -190,7 +207,7 @@ class _RecordReadingScreenState extends ConsumerState<RecordReadingScreen> {
                 textInputAction: TextInputAction.next,
               ),
               const SizedBox(height: AppSpacing.sm),
-              // ── Live consumption indicator ────────────────���───────────────
+              // ── Live consumption indicator ────────────────────────────────
               Row(
                 children: [
                   const Icon(Icons.bolt_outlined, size: 16),
@@ -206,6 +223,24 @@ class _RecordReadingScreenState extends ConsumerState<RecordReadingScreen> {
                   ),
                 ],
               ),
+              // ── Estimated cost ──────────────────────────────────────────
+              if (liveCost != null) ...[
+                const SizedBox(height: AppSpacing.xs),
+                Row(
+                  children: [
+                    const Icon(Icons.receipt_outlined, size: 16),
+                    const SizedBox(width: AppSpacing.xs),
+                    Text(
+                      'Estimated cost: ${formatTZS(liveCost)} (reference only)',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
               const SizedBox(height: AppSpacing.lg),
               // ── Date picker ──────────────────────────────────────────────
               HmsDatePicker(

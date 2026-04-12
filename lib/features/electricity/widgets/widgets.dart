@@ -1,1 +1,1 @@
-// Electricity module widgets barrel — widgets will be added in future branches.
+export 'tariff_tier_editor.dart';
