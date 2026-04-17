@@ -275,6 +275,10 @@ GoRouter appRouter(Ref ref) {
         ],
       ),
       GoRoute(
+        path: '/electricity/warnings',
+        builder: (context, state) => const ConsumptionWarningsScreen(),
+      ),
+      GoRoute(
         path: '/settings/tariffs',
         builder: (context, state) => const TariffConfigScreen(),
       ),

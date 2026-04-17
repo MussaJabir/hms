@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:hms/core/utils/currency_formatter.dart';
 import 'package:hms/core/widgets/alert_severity.dart';
 import 'package:hms/features/dashboard/models/dashboard_alert.dart';
+import 'package:hms/features/electricity/services/consumption_alert_service.dart';
 import 'package:hms/features/rent/services/rent_summary_service.dart';
 
 class AlertGeneratorService {
-  AlertGeneratorService(this._rentSummaryService);
+  AlertGeneratorService(
+    this._rentSummaryService,
+    this._consumptionAlertService,
+  );
 
   final RentSummaryService _rentSummaryService;
+  final ConsumptionAlertService _consumptionAlertService;
 
   /// Returns overdue rent alerts, filtered by [groundId] when non-null.
   /// Critical if > 7 days overdue, warning if ≤ 7 days.
@@ -49,7 +54,38 @@ class AlertGeneratorService {
 
   Future<List<DashboardAlert>> generateElectricityAlerts({
     String? groundId,
-  }) async => [];
+  }) async {
+    final warnings = await _consumptionAlertService.getActiveWarnings(
+      groundId: groundId,
+    );
+
+    final alerts = warnings.map((warning) {
+      final percentOver = warning.percentOverThreshold.toStringAsFixed(0);
+      return DashboardAlert(
+        id: 'electricity-${warning.unitId}-${warning.meterId}',
+        title: 'High Consumption',
+        message:
+            '${warning.unitName}: ${warning.actualConsumption.toStringAsFixed(1)} units '
+            '($percentOver% over threshold)',
+        severity: warning.severity,
+        icon: Icons.bolt_outlined,
+        module: 'electricity',
+        createdAt: warning.readingDate,
+        targetRoute: '/electricity/warnings',
+        actionLabel: 'View Details',
+      );
+    }).toList();
+
+    alerts.sort((a, b) {
+      final severityOrder = _severityOrder(
+        a.severity,
+      ).compareTo(_severityOrder(b.severity));
+      if (severityOrder != 0) return severityOrder;
+      return b.createdAt.compareTo(a.createdAt);
+    });
+
+    return alerts;
+  }
 
   Future<List<DashboardAlert>> generateWaterAlerts({String? groundId}) async =>
       [];

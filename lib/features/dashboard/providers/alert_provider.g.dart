@@ -55,7 +55,7 @@ final class AlertGeneratorServiceProvider
 }
 
 String _$alertGeneratorServiceHash() =>
-    r'61e5e12a7fe24b4e3133f8a9627279302a41b0bb';
+    r'da1bf6e3caa15270b4786561d9927b3575e08cc0';
 
 /// Async provider — returns real alerts from all module generators.
 /// Re-runs when the selected ground changes.

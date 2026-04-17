@@ -6,6 +6,11 @@ import 'package:hms/core/services/firestore_service.dart';
 import 'package:hms/core/services/recurring_transaction_service.dart';
 import 'package:hms/core/widgets/alert_severity.dart';
 import 'package:hms/features/dashboard/services/alert_generator_service.dart';
+import 'package:hms/features/electricity/services/consumption_alert_service.dart';
+import 'package:hms/features/electricity/services/meter_reading_service.dart';
+import 'package:hms/features/electricity/services/meter_service.dart';
+import 'package:hms/features/grounds/services/ground_service.dart';
+import 'package:hms/features/grounds/services/rental_unit_service.dart';
 import 'package:hms/features/rent/services/rent_config_service.dart';
 import 'package:hms/features/rent/services/rent_summary_service.dart';
 
@@ -29,24 +34,48 @@ String _currentPeriod() {
 void main() {
   late FakeFirebaseFirestore fakeFirestore;
   late FirestoreService firestoreService;
+  late ActivityLogService activityLogService;
   late RecurringTransactionService recurringService;
   late RentConfigService rentConfigService;
   late RentSummaryService rentSummaryService;
+  late ConsumptionAlertService consumptionAlertService;
   late AlertGeneratorService service;
 
   setUp(() {
     fakeFirestore = FakeFirebaseFirestore();
     firestoreService = FirestoreService(firestore: fakeFirestore);
+    activityLogService = ActivityLogService(firestoreService);
     recurringService = RecurringTransactionService(
       firestoreService,
-      ActivityLogService(firestoreService),
+      activityLogService,
     );
     rentConfigService = RentConfigService(recurringService);
     rentSummaryService = RentSummaryService(
       rentConfigService,
       recurringService,
     );
-    service = AlertGeneratorService(rentSummaryService);
+    final meterService = MeterService(firestoreService, activityLogService);
+    final meterReadingService = MeterReadingService(
+      firestoreService,
+      meterService,
+      activityLogService,
+    );
+    final groundService = GroundService(firestoreService, activityLogService);
+    final rentalUnitService = RentalUnitService(
+      firestoreService,
+      activityLogService,
+      RentConfigService(recurringService),
+    );
+    consumptionAlertService = ConsumptionAlertService(
+      meterService,
+      meterReadingService,
+      rentalUnitService,
+      groundService,
+    );
+    service = AlertGeneratorService(
+      rentSummaryService,
+      consumptionAlertService,
+    );
   });
 
   /// Seeds the single shared config (idempotent — safe to call multiple times).
@@ -161,6 +190,125 @@ void main() {
       final alerts = await service.generateRentAlerts();
 
       expect(alerts.first.module, equals('rent'));
+    });
+  });
+
+  // ── generateElectricityAlerts ────────────────────────────────────────────
+
+  group('AlertGeneratorService.generateElectricityAlerts', () {
+    Future<void> _seedGroundAndUnit() async {
+      await fakeFirestore.collection('grounds').doc(_groundId).set({
+        'name': 'Ground 1',
+        'location': 'Dar es Salaam',
+        'numberOfUnits': 1,
+        'createdAt': DateTime(2026, 1, 1).toIso8601String(),
+        'updatedAt': DateTime(2026, 1, 1).toIso8601String(),
+        'updatedBy': 'user-1',
+        'schemaVersion': 1,
+      });
+      await fakeFirestore
+          .collection('grounds/$_groundId/rental_units')
+          .doc(_unitId)
+          .set({
+            'groundId': _groundId,
+            'name': 'Room 1',
+            'rentAmount': 150000.0,
+            'status': 'occupied',
+            'meterId': 'm-1',
+            'createdAt': DateTime(2026, 1, 1).toIso8601String(),
+            'updatedAt': DateTime(2026, 1, 1).toIso8601String(),
+            'updatedBy': 'user-1',
+            'schemaVersion': 1,
+          });
+    }
+
+    Future<void> _seedMeterWithThreshold(double threshold) async {
+      await fakeFirestore
+          .collection('grounds/$_groundId/rental_units/$_unitId/meter_registry')
+          .doc('m-1')
+          .set({
+            'groundId': _groundId,
+            'unitId': _unitId,
+            'meterNumber': 'TZ-001',
+            'initialReading': 0.0,
+            'currentReading': 0.0,
+            'weeklyThreshold': threshold,
+            'isActive': true,
+            'createdAt': DateTime(2026, 1, 1).toIso8601String(),
+            'updatedAt': DateTime(2026, 1, 1).toIso8601String(),
+            'updatedBy': 'user-1',
+            'schemaVersion': 1,
+          });
+    }
+
+    Future<void> _seedConsumptionReading(double units) async {
+      await fakeFirestore
+          .collection('grounds/$_groundId/rental_units/$_unitId/meter_readings')
+          .add({
+            'groundId': _groundId,
+            'unitId': _unitId,
+            'meterId': 'm-1',
+            'reading': units,
+            'previousReading': 0.0,
+            'unitsConsumed': units,
+            'readingDate': DateTime(2026, 4, 10).toIso8601String(),
+            'isMeterReset': false,
+            'notes': '',
+            'createdAt': DateTime(2026, 4, 10).toIso8601String(),
+            'updatedAt': DateTime(2026, 4, 10).toIso8601String(),
+            'updatedBy': 'user-1',
+            'schemaVersion': 1,
+          });
+    }
+
+    test('returns alerts when units are over threshold', () async {
+      await _seedGroundAndUnit();
+      await _seedMeterWithThreshold(100);
+      await _seedConsumptionReading(160); // 60% over threshold → warning
+
+      final alerts = await service.generateElectricityAlerts(
+        groundId: _groundId,
+      );
+
+      expect(alerts.length, equals(1));
+      expect(alerts.first.module, equals('electricity'));
+      expect(alerts.first.id, startsWith('electricity-'));
+    });
+
+    test('returns empty list when all units are within threshold', () async {
+      await _seedGroundAndUnit();
+      await _seedMeterWithThreshold(100);
+      await _seedConsumptionReading(80); // Under threshold.
+
+      final alerts = await service.generateElectricityAlerts(
+        groundId: _groundId,
+      );
+
+      expect(alerts, isEmpty);
+    });
+
+    test('alert icon is bolt_outlined', () async {
+      await _seedGroundAndUnit();
+      await _seedMeterWithThreshold(100);
+      await _seedConsumptionReading(200);
+
+      final alerts = await service.generateElectricityAlerts(
+        groundId: _groundId,
+      );
+
+      expect(alerts.first.icon, equals(Icons.bolt_outlined));
+    });
+
+    test('alert targetRoute is /electricity/warnings', () async {
+      await _seedGroundAndUnit();
+      await _seedMeterWithThreshold(100);
+      await _seedConsumptionReading(200);
+
+      final alerts = await service.generateElectricityAlerts(
+        groundId: _groundId,
+      );
+
+      expect(alerts.first.targetRoute, equals('/electricity/warnings'));
     });
   });
 }

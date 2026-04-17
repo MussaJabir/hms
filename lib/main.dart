@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hms/core/providers/providers.dart';
 import 'package:hms/core/router/app_router.dart';
 import 'package:hms/core/theme/theme.dart';
+import 'package:hms/features/electricity/providers/alert_providers.dart';
 import 'package:hms/features/rent/providers/rent_generation_providers.dart';
 import 'package:hms/features/rent/providers/rent_summary_providers.dart';
 
@@ -45,6 +46,16 @@ class HmsApp extends ConsumerWidget {
           ref.read(rentNotificationServiceProvider.future).then((notifSvc) {
             notifSvc.scheduleOverdueNotifications(userId: uid).catchError((e) {
               debugPrint('Overdue notification scheduling failed: $e');
+              return;
+            });
+          });
+
+          // Schedule electricity consumption alerts on startup.
+          ref.read(electricityNotificationServiceProvider.future).then((
+            elecSvc,
+          ) {
+            elecSvc.scheduleConsumptionAlerts(userId: uid).catchError((e) {
+              debugPrint('Electricity alert scheduling failed: $e');
               return;
             });
           });
