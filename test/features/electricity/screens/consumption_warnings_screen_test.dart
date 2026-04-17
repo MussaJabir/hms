@@ -38,7 +38,7 @@ Widget _wrap(List<ConsumptionWarning> warnings) {
     routes: [
       GoRoute(
         path: '/electricity/warnings',
-        builder: (_, __) => const ConsumptionWarningsScreen(),
+        builder: (context, state) => const ConsumptionWarningsScreen(),
       ),
       GoRoute(
         path: '/grounds/:groundId/electricity',

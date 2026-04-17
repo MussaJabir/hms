@@ -3,7 +3,7 @@ import 'package:hms/core/widgets/alert_severity.dart';
 import 'package:hms/features/electricity/models/consumption_warning.dart';
 
 void main() {
-  ConsumptionWarning _warning({
+  ConsumptionWarning makeWarning({
     double threshold = 100,
     double actualConsumption = 150,
     AlertSeverity severity = AlertSeverity.warning,
@@ -23,35 +23,35 @@ void main() {
 
   group('ConsumptionWarning.percentOverThreshold', () {
     test('calculates percentage correctly when over threshold', () {
-      final w = _warning(threshold: 100, actualConsumption: 150);
+      final w = makeWarning(threshold: 100, actualConsumption: 150);
       expect(w.percentOverThreshold, closeTo(50.0, 0.001));
     });
 
     test('returns 0 when threshold is 0', () {
-      final w = _warning(threshold: 0, actualConsumption: 100);
+      final w = makeWarning(threshold: 0, actualConsumption: 100);
       expect(w.percentOverThreshold, equals(0));
     });
 
     test('returns 0 when consumption equals threshold', () {
-      final w = _warning(threshold: 100, actualConsumption: 100);
+      final w = makeWarning(threshold: 100, actualConsumption: 100);
       expect(w.percentOverThreshold, closeTo(0.0, 0.001));
     });
 
     test('calculates correctly for 120% over threshold', () {
-      final w = _warning(threshold: 100, actualConsumption: 220);
+      final w = makeWarning(threshold: 100, actualConsumption: 220);
       expect(w.percentOverThreshold, closeTo(120.0, 0.001));
     });
   });
 
   group('ConsumptionWarning.unitsOverThreshold', () {
     test('returns correct units over threshold', () {
-      final w = _warning(threshold: 100, actualConsumption: 145);
+      final w = makeWarning(threshold: 100, actualConsumption: 145);
       expect(w.unitsOverThreshold, closeTo(45.0, 0.001));
     });
 
     test('returns negative when under threshold', () {
       // Model doesn't guard against this; caller is responsible for filtering.
-      final w = _warning(threshold: 100, actualConsumption: 80);
+      final w = makeWarning(threshold: 100, actualConsumption: 80);
       expect(w.unitsOverThreshold, closeTo(-20.0, 0.001));
     });
   });

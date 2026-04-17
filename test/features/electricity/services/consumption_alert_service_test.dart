@@ -20,9 +20,6 @@ const _groundId2 = 'g-2';
 const _unitId = 'u-1';
 const _meterId = 'm-1';
 const _userId = 'user-1';
-const _meterCol = 'grounds/$_groundId/rental_units/$_unitId/meter_registry';
-const _unitCol = 'grounds/$_groundId/rental_units';
-const _readingCol = 'grounds/$_groundId/rental_units/$_unitId/meter_readings';
 
 // ---------------------------------------------------------------------------
 // Seed helpers
@@ -55,6 +52,7 @@ Future<void> _seedUnit(
     'name': 'Room 1',
     'rentAmount': 150000.0,
     'status': 'occupied',
+    // ignore: use_null_aware_elements
     if (meterId != null) 'meterId': meterId,
     'createdAt': DateTime(2026, 1, 1).toIso8601String(),
     'updatedAt': DateTime(2026, 1, 1).toIso8601String(),

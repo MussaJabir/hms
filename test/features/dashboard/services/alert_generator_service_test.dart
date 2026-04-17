@@ -196,7 +196,7 @@ void main() {
   // ── generateElectricityAlerts ────────────────────────────────────────────
 
   group('AlertGeneratorService.generateElectricityAlerts', () {
-    Future<void> _seedGroundAndUnit() async {
+    Future<void> seedGroundAndUnit() async {
       await fakeFirestore.collection('grounds').doc(_groundId).set({
         'name': 'Ground 1',
         'location': 'Dar es Salaam',
@@ -222,7 +222,7 @@ void main() {
           });
     }
 
-    Future<void> _seedMeterWithThreshold(double threshold) async {
+    Future<void> seedMeterWithThreshold(double threshold) async {
       await fakeFirestore
           .collection('grounds/$_groundId/rental_units/$_unitId/meter_registry')
           .doc('m-1')
@@ -241,7 +241,7 @@ void main() {
           });
     }
 
-    Future<void> _seedConsumptionReading(double units) async {
+    Future<void> seedConsumptionReading(double units) async {
       await fakeFirestore
           .collection('grounds/$_groundId/rental_units/$_unitId/meter_readings')
           .add({
@@ -262,9 +262,9 @@ void main() {
     }
 
     test('returns alerts when units are over threshold', () async {
-      await _seedGroundAndUnit();
-      await _seedMeterWithThreshold(100);
-      await _seedConsumptionReading(160); // 60% over threshold → warning
+      await seedGroundAndUnit();
+      await seedMeterWithThreshold(100);
+      await seedConsumptionReading(160); // 60% over threshold → warning
 
       final alerts = await service.generateElectricityAlerts(
         groundId: _groundId,
@@ -276,9 +276,9 @@ void main() {
     });
 
     test('returns empty list when all units are within threshold', () async {
-      await _seedGroundAndUnit();
-      await _seedMeterWithThreshold(100);
-      await _seedConsumptionReading(80); // Under threshold.
+      await seedGroundAndUnit();
+      await seedMeterWithThreshold(100);
+      await seedConsumptionReading(80); // Under threshold.
 
       final alerts = await service.generateElectricityAlerts(
         groundId: _groundId,
@@ -288,9 +288,9 @@ void main() {
     });
 
     test('alert icon is bolt_outlined', () async {
-      await _seedGroundAndUnit();
-      await _seedMeterWithThreshold(100);
-      await _seedConsumptionReading(200);
+      await seedGroundAndUnit();
+      await seedMeterWithThreshold(100);
+      await seedConsumptionReading(200);
 
       final alerts = await service.generateElectricityAlerts(
         groundId: _groundId,
@@ -300,9 +300,9 @@ void main() {
     });
 
     test('alert targetRoute is /electricity/warnings', () async {
-      await _seedGroundAndUnit();
-      await _seedMeterWithThreshold(100);
-      await _seedConsumptionReading(200);
+      await seedGroundAndUnit();
+      await seedMeterWithThreshold(100);
+      await seedConsumptionReading(200);
 
       final alerts = await service.generateElectricityAlerts(
         groundId: _groundId,
