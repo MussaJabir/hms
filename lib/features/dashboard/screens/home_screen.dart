@@ -354,6 +354,14 @@ class _AppDrawer extends ConsumerWidget {
                   context.push('/settings/tariffs');
                 },
               ),
+              _DrawerNavItem(
+                icon: Icons.alarm_outlined,
+                title: 'Meter Reminder',
+                onTap: () {
+                  Navigator.of(context).pop();
+                  context.push('/settings/meter-reminder');
+                },
+              ),
             ],
             _DrawerNavItem(
               icon: Icons.settings_outlined,

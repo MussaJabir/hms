@@ -283,6 +283,10 @@ GoRouter appRouter(Ref ref) {
         builder: (context, state) => const TariffConfigScreen(),
       ),
       GoRoute(
+        path: '/settings/meter-reminder',
+        builder: (context, state) => const MeterReminderSettingsScreen(),
+      ),
+      GoRoute(
         path: '/users',
         builder: (context, state) => const UserManagementScreen(),
         routes: [
