@@ -5,6 +5,7 @@ import 'package:hms/core/utils/currency_formatter.dart';
 import 'package:hms/core/widgets/widgets.dart';
 import 'package:hms/features/dashboard/models/monthly_report.dart';
 import 'package:hms/features/dashboard/providers/monthly_report_provider.dart';
+import 'package:intl/intl.dart';
 
 class MonthlyReportScreen extends ConsumerStatefulWidget {
   const MonthlyReportScreen({super.key});
@@ -84,6 +85,10 @@ class _MonthlyReportScreenState extends ConsumerState<MonthlyReportScreen> {
               _OverdueSection(items: report.overdueItems),
               const SizedBox(height: AppSpacing.md),
               _PerGroundSection(report: report),
+              if (report.electricityUnits > 0) ...[
+                const SizedBox(height: AppSpacing.md),
+                _ElectricitySummarySection(report: report),
+              ],
               const SizedBox(height: AppSpacing.lg),
             ],
           ),
@@ -421,6 +426,59 @@ class _PerGroundSection extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ],
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Electricity Summary (estimated)
+// ---------------------------------------------------------------------------
+
+class _ElectricitySummarySection extends StatelessWidget {
+  const _ElectricitySummarySection({required this.report});
+
+  final MonthlyReport report;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final fmt = NumberFormat('#,##0.0', 'en_US');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Electricity (Estimated)', style: theme.textTheme.titleMedium),
+        const SizedBox(height: AppSpacing.sm),
+        Row(
+          children: [
+            Expanded(
+              child: SummaryTile(
+                label: 'Total Units',
+                value: '${fmt.format(report.electricityUnits)} units',
+                icon: Icons.electric_meter_outlined,
+                compact: true,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: SummaryTile(
+                label: 'Est. Cost',
+                value: formatTZS(report.electricityEstimatedCost, short: true),
+                icon: Icons.attach_money_outlined,
+                compact: true,
+                valueColor: AppColors.warning,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          'Based on current TANESCO tariff rates. Actual bills may vary.',
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: AppColors.textSecondary,
+          ),
         ),
       ],
     );

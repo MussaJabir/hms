@@ -10,6 +10,7 @@ import 'package:hms/features/auth/providers/user_providers.dart';
 import 'package:hms/features/dashboard/providers/alert_provider.dart';
 import 'package:hms/features/dashboard/widgets/widgets.dart';
 import 'package:hms/features/grounds/providers/ground_providers.dart';
+import 'package:hms/features/electricity/providers/electricity_summary_providers.dart';
 import 'package:hms/features/rent/providers/rent_summary_providers.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -82,6 +83,8 @@ class HomeScreen extends ConsumerWidget {
                 ),
                 // ── Rent Summary ─────────────────────────────────────────
                 const _RentSummaryTile(),
+                // ── Electricity Summary ───────────────────────────────────
+                const _ElectricitySummaryTile(),
                 // ── Needs Attention ───────────────────────────────────────
                 Padding(
                   padding: const EdgeInsets.fromLTRB(
@@ -155,6 +158,72 @@ class _RentSummaryTile extends ConsumerWidget {
               ? TrendDirection.up
               : (rate > 0 ? TrendDirection.flat : null),
           trendText: rate > 0 ? '${rate.toStringAsFixed(0)}% collected' : null,
+          compact: true,
+        ),
+      ),
+    );
+  }
+}
+
+// ── Electricity summary tile ──────────────────────────────────────────────
+
+class _ElectricitySummaryTile extends ConsumerWidget {
+  const _ElectricitySummaryTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final unitsAsync = ref.watch(currentWeekUnitsProvider);
+    final costAsync = ref.watch(currentWeekCostProvider);
+    final trendAsync = ref.watch(weekOverWeekTrendProvider);
+    final currentGroundId = ref.watch(currentGroundProvider);
+
+    final units = unitsAsync.asData?.value ?? 0.0;
+    final cost = costAsync.asData?.value ?? 0.0;
+    final trend = trendAsync.asData?.value ?? 0.0;
+
+    final isLoading = unitsAsync.isLoading || costAsync.isLoading;
+
+    if (isLoading) {
+      return const Padding(
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.screenPadding,
+          AppSpacing.md,
+          AppSpacing.screenPadding,
+          0,
+        ),
+        child: ShimmerBox(height: 72, borderRadius: AppSpacing.borderRadius),
+      );
+    }
+
+    final trendDirection = trend > 2
+        ? TrendDirection.up
+        : (trend < -2 ? TrendDirection.down : TrendDirection.flat);
+    final trendText = trend.abs() > 0.5
+        ? '${trend >= 0 ? '+' : ''}${trend.toStringAsFixed(0)}% vs last week'
+        : null;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.screenPadding,
+        AppSpacing.md,
+        AppSpacing.screenPadding,
+        0,
+      ),
+      child: InkWell(
+        onTap: () {
+          if (currentGroundId != null) {
+            context.push('/grounds/$currentGroundId/electricity');
+          } else {
+            context.go('/grounds');
+          }
+        },
+        borderRadius: BorderRadius.circular(AppSpacing.borderRadius),
+        child: SummaryTile(
+          label: 'Electricity This Week',
+          value: '${units.toStringAsFixed(1)} units',
+          icon: Icons.electric_meter_outlined,
+          trend: trendDirection,
+          trendText: trendText ?? formatTZS(cost, short: true),
           compact: true,
         ),
       ),

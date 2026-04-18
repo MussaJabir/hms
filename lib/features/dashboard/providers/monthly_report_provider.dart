@@ -1,6 +1,7 @@
 import 'package:hms/core/providers/providers.dart';
 import 'package:hms/features/dashboard/models/monthly_report.dart';
 import 'package:hms/features/dashboard/services/monthly_report_service.dart';
+import 'package:hms/features/electricity/providers/electricity_summary_providers.dart';
 import 'package:hms/features/rent/providers/rent_summary_providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -8,7 +9,10 @@ part 'monthly_report_provider.g.dart';
 
 @riverpod
 MonthlyReportService monthlyReportService(Ref ref) {
-  return MonthlyReportService(ref.watch(rentSummaryServiceProvider));
+  return MonthlyReportService(
+    ref.watch(rentSummaryServiceProvider),
+    ref.watch(electricitySummaryServiceProvider),
+  );
 }
 
 /// Returns the report for [period] ("yyyy-MM"). Defaults to current month.

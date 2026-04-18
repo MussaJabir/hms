@@ -106,5 +106,67 @@ void main() {
         findsOneWidget,
       );
     });
+
+    testWidgets('shows electricity section when electricityUnits > 0', (
+      tester,
+    ) async {
+      const reportWithElec = MonthlyReport(
+        period: '2026-04',
+        totalIncome: 850000,
+        totalExpenses: 650000,
+        electricityUnits: 120.5,
+        electricityEstimatedCost: 25000,
+      );
+      await tester.pumpWidget(_wrap(reportWithElec));
+      await tester.pumpAndSettle();
+
+      // Scroll to bottom to render the electricity section
+      await tester.dragUntilVisible(
+        find.text('Electricity (Estimated)', skipOffstage: false),
+        find.byType(ListView),
+        const Offset(0, -200),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Electricity (Estimated)'), findsOneWidget);
+      expect(find.text('Total Units'), findsOneWidget);
+      expect(find.text('Est. Cost'), findsOneWidget);
+    });
+
+    testWidgets('hides electricity section when electricityUnits is 0', (
+      tester,
+    ) async {
+      const noElecReport = MonthlyReport(
+        period: '2026-04',
+        electricityUnits: 0,
+      );
+      await tester.pumpWidget(_wrap(noElecReport));
+      await tester.pumpAndSettle();
+
+      // Scroll to bottom to confirm the section really isn't there
+      await tester.drag(find.byType(ListView), const Offset(0, -2000));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Electricity (Estimated)'), findsNothing);
+    });
+
+    testWidgets('electricity section shows disclaimer text', (tester) async {
+      const reportWithElec = MonthlyReport(
+        period: '2026-04',
+        electricityUnits: 80,
+        electricityEstimatedCost: 15000,
+      );
+      await tester.pumpWidget(_wrap(reportWithElec));
+      await tester.pumpAndSettle();
+
+      await tester.dragUntilVisible(
+        find.textContaining('TANESCO tariff', skipOffstage: false),
+        find.byType(ListView),
+        const Offset(0, -200),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('TANESCO tariff'), findsOneWidget);
+    });
   });
 }

@@ -7,8 +7,10 @@ import 'package:hms/core/services/recurring_transaction_service.dart';
 import 'package:hms/core/widgets/alert_severity.dart';
 import 'package:hms/features/dashboard/services/alert_generator_service.dart';
 import 'package:hms/features/electricity/services/consumption_alert_service.dart';
+import 'package:hms/features/electricity/services/electricity_summary_service.dart';
 import 'package:hms/features/electricity/services/meter_reading_service.dart';
 import 'package:hms/features/electricity/services/meter_service.dart';
+import 'package:hms/features/electricity/services/tariff_service.dart';
 import 'package:hms/features/grounds/services/ground_service.dart';
 import 'package:hms/features/grounds/services/rental_unit_service.dart';
 import 'package:hms/features/rent/services/rent_config_service.dart';
@@ -72,9 +74,18 @@ void main() {
       rentalUnitService,
       groundService,
     );
+    final electricitySummaryService = ElectricitySummaryService(
+      meterService,
+      meterReadingService,
+      consumptionAlertService,
+      TariffService(firestoreService, activityLogService),
+      groundService,
+      rentalUnitService,
+    );
     service = AlertGeneratorService(
       rentSummaryService,
       consumptionAlertService,
+      electricitySummaryService,
     );
   });
 

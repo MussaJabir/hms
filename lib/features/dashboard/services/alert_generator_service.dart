@@ -3,16 +3,19 @@ import 'package:hms/core/utils/currency_formatter.dart';
 import 'package:hms/core/widgets/alert_severity.dart';
 import 'package:hms/features/dashboard/models/dashboard_alert.dart';
 import 'package:hms/features/electricity/services/consumption_alert_service.dart';
+import 'package:hms/features/electricity/services/electricity_summary_service.dart';
 import 'package:hms/features/rent/services/rent_summary_service.dart';
 
 class AlertGeneratorService {
   AlertGeneratorService(
     this._rentSummaryService,
     this._consumptionAlertService,
+    this._electricitySummaryService,
   );
 
   final RentSummaryService _rentSummaryService;
   final ConsumptionAlertService _consumptionAlertService;
+  final ElectricitySummaryService _electricitySummaryService;
 
   /// Returns overdue rent alerts, filtered by [groundId] when non-null.
   /// Critical if > 7 days overdue, warning if ≤ 7 days.
@@ -87,6 +90,36 @@ class AlertGeneratorService {
     return alerts;
   }
 
+  /// Generates an info alert when units have active meters but no reading
+  /// recorded this week.
+  Future<List<DashboardAlert>> generateReadingReminderAlerts({
+    String? groundId,
+  }) async {
+    final pending = await _electricitySummaryService.getPendingReadingsCount(
+      groundId: groundId,
+    );
+    if (pending == 0) return [];
+
+    final targetRoute = groundId != null
+        ? '/grounds/$groundId/quick-reading'
+        : '/grounds';
+
+    return [
+      DashboardAlert(
+        id: 'meter-readings-pending-${groundId ?? 'all'}',
+        title: 'Meter Readings Pending',
+        message:
+            '$pending room${pending == 1 ? '' : 's'} need readings this week',
+        severity: AlertSeverity.info,
+        icon: Icons.electric_meter_outlined,
+        module: 'electricity',
+        createdAt: DateTime.now(),
+        targetRoute: targetRoute,
+        actionLabel: 'Record Now',
+      ),
+    ];
+  }
+
   Future<List<DashboardAlert>> generateWaterAlerts({String? groundId}) async =>
       [];
 
@@ -105,6 +138,7 @@ class AlertGeneratorService {
     final results = await Future.wait([
       generateRentAlerts(groundId: groundId),
       generateElectricityAlerts(groundId: groundId),
+      generateReadingReminderAlerts(groundId: groundId),
       generateWaterAlerts(groundId: groundId),
       generateInventoryAlerts(groundId: groundId),
       generateSchoolAlerts(groundId: groundId),
