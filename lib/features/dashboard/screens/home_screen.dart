@@ -361,89 +361,107 @@ class _AppDrawer extends ConsumerWidget {
             // ── Header ──────────────────────────────────────────────────
             _DrawerHeader(displayName: displayName, email: email),
             const Divider(height: 1),
-            // ── Navigation items ────────────────────────────────────────
-            _DrawerNavItem(
-              icon: Icons.dashboard_outlined,
-              title: 'Dashboard',
-              onTap: () {
-                Navigator.of(context).pop();
-                context.go('/');
-              },
-            ),
-            _DrawerNavItem(
-              icon: Icons.assessment_outlined,
-              title: 'Monthly Report',
-              onTap: () {
-                Navigator.of(context).pop();
-                context.push('/report');
-              },
-            ),
-            _DrawerNavItem(
-              icon: Icons.home_work_outlined,
-              title: 'Properties',
-              onTap: () {
-                Navigator.of(context).pop();
-                context.go('/grounds');
-              },
-            ),
-            _DrawerNavItem(
-              icon: Icons.payments_outlined,
-              title: 'Rent',
-              onTap: () {
-                Navigator.of(context).pop();
-                context.go('/rent');
-              },
-            ),
-            _DrawerNavItem(
-              icon: Icons.electric_meter_outlined,
-              title: 'Electricity',
-              onTap: () {
-                Navigator.of(context).pop();
-                if (currentGroundId != null) {
-                  context.push('/grounds/$currentGroundId/electricity');
-                } else {
-                  context.go('/grounds');
-                }
-              },
-            ),
-            if (isSuperAdmin) ...[
-              _DrawerNavItem(
-                icon: Icons.people_outlined,
-                title: 'User Management',
-                onTap: () {
-                  Navigator.of(context).pop();
-                  context.go('/users');
-                },
+            // ── Navigation items (scrollable) ────────────────────────────
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  _DrawerNavItem(
+                    icon: Icons.dashboard_outlined,
+                    title: 'Dashboard',
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      context.go('/');
+                    },
+                  ),
+                  _DrawerNavItem(
+                    icon: Icons.assessment_outlined,
+                    title: 'Monthly Report',
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      context.push('/report');
+                    },
+                  ),
+                  _DrawerNavItem(
+                    icon: Icons.home_work_outlined,
+                    title: 'Properties',
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      context.go('/grounds');
+                    },
+                  ),
+                  _DrawerNavItem(
+                    icon: Icons.payments_outlined,
+                    title: 'Rent',
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      context.go('/rent');
+                    },
+                  ),
+                  _DrawerNavItem(
+                    icon: Icons.electric_meter_outlined,
+                    title: 'Electricity',
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      if (currentGroundId != null) {
+                        context.push('/grounds/$currentGroundId/electricity');
+                      } else {
+                        context.go('/grounds');
+                      }
+                    },
+                  ),
+                  _DrawerNavItem(
+                    icon: Icons.water_drop_outlined,
+                    title: 'Water Bills',
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      if (currentGroundId != null) {
+                        context.push('/grounds/$currentGroundId/water');
+                      } else {
+                        context.go('/grounds');
+                      }
+                    },
+                  ),
+                  if (isSuperAdmin) ...[
+                    _DrawerNavItem(
+                      icon: Icons.people_outlined,
+                      title: 'User Management',
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        context.go('/users');
+                      },
+                    ),
+                    _DrawerNavItem(
+                      icon: Icons.tune_outlined,
+                      title: 'TANESCO Settings',
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        context.push('/settings/tariffs');
+                      },
+                    ),
+                    _DrawerNavItem(
+                      icon: Icons.alarm_outlined,
+                      title: 'Meter Reminder',
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        context.push('/settings/meter-reminder');
+                      },
+                    ),
+                  ],
+                  _DrawerNavItem(
+                    icon: Icons.settings_outlined,
+                    title: 'Settings',
+                    onTap: () {
+                      final messenger = ScaffoldMessenger.of(context);
+                      Navigator.of(context).pop();
+                      messenger.showSnackBar(
+                        const SnackBar(content: Text('Coming in Phase 12')),
+                      );
+                    },
+                  ),
+                ],
               ),
-              _DrawerNavItem(
-                icon: Icons.tune_outlined,
-                title: 'TANESCO Settings',
-                onTap: () {
-                  Navigator.of(context).pop();
-                  context.push('/settings/tariffs');
-                },
-              ),
-              _DrawerNavItem(
-                icon: Icons.alarm_outlined,
-                title: 'Meter Reminder',
-                onTap: () {
-                  Navigator.of(context).pop();
-                  context.push('/settings/meter-reminder');
-                },
-              ),
-            ],
-            _DrawerNavItem(
-              icon: Icons.settings_outlined,
-              title: 'Settings',
-              onTap: () {
-                final messenger = ScaffoldMessenger.of(context);
-                Navigator.of(context).pop();
-                messenger.showSnackBar(
-                  const SnackBar(content: Text('Coming in Phase 12')),
-                );
-              },
             ),
-            const Spacer(),
             const Divider(height: 1),
             // ── Sign out ────────────────────────────────────────────────
             _DrawerNavItem(

@@ -12,6 +12,8 @@ import 'package:hms/features/grounds/models/rental_unit.dart';
 import 'package:hms/features/grounds/models/tenant.dart';
 import 'package:hms/features/grounds/screens/screens.dart';
 import 'package:hms/features/rent/screens/screens.dart';
+import 'package:hms/features/water/models/water_bill.dart';
+import 'package:hms/features/water/screens/screens.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'app_router.g.dart';
@@ -151,6 +153,43 @@ GoRouter appRouter(Ref ref) {
                 builder: (context, state) => QuickReadingScreen(
                   groundId: state.pathParameters['groundId']!,
                 ),
+              ),
+              GoRoute(
+                path: 'water',
+                builder: (context, state) => WaterBillsScreen(
+                  groundId: state.pathParameters['groundId']!,
+                ),
+                routes: [
+                  GoRoute(
+                    path: 'add',
+                    builder: (context, state) => AddWaterBillScreen(
+                      groundId: state.pathParameters['groundId']!,
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'history',
+                    builder: (context, state) => WaterBillHistoryScreen(
+                      groundId: state.pathParameters['groundId']!,
+                    ),
+                  ),
+                  GoRoute(
+                    path: ':billId',
+                    builder: (context, state) => WaterBillDetailScreen(
+                      groundId: state.pathParameters['groundId']!,
+                      billId: state.pathParameters['billId']!,
+                      bill: state.extra as WaterBill,
+                    ),
+                    routes: [
+                      GoRoute(
+                        path: 'edit',
+                        builder: (context, state) => AddWaterBillScreen(
+                          groundId: state.pathParameters['groundId']!,
+                          existingBill: state.extra as WaterBill?,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
               GoRoute(
                 path: 'units',
