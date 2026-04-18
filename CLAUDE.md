@@ -239,3 +239,7 @@ lib/
 - Branch: `phase-5/meter-reading-reminder` — Created ReminderConfig model, MeterReminderService (config CRUD, schedule/cancel, pending count), reminder providers, MeterReminderSettingsScreen (enable toggle, day/time pickers, preview, test notification), wired to app startup in main.dart, GoRouter /settings/meter-reminder route, Drawer entry under Super Admin settings, 792 tests passing ✅ merged
 - Branch: `phase-5/electricity-dashboard` — Created ElectricitySummaryService (weekly/monthly totals, costs, pending counts, week-over-week trend), electricity summary providers reacting to currentGroundProvider, ElectricitySummaryTile on HomeScreen (units, cost, trend), extended MonthlyReport with electricityUnits/electricityEstimatedCost, electricity section in MonthlyReportScreen, generateReadingReminderAlerts in AlertGeneratorService, 812 tests passing ✅ merged
 - **Phase 5 — Electricity Monitoring System: COMPLETE** ✅
+
+### Phase 6 — Water Bill Tracking
+
+- Branch: `phase-6/water-bill-crud` — Created WaterBill Freezed model, WaterBillService (CRUD, mark paid, overdue detection, average calculation, yearly comparison), Riverpod providers, WaterBillsScreen (summary tiles, bill list with status badges), AddWaterBillScreen (manual entry + SMS tab placeholder), WaterBillDetailScreen (mark paid dialog, edit, Super Admin delete), WaterBillHistoryScreen (year-grouped view), drawer navigation (scrollable, Water Bills entry), GoRouter routes (/grounds/:groundId/water/…), 36 tests (14 model + 8 service + 14 widget), 848 total tests passing ✅ merged
