@@ -6,6 +6,7 @@ import 'package:hms/core/providers/providers.dart';
 import 'package:hms/core/theme/app_spacing.dart';
 import 'package:hms/core/widgets/widgets.dart';
 import 'package:hms/features/water/models/water_bill.dart';
+import 'package:hms/features/water/providers/sms_parser_provider.dart';
 import 'package:hms/features/water/providers/water_bill_providers.dart';
 
 class AddWaterBillScreen extends ConsumerStatefulWidget {
@@ -184,9 +185,59 @@ class _AddWaterBillScreenState extends ConsumerState<AddWaterBillScreen>
   }
 
   void _parseSms() {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('SMS parsing coming soon')));
+    final text = _smsCtrl.text.trim();
+    if (text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please paste an SMS first')),
+      );
+      return;
+    }
+
+    final parser = ref.read(smsParserServiceProvider);
+    final result = parser.parse(text);
+
+    setState(() => _rawSmsText = result.rawText);
+
+    if (!result.isSuccessful) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Could not extract data from this SMS. Please enter manually.',
+          ),
+        ),
+      );
+      _tabController.animateTo(0);
+      return;
+    }
+
+    // Pre-fill whatever was extracted
+    if (result.billAmount != null) {
+      _amountCtrl.text = result.billAmount!.toStringAsFixed(0);
+    }
+    if (result.billingPeriod != null) {
+      final periods = _periodOptions;
+      if (periods.contains(result.billingPeriod)) {
+        _selectedPeriod = result.billingPeriod;
+      }
+    }
+    if (result.previousMeterReading != null) {
+      _prevReadingCtrl.text = result.previousMeterReading!.toString();
+    }
+    if (result.currentMeterReading != null) {
+      _currReadingCtrl.text = result.currentMeterReading!.toString();
+    }
+    if (result.dueDate != null) {
+      _dueDate = result.dueDate;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Parsed ${result.fieldsFound} of 5 fields from SMS. Review and fill in any missing data.',
+        ),
+      ),
+    );
+    _tabController.animateTo(0);
   }
 
   @override
