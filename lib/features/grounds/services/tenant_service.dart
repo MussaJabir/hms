@@ -5,6 +5,7 @@ import 'package:hms/core/services/recurring_transaction_service.dart';
 import 'package:hms/features/grounds/models/communication_log.dart';
 import 'package:hms/features/grounds/models/tenant.dart';
 import 'package:hms/features/grounds/services/rental_unit_service.dart';
+import 'package:hms/features/water/services/water_contribution_service.dart';
 
 class TenantService {
   TenantService(
@@ -12,12 +13,14 @@ class TenantService {
     this._activityLog,
     this._rentalUnitService,
     this._recurringTransactionService,
+    this._waterContributionService,
   );
 
   final FirestoreService _firestore;
   final ActivityLogService _activityLog;
   final RentalUnitService _rentalUnitService;
   final RecurringTransactionService _recurringTransactionService;
+  final WaterContributionService _waterContributionService;
 
   static String _tenantCol(String groundId, String unitId) =>
       'grounds/$groundId/rental_units/$unitId/tenants';
@@ -70,6 +73,15 @@ class TenantService {
       userId: userId,
     );
 
+    // Set up water contribution for this tenant
+    await _createWaterContribution(
+      groundId: groundId,
+      unitId: unitId,
+      tenantId: id,
+      tenantName: tenant.fullName,
+      userId: userId,
+    );
+
     await _activityLog.log(
       userId: userId,
       action: 'create',
@@ -110,6 +122,28 @@ class TenantService {
 
     await _recurringTransactionService.createConfig(
       config: config,
+      userId: userId,
+    );
+  }
+
+  Future<void> _createWaterContribution({
+    required String groundId,
+    required String unitId,
+    required String tenantId,
+    required String tenantName,
+    required String userId,
+  }) async {
+    final unit = await _rentalUnitService.getUnit(groundId, unitId);
+    final unitName = unit?.name ?? unitId;
+    final defaultAmount = await _waterContributionService.getDefaultAmount();
+
+    await _waterContributionService.setupContribution(
+      groundId: groundId,
+      unitId: unitId,
+      tenantId: tenantId,
+      tenantName: tenantName,
+      unitName: unitName,
+      monthlyAmount: defaultAmount,
       userId: userId,
     );
   }

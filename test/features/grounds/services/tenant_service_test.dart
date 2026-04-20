@@ -7,6 +7,8 @@ import 'package:hms/features/grounds/models/tenant.dart';
 import 'package:hms/features/grounds/services/rental_unit_service.dart';
 import 'package:hms/features/grounds/services/tenant_service.dart';
 import 'package:hms/features/rent/services/rent_config_service.dart';
+import 'package:hms/features/water/services/water_bill_service.dart';
+import 'package:hms/features/water/services/water_contribution_service.dart';
 
 void main() {
   late FakeFirebaseFirestore fakeFirestore;
@@ -44,11 +46,23 @@ void main() {
       activityLogService,
       rentConfigService,
     );
+    final waterBillService = WaterBillService(
+      firestoreService,
+      activityLogService,
+      firestore: fakeFirestore,
+    );
+    final waterContributionService = WaterContributionService(
+      firestoreService,
+      recurringService,
+      waterBillService,
+      activityLogService,
+    );
     tenantService = TenantService(
       firestoreService,
       activityLogService,
       rentalUnitService,
       recurringService,
+      waterContributionService,
     );
 
     // Pre-create the unit document so updateUnit calls and getUnit don't fail.
@@ -110,21 +124,33 @@ void main() {
       expect(tenantLog.data()['action'], equals('create'));
     });
 
-    test('creates a recurring rent config for the new tenant', () async {
-      final id = await tenantService.createTenant(
-        groundId,
-        unitId,
-        makeTenant(),
-        'u-1',
-      );
+    test(
+      'creates rent and water contribution configs for the new tenant',
+      () async {
+        final id = await tenantService.createTenant(
+          groundId,
+          unitId,
+          makeTenant(),
+          'u-1',
+        );
 
-      final configs = await fakeFirestore.collection('recurring_configs').get();
-      expect(configs.docs.length, equals(1));
+        final configs = await fakeFirestore
+            .collection('recurring_configs')
+            .get();
+        // One rent config + one water contribution config
+        expect(configs.docs.length, equals(2));
 
-      final config = configs.docs.first.data();
-      expect(config['type'], equals('rent'));
-      expect(config['linkedEntityId'], equals(id));
-    });
+        final types = configs.docs
+            .map((d) => d.data()['type'] as String)
+            .toSet();
+        expect(types, containsAll(['rent', 'water_contribution']));
+
+        final rentConfig = configs.docs
+            .firstWhere((d) => d.data()['type'] == 'rent')
+            .data();
+        expect(rentConfig['linkedEntityId'], equals(id));
+      },
+    );
 
     test('sets linkedEntityId on the rent config to the tenant ID', () async {
       final id = await tenantService.createTenant(

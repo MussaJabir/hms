@@ -12,6 +12,8 @@ import 'package:hms/features/grounds/screens/tenant_detail_screen.dart';
 import 'package:hms/features/grounds/services/rental_unit_service.dart';
 import 'package:hms/features/grounds/services/tenant_service.dart';
 import 'package:hms/features/rent/services/rent_config_service.dart';
+import 'package:hms/features/water/services/water_bill_service.dart';
+import 'package:hms/features/water/services/water_contribution_service.dart';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -51,11 +53,23 @@ Widget _wrap(Tenant? tenant) {
     activityLogService,
     rentConfigService,
   );
+  final waterBillService = WaterBillService(
+    firestoreService,
+    activityLogService,
+    firestore: fakeFirestore,
+  );
+  final waterContributionService = WaterContributionService(
+    firestoreService,
+    recurringService,
+    waterBillService,
+    activityLogService,
+  );
   final fakeTenantService = TenantService(
     firestoreService,
     activityLogService,
     rentalUnitService,
     recurringService,
+    waterContributionService,
   );
 
   final router = GoRouter(

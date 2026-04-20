@@ -173,6 +173,12 @@ GoRouter appRouter(Ref ref) {
                     ),
                   ),
                   GoRoute(
+                    path: 'contributions',
+                    builder: (context, state) => WaterContributionsScreen(
+                      groundId: state.pathParameters['groundId']!,
+                    ),
+                  ),
+                  GoRoute(
                     path: ':billId',
                     builder: (context, state) => WaterBillDetailScreen(
                       groundId: state.pathParameters['groundId']!,
@@ -320,6 +326,10 @@ GoRouter appRouter(Ref ref) {
       GoRoute(
         path: '/settings/tariffs',
         builder: (context, state) => const TariffConfigScreen(),
+      ),
+      GoRoute(
+        path: '/settings/water-contribution',
+        builder: (context, state) => const WaterSettingsScreen(),
       ),
       GoRoute(
         path: '/settings/meter-reminder',

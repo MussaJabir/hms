@@ -8,6 +8,7 @@ import 'package:hms/core/widgets/widgets.dart';
 import 'package:hms/features/grounds/providers/ground_providers.dart';
 import 'package:hms/features/water/models/water_bill.dart';
 import 'package:hms/features/water/providers/water_bill_providers.dart';
+import 'package:hms/features/water/providers/water_contribution_providers.dart';
 
 class WaterBillsScreen extends ConsumerWidget {
   const WaterBillsScreen({super.key, required this.groundId});
@@ -30,6 +31,11 @@ class WaterBillsScreen extends ConsumerWidget {
     final latestAsync = ref.watch(latestBillProvider(groundId));
     final avgAsync = ref.watch(averageMonthlyBillProvider(groundId));
     final unpaidAsync = ref.watch(unpaidBillsProvider(groundId));
+    final now = DateTime.now();
+    final currentPeriod = '${now.year}-${now.month.toString().padLeft(2, '0')}';
+    final surplusAsync = ref.watch(
+      surplusDeficitProvider(groundId, currentPeriod),
+    );
 
     final groundName = groundAsync.asData?.value?.name ?? 'Ground';
 
@@ -43,6 +49,12 @@ class WaterBillsScreen extends ConsumerWidget {
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.people_outline),
+            tooltip: 'Contributions',
+            onPressed: () =>
+                context.push('/grounds/$groundId/water/contributions'),
+          ),
           IconButton(
             icon: const Icon(Icons.add),
             tooltip: 'Add Bill',
@@ -78,6 +90,8 @@ class WaterBillsScreen extends ConsumerWidget {
                     latestAsync: latestAsync,
                     avgAsync: avgAsync,
                     unpaidAsync: unpaidAsync,
+                    surplusAsync: surplusAsync,
+                    groundId: groundId,
                   ),
                 ),
               ),
@@ -143,52 +157,74 @@ class _SummarySection extends StatelessWidget {
     required this.latestAsync,
     required this.avgAsync,
     required this.unpaidAsync,
+    required this.surplusAsync,
+    required this.groundId,
   });
 
   final AsyncValue<WaterBill?> latestAsync;
   final AsyncValue<double> avgAsync;
   final AsyncValue<List<WaterBill>> unpaidAsync;
+  final AsyncValue<dynamic> surplusAsync;
+  final String groundId;
 
   @override
   Widget build(BuildContext context) {
     final latestBill = latestAsync.asData?.value;
     final avg = avgAsync.asData?.value ?? 0.0;
     final unpaidCount = unpaidAsync.asData?.value.length ?? 0;
+    final surplus = surplusAsync.asData?.value;
 
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: SummaryTile(
-            label: 'Latest Bill',
-            value: latestBill != null
-                ? formatTZS(latestBill.totalAmount)
-                : 'No bills',
-            icon: Icons.water_drop_outlined,
-            iconColor: Colors.blue,
+        Row(
+          children: [
+            Expanded(
+              child: SummaryTile(
+                label: 'Latest Bill',
+                value: latestBill != null
+                    ? formatTZS(latestBill.totalAmount)
+                    : 'No bills',
+                icon: Icons.water_drop_outlined,
+                iconColor: Colors.blue,
+                compact: true,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: SummaryTile(
+                label: 'Avg Monthly',
+                value: formatTZS(avg),
+                icon: Icons.trending_flat_outlined,
+                iconColor: Colors.teal,
+                compact: true,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: SummaryTile(
+                label: 'Unpaid',
+                value: '$unpaidCount',
+                icon: Icons.warning_amber_outlined,
+                iconColor: unpaidCount > 0 ? Colors.red : Colors.green,
+                valueColor: unpaidCount > 0 ? Colors.red : null,
+                compact: true,
+              ),
+            ),
+          ],
+        ),
+        if (surplus != null && surplus.totalTenants > 0) ...[
+          const SizedBox(height: AppSpacing.sm),
+          SummaryTile(
+            label: surplus.isSurplus
+                ? 'This Month — Surplus'
+                : 'This Month — Deficit',
+            value: formatTZS(surplus.surplusDeficit.abs()),
+            icon: surplus.isSurplus ? Icons.trending_up : Icons.trending_down,
+            iconColor: surplus.isSurplus ? Colors.green : Colors.red,
+            valueColor: surplus.isSurplus ? Colors.green : Colors.red,
             compact: true,
           ),
-        ),
-        const SizedBox(width: AppSpacing.sm),
-        Expanded(
-          child: SummaryTile(
-            label: 'Avg Monthly',
-            value: formatTZS(avg),
-            icon: Icons.trending_flat_outlined,
-            iconColor: Colors.teal,
-            compact: true,
-          ),
-        ),
-        const SizedBox(width: AppSpacing.sm),
-        Expanded(
-          child: SummaryTile(
-            label: 'Unpaid',
-            value: '$unpaidCount',
-            icon: Icons.warning_amber_outlined,
-            iconColor: unpaidCount > 0 ? Colors.red : Colors.green,
-            valueColor: unpaidCount > 0 ? Colors.red : null,
-            compact: true,
-          ),
-        ),
+        ],
       ],
     );
   }

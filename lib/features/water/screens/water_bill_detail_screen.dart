@@ -10,6 +10,7 @@ import 'package:hms/core/widgets/widgets.dart';
 import 'package:hms/features/auth/providers/user_providers.dart';
 import 'package:hms/features/water/models/water_bill.dart';
 import 'package:hms/features/water/providers/water_bill_providers.dart';
+import 'package:hms/features/water/providers/water_contribution_providers.dart';
 
 class WaterBillDetailScreen extends ConsumerWidget {
   const WaterBillDetailScreen({
@@ -38,6 +39,9 @@ class WaterBillDetailScreen extends ConsumerWidget {
     final isSuperAdmin =
         ref.watch(currentUserProfileProvider).asData?.value?.isSuperAdmin ??
         false;
+    final surplusAsync = ref.watch(
+      surplusDeficitProvider(groundId, bill.billingPeriod),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -84,6 +88,10 @@ class WaterBillDetailScreen extends ConsumerWidget {
               _NotesCard(notes: bill.notes),
               const SizedBox(height: AppSpacing.md),
             ],
+
+            // Tenant contributions summary for this period
+            _ContributionsSummaryCard(surplusAsync: surplusAsync),
+            const SizedBox(height: AppSpacing.md),
 
             // Mark paid action
             if (!bill.isPaid) ...[
@@ -361,6 +369,61 @@ class _SmsDataCardState extends State<_SmsDataCard> {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _ContributionsSummaryCard extends StatelessWidget {
+  const _ContributionsSummaryCard({required this.surplusAsync});
+
+  final AsyncValue<dynamic> surplusAsync;
+
+  @override
+  Widget build(BuildContext context) {
+    final surplus = surplusAsync.asData?.value;
+    if (surplus == null) return const SizedBox.shrink();
+
+    final surplusValue = surplus.surplusDeficit as double;
+    final collected = surplus.totalCollected as double;
+    final billAmount = surplus.actualBillAmount as double;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Tenant Contributions This Period',
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+            const Divider(height: AppSpacing.lg),
+            _DetailRow(
+              label: 'Tenant contributions',
+              value: formatTZS(collected),
+            ),
+            const Divider(height: AppSpacing.lg),
+            _DetailRow(label: 'Bill amount', value: formatTZS(billAmount)),
+            const Divider(height: AppSpacing.lg),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  surplusValue >= 0 ? 'Surplus' : 'You absorbed',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                Text(
+                  formatTZS(surplusValue.abs()),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: surplusValue >= 0 ? Colors.green : Colors.red,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

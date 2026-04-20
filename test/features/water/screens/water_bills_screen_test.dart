@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hms/features/water/models/water_bill.dart';
+import 'package:hms/features/water/models/water_surplus_deficit.dart';
 import 'package:hms/features/water/providers/water_bill_providers.dart';
+import 'package:hms/features/water/providers/water_contribution_providers.dart';
 import 'package:hms/features/water/screens/water_bills_screen.dart';
 import 'package:hms/features/grounds/providers/ground_providers.dart';
 import 'package:hms/core/models/ground.dart';
@@ -44,12 +46,26 @@ WaterBill _bill({
   );
 }
 
+WaterSurplusDeficit _noSurplus() {
+  final now = DateTime(2026, 4, 18);
+  return WaterSurplusDeficit(
+    period: '${now.year}-${now.month.toString().padLeft(2, '0')}',
+    groundId: _groundId,
+    totalCollected: 0,
+    actualBillAmount: 0,
+    totalTenants: 0,
+    paidTenants: 0,
+  );
+}
+
 Widget _wrap({
   List<WaterBill> bills = const [],
   WaterBill? latest,
   List<WaterBill> unpaid = const [],
   double avg = 0,
 }) {
+  final now = DateTime.now();
+  final period = '${now.year}-${now.month.toString().padLeft(2, '0')}';
   final router = GoRouter(
     initialLocation: '/grounds/$_groundId/water',
     routes: [
@@ -67,6 +83,10 @@ Widget _wrap({
         builder: (ctx, st) => const Scaffold(body: Text('History')),
       ),
       GoRoute(
+        path: '/grounds/:groundId/water/contributions',
+        builder: (ctx, st) => const Scaffold(body: Text('Contributions')),
+      ),
+      GoRoute(
         path: '/grounds/:groundId/water/:billId',
         builder: (ctx, st) => const Scaffold(body: Text('Detail')),
       ),
@@ -82,6 +102,10 @@ Widget _wrap({
       latestBillProvider(_groundId).overrideWith((ref) async => latest),
       unpaidBillsProvider(_groundId).overrideWith((ref) async => unpaid),
       averageMonthlyBillProvider(_groundId).overrideWith((ref) async => avg),
+      surplusDeficitProvider(
+        _groundId,
+        period,
+      ).overrideWith((ref) async => _noSurplus()),
     ],
     child: MaterialApp.router(routerConfig: router),
   );
