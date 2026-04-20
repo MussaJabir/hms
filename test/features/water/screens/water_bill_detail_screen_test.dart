@@ -7,7 +7,9 @@ import 'package:hms/core/services/activity_log_service.dart';
 import 'package:hms/core/services/firestore_service.dart';
 import 'package:hms/features/auth/providers/user_providers.dart';
 import 'package:hms/features/water/models/water_bill.dart';
+import 'package:hms/features/water/models/water_surplus_deficit.dart';
 import 'package:hms/features/water/providers/water_bill_providers.dart';
+import 'package:hms/features/water/providers/water_contribution_providers.dart';
 import 'package:hms/features/water/screens/water_bill_detail_screen.dart';
 import 'package:hms/features/water/services/water_bill_service.dart';
 
@@ -39,11 +41,24 @@ Widget _wrap(WaterBill bill) {
     firestore: fakeFirestore,
   );
 
+  final noSurplus = WaterSurplusDeficit(
+    period: bill.billingPeriod,
+    groundId: _groundId,
+    totalCollected: 0,
+    actualBillAmount: 0,
+    totalTenants: 0,
+    paidTenants: 0,
+  );
+
   return ProviderScope(
     overrides: [
       waterBillServiceProvider.overrideWithValue(service),
       authStateProvider.overrideWith((ref) => const Stream.empty()),
       currentUserProfileProvider.overrideWith((ref) => Stream.value(null)),
+      surplusDeficitProvider(
+        _groundId,
+        bill.billingPeriod,
+      ).overrideWith((ref) async => noSurplus),
     ],
     child: MaterialApp(
       home: WaterBillDetailScreen(

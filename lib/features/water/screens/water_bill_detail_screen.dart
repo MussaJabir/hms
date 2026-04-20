@@ -10,6 +10,7 @@ import 'package:hms/core/widgets/widgets.dart';
 import 'package:hms/features/auth/providers/user_providers.dart';
 import 'package:hms/features/water/models/water_bill.dart';
 import 'package:hms/features/water/providers/water_bill_providers.dart';
+import 'package:hms/features/water/models/water_surplus_deficit.dart';
 import 'package:hms/features/water/providers/water_contribution_providers.dart';
 
 class WaterBillDetailScreen extends ConsumerWidget {
@@ -39,7 +40,7 @@ class WaterBillDetailScreen extends ConsumerWidget {
     final isSuperAdmin =
         ref.watch(currentUserProfileProvider).asData?.value?.isSuperAdmin ??
         false;
-    final surplusAsync = ref.watch(
+    final AsyncValue<WaterSurplusDeficit> surplusAsync = ref.watch(
       surplusDeficitProvider(groundId, bill.billingPeriod),
     );
 
@@ -208,22 +209,19 @@ class WaterBillDetailScreen extends ConsumerWidget {
 
     if (confirmed != true || !context.mounted) return;
 
+    final messenger = ScaffoldMessenger.of(context);
+    final router = GoRouter.of(context);
+
     try {
       final userId =
           ref.read(authStateProvider).asData?.value?.uid ?? 'unknown';
       await ref
           .read(waterBillServiceProvider)
           .deleteBill(groundId: groundId, billId: billId, userId: userId);
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Bill deleted')));
-      context.pop();
+      messenger.showSnackBar(const SnackBar(content: Text('Bill deleted')));
+      router.pop();
     } catch (e) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      messenger.showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 }
@@ -377,16 +375,18 @@ class _SmsDataCardState extends State<_SmsDataCard> {
 class _ContributionsSummaryCard extends StatelessWidget {
   const _ContributionsSummaryCard({required this.surplusAsync});
 
-  final AsyncValue<dynamic> surplusAsync;
+  final AsyncValue<WaterSurplusDeficit> surplusAsync;
 
   @override
   Widget build(BuildContext context) {
     final surplus = surplusAsync.asData?.value;
-    if (surplus == null) return const SizedBox.shrink();
+    if (surplus == null || surplus.totalTenants == 0) {
+      return const SizedBox.shrink();
+    }
 
-    final surplusValue = surplus.surplusDeficit as double;
-    final collected = surplus.totalCollected as double;
-    final billAmount = surplus.actualBillAmount as double;
+    final surplusValue = surplus.surplusDeficit;
+    final collected = surplus.totalCollected;
+    final billAmount = surplus.actualBillAmount;
 
     return Card(
       child: Padding(
