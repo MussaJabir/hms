@@ -10,7 +10,6 @@ import 'package:hms/features/water/services/water_summary_service.dart';
 
 const _groundId = 'g-1';
 const _userId = 'user-1';
-const _billsCol = 'grounds/$_groundId/water_bills';
 
 String _currentPeriod() {
   final now = DateTime.now();
