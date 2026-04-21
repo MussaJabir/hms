@@ -12,6 +12,7 @@ import 'package:hms/features/dashboard/widgets/widgets.dart';
 import 'package:hms/features/grounds/providers/ground_providers.dart';
 import 'package:hms/features/electricity/providers/electricity_summary_providers.dart';
 import 'package:hms/features/rent/providers/rent_summary_providers.dart';
+import 'package:hms/features/water/providers/water_summary_providers.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -85,6 +86,8 @@ class HomeScreen extends ConsumerWidget {
                 const _RentSummaryTile(),
                 // ── Electricity Summary ───────────────────────────────────
                 const _ElectricitySummaryTile(),
+                // ── Water Summary ─────────────────────────────────────────
+                const _WaterSummaryTile(),
                 // ── Needs Attention ───────────────────────────────────────
                 Padding(
                   padding: const EdgeInsets.fromLTRB(
@@ -224,6 +227,71 @@ class _ElectricitySummaryTile extends ConsumerWidget {
           icon: Icons.electric_meter_outlined,
           trend: trendDirection,
           trendText: trendText ?? formatTZS(cost, short: true),
+          compact: true,
+        ),
+      ),
+    );
+  }
+}
+
+// ── Water summary tile ────────────────────────────────────────────────────
+
+class _WaterSummaryTile extends ConsumerWidget {
+  const _WaterSummaryTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final costAsync = ref.watch(currentMonthWaterCostProvider);
+    final surplusAsync = ref.watch(currentMonthWaterSurplusDeficitProvider);
+    final currentGroundId = ref.watch(currentGroundProvider);
+
+    final cost = costAsync.asData?.value ?? 0.0;
+    final surplus = surplusAsync.asData?.value ?? 0.0;
+    final isLoading = costAsync.isLoading;
+
+    if (cost == 0 && !isLoading) return const SizedBox.shrink();
+
+    if (isLoading) {
+      return const Padding(
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.screenPadding,
+          AppSpacing.md,
+          AppSpacing.screenPadding,
+          0,
+        ),
+        child: ShimmerBox(height: 72, borderRadius: AppSpacing.borderRadius),
+      );
+    }
+
+    final trendDirection = surplus >= 0
+        ? TrendDirection.up
+        : TrendDirection.down;
+    final trendText = surplus >= 0
+        ? '+${formatTZS(surplus.abs(), short: true)} surplus'
+        : '-${formatTZS(surplus.abs(), short: true)} deficit';
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.screenPadding,
+        AppSpacing.md,
+        AppSpacing.screenPadding,
+        0,
+      ),
+      child: InkWell(
+        onTap: () {
+          if (currentGroundId != null) {
+            context.push('/grounds/$currentGroundId/water');
+          } else {
+            context.go('/grounds');
+          }
+        },
+        borderRadius: BorderRadius.circular(AppSpacing.borderRadius),
+        child: SummaryTile(
+          label: 'Water This Month',
+          value: formatTZS(cost, short: true),
+          icon: Icons.water_drop_outlined,
+          trend: trendDirection,
+          trendText: trendText,
           compact: true,
         ),
       ),

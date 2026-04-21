@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 mixin _$MonthlyReport {
 
  String get period;// "2026-03" format
- double get totalIncome; double get totalExpenses; double get rentExpected; double get rentCollected; List<ExpenseCategory> get topExpenses; List<OverdueItem> get overdueItems; double get mainGroundIncome; double get mainGroundExpenses; double get minorGroundIncome; double get minorGroundExpenses; double get electricityUnits; double get electricityEstimatedCost;
+ double get totalIncome; double get totalExpenses; double get rentExpected; double get rentCollected; List<ExpenseCategory> get topExpenses; List<OverdueItem> get overdueItems; double get mainGroundIncome; double get mainGroundExpenses; double get minorGroundIncome; double get minorGroundExpenses; double get electricityUnits; double get electricityEstimatedCost; double get waterBillTotal; double get waterContributionsCollected; double get waterSurplusDeficit;
 /// Create a copy of MonthlyReport
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -26,16 +26,16 @@ $MonthlyReportCopyWith<MonthlyReport> get copyWith => _$MonthlyReportCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MonthlyReport&&(identical(other.period, period) || other.period == period)&&(identical(other.totalIncome, totalIncome) || other.totalIncome == totalIncome)&&(identical(other.totalExpenses, totalExpenses) || other.totalExpenses == totalExpenses)&&(identical(other.rentExpected, rentExpected) || other.rentExpected == rentExpected)&&(identical(other.rentCollected, rentCollected) || other.rentCollected == rentCollected)&&const DeepCollectionEquality().equals(other.topExpenses, topExpenses)&&const DeepCollectionEquality().equals(other.overdueItems, overdueItems)&&(identical(other.mainGroundIncome, mainGroundIncome) || other.mainGroundIncome == mainGroundIncome)&&(identical(other.mainGroundExpenses, mainGroundExpenses) || other.mainGroundExpenses == mainGroundExpenses)&&(identical(other.minorGroundIncome, minorGroundIncome) || other.minorGroundIncome == minorGroundIncome)&&(identical(other.minorGroundExpenses, minorGroundExpenses) || other.minorGroundExpenses == minorGroundExpenses)&&(identical(other.electricityUnits, electricityUnits) || other.electricityUnits == electricityUnits)&&(identical(other.electricityEstimatedCost, electricityEstimatedCost) || other.electricityEstimatedCost == electricityEstimatedCost));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MonthlyReport&&(identical(other.period, period) || other.period == period)&&(identical(other.totalIncome, totalIncome) || other.totalIncome == totalIncome)&&(identical(other.totalExpenses, totalExpenses) || other.totalExpenses == totalExpenses)&&(identical(other.rentExpected, rentExpected) || other.rentExpected == rentExpected)&&(identical(other.rentCollected, rentCollected) || other.rentCollected == rentCollected)&&const DeepCollectionEquality().equals(other.topExpenses, topExpenses)&&const DeepCollectionEquality().equals(other.overdueItems, overdueItems)&&(identical(other.mainGroundIncome, mainGroundIncome) || other.mainGroundIncome == mainGroundIncome)&&(identical(other.mainGroundExpenses, mainGroundExpenses) || other.mainGroundExpenses == mainGroundExpenses)&&(identical(other.minorGroundIncome, minorGroundIncome) || other.minorGroundIncome == minorGroundIncome)&&(identical(other.minorGroundExpenses, minorGroundExpenses) || other.minorGroundExpenses == minorGroundExpenses)&&(identical(other.electricityUnits, electricityUnits) || other.electricityUnits == electricityUnits)&&(identical(other.electricityEstimatedCost, electricityEstimatedCost) || other.electricityEstimatedCost == electricityEstimatedCost)&&(identical(other.waterBillTotal, waterBillTotal) || other.waterBillTotal == waterBillTotal)&&(identical(other.waterContributionsCollected, waterContributionsCollected) || other.waterContributionsCollected == waterContributionsCollected)&&(identical(other.waterSurplusDeficit, waterSurplusDeficit) || other.waterSurplusDeficit == waterSurplusDeficit));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,period,totalIncome,totalExpenses,rentExpected,rentCollected,const DeepCollectionEquality().hash(topExpenses),const DeepCollectionEquality().hash(overdueItems),mainGroundIncome,mainGroundExpenses,minorGroundIncome,minorGroundExpenses,electricityUnits,electricityEstimatedCost);
+int get hashCode => Object.hash(runtimeType,period,totalIncome,totalExpenses,rentExpected,rentCollected,const DeepCollectionEquality().hash(topExpenses),const DeepCollectionEquality().hash(overdueItems),mainGroundIncome,mainGroundExpenses,minorGroundIncome,minorGroundExpenses,electricityUnits,electricityEstimatedCost,waterBillTotal,waterContributionsCollected,waterSurplusDeficit);
 
 @override
 String toString() {
-  return 'MonthlyReport(period: $period, totalIncome: $totalIncome, totalExpenses: $totalExpenses, rentExpected: $rentExpected, rentCollected: $rentCollected, topExpenses: $topExpenses, overdueItems: $overdueItems, mainGroundIncome: $mainGroundIncome, mainGroundExpenses: $mainGroundExpenses, minorGroundIncome: $minorGroundIncome, minorGroundExpenses: $minorGroundExpenses, electricityUnits: $electricityUnits, electricityEstimatedCost: $electricityEstimatedCost)';
+  return 'MonthlyReport(period: $period, totalIncome: $totalIncome, totalExpenses: $totalExpenses, rentExpected: $rentExpected, rentCollected: $rentCollected, topExpenses: $topExpenses, overdueItems: $overdueItems, mainGroundIncome: $mainGroundIncome, mainGroundExpenses: $mainGroundExpenses, minorGroundIncome: $minorGroundIncome, minorGroundExpenses: $minorGroundExpenses, electricityUnits: $electricityUnits, electricityEstimatedCost: $electricityEstimatedCost, waterBillTotal: $waterBillTotal, waterContributionsCollected: $waterContributionsCollected, waterSurplusDeficit: $waterSurplusDeficit)';
 }
 
 
@@ -46,7 +46,7 @@ abstract mixin class $MonthlyReportCopyWith<$Res>  {
   factory $MonthlyReportCopyWith(MonthlyReport value, $Res Function(MonthlyReport) _then) = _$MonthlyReportCopyWithImpl;
 @useResult
 $Res call({
- String period, double totalIncome, double totalExpenses, double rentExpected, double rentCollected, List<ExpenseCategory> topExpenses, List<OverdueItem> overdueItems, double mainGroundIncome, double mainGroundExpenses, double minorGroundIncome, double minorGroundExpenses, double electricityUnits, double electricityEstimatedCost
+ String period, double totalIncome, double totalExpenses, double rentExpected, double rentCollected, List<ExpenseCategory> topExpenses, List<OverdueItem> overdueItems, double mainGroundIncome, double mainGroundExpenses, double minorGroundIncome, double minorGroundExpenses, double electricityUnits, double electricityEstimatedCost, double waterBillTotal, double waterContributionsCollected, double waterSurplusDeficit
 });
 
 
@@ -63,7 +63,7 @@ class _$MonthlyReportCopyWithImpl<$Res>
 
 /// Create a copy of MonthlyReport
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? period = null,Object? totalIncome = null,Object? totalExpenses = null,Object? rentExpected = null,Object? rentCollected = null,Object? topExpenses = null,Object? overdueItems = null,Object? mainGroundIncome = null,Object? mainGroundExpenses = null,Object? minorGroundIncome = null,Object? minorGroundExpenses = null,Object? electricityUnits = null,Object? electricityEstimatedCost = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? period = null,Object? totalIncome = null,Object? totalExpenses = null,Object? rentExpected = null,Object? rentCollected = null,Object? topExpenses = null,Object? overdueItems = null,Object? mainGroundIncome = null,Object? mainGroundExpenses = null,Object? minorGroundIncome = null,Object? minorGroundExpenses = null,Object? electricityUnits = null,Object? electricityEstimatedCost = null,Object? waterBillTotal = null,Object? waterContributionsCollected = null,Object? waterSurplusDeficit = null,}) {
   return _then(_self.copyWith(
 period: null == period ? _self.period : period // ignore: cast_nullable_to_non_nullable
 as String,totalIncome: null == totalIncome ? _self.totalIncome : totalIncome // ignore: cast_nullable_to_non_nullable
@@ -78,6 +78,9 @@ as double,minorGroundIncome: null == minorGroundIncome ? _self.minorGroundIncome
 as double,minorGroundExpenses: null == minorGroundExpenses ? _self.minorGroundExpenses : minorGroundExpenses // ignore: cast_nullable_to_non_nullable
 as double,electricityUnits: null == electricityUnits ? _self.electricityUnits : electricityUnits // ignore: cast_nullable_to_non_nullable
 as double,electricityEstimatedCost: null == electricityEstimatedCost ? _self.electricityEstimatedCost : electricityEstimatedCost // ignore: cast_nullable_to_non_nullable
+as double,waterBillTotal: null == waterBillTotal ? _self.waterBillTotal : waterBillTotal // ignore: cast_nullable_to_non_nullable
+as double,waterContributionsCollected: null == waterContributionsCollected ? _self.waterContributionsCollected : waterContributionsCollected // ignore: cast_nullable_to_non_nullable
+as double,waterSurplusDeficit: null == waterSurplusDeficit ? _self.waterSurplusDeficit : waterSurplusDeficit // ignore: cast_nullable_to_non_nullable
 as double,
   ));
 }
@@ -163,10 +166,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String period,  double totalIncome,  double totalExpenses,  double rentExpected,  double rentCollected,  List<ExpenseCategory> topExpenses,  List<OverdueItem> overdueItems,  double mainGroundIncome,  double mainGroundExpenses,  double minorGroundIncome,  double minorGroundExpenses,  double electricityUnits,  double electricityEstimatedCost)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String period,  double totalIncome,  double totalExpenses,  double rentExpected,  double rentCollected,  List<ExpenseCategory> topExpenses,  List<OverdueItem> overdueItems,  double mainGroundIncome,  double mainGroundExpenses,  double minorGroundIncome,  double minorGroundExpenses,  double electricityUnits,  double electricityEstimatedCost,  double waterBillTotal,  double waterContributionsCollected,  double waterSurplusDeficit)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _MonthlyReport() when $default != null:
-return $default(_that.period,_that.totalIncome,_that.totalExpenses,_that.rentExpected,_that.rentCollected,_that.topExpenses,_that.overdueItems,_that.mainGroundIncome,_that.mainGroundExpenses,_that.minorGroundIncome,_that.minorGroundExpenses,_that.electricityUnits,_that.electricityEstimatedCost);case _:
+return $default(_that.period,_that.totalIncome,_that.totalExpenses,_that.rentExpected,_that.rentCollected,_that.topExpenses,_that.overdueItems,_that.mainGroundIncome,_that.mainGroundExpenses,_that.minorGroundIncome,_that.minorGroundExpenses,_that.electricityUnits,_that.electricityEstimatedCost,_that.waterBillTotal,_that.waterContributionsCollected,_that.waterSurplusDeficit);case _:
   return orElse();
 
 }
@@ -184,10 +187,10 @@ return $default(_that.period,_that.totalIncome,_that.totalExpenses,_that.rentExp
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String period,  double totalIncome,  double totalExpenses,  double rentExpected,  double rentCollected,  List<ExpenseCategory> topExpenses,  List<OverdueItem> overdueItems,  double mainGroundIncome,  double mainGroundExpenses,  double minorGroundIncome,  double minorGroundExpenses,  double electricityUnits,  double electricityEstimatedCost)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String period,  double totalIncome,  double totalExpenses,  double rentExpected,  double rentCollected,  List<ExpenseCategory> topExpenses,  List<OverdueItem> overdueItems,  double mainGroundIncome,  double mainGroundExpenses,  double minorGroundIncome,  double minorGroundExpenses,  double electricityUnits,  double electricityEstimatedCost,  double waterBillTotal,  double waterContributionsCollected,  double waterSurplusDeficit)  $default,) {final _that = this;
 switch (_that) {
 case _MonthlyReport():
-return $default(_that.period,_that.totalIncome,_that.totalExpenses,_that.rentExpected,_that.rentCollected,_that.topExpenses,_that.overdueItems,_that.mainGroundIncome,_that.mainGroundExpenses,_that.minorGroundIncome,_that.minorGroundExpenses,_that.electricityUnits,_that.electricityEstimatedCost);case _:
+return $default(_that.period,_that.totalIncome,_that.totalExpenses,_that.rentExpected,_that.rentCollected,_that.topExpenses,_that.overdueItems,_that.mainGroundIncome,_that.mainGroundExpenses,_that.minorGroundIncome,_that.minorGroundExpenses,_that.electricityUnits,_that.electricityEstimatedCost,_that.waterBillTotal,_that.waterContributionsCollected,_that.waterSurplusDeficit);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -204,10 +207,10 @@ return $default(_that.period,_that.totalIncome,_that.totalExpenses,_that.rentExp
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String period,  double totalIncome,  double totalExpenses,  double rentExpected,  double rentCollected,  List<ExpenseCategory> topExpenses,  List<OverdueItem> overdueItems,  double mainGroundIncome,  double mainGroundExpenses,  double minorGroundIncome,  double minorGroundExpenses,  double electricityUnits,  double electricityEstimatedCost)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String period,  double totalIncome,  double totalExpenses,  double rentExpected,  double rentCollected,  List<ExpenseCategory> topExpenses,  List<OverdueItem> overdueItems,  double mainGroundIncome,  double mainGroundExpenses,  double minorGroundIncome,  double minorGroundExpenses,  double electricityUnits,  double electricityEstimatedCost,  double waterBillTotal,  double waterContributionsCollected,  double waterSurplusDeficit)?  $default,) {final _that = this;
 switch (_that) {
 case _MonthlyReport() when $default != null:
-return $default(_that.period,_that.totalIncome,_that.totalExpenses,_that.rentExpected,_that.rentCollected,_that.topExpenses,_that.overdueItems,_that.mainGroundIncome,_that.mainGroundExpenses,_that.minorGroundIncome,_that.minorGroundExpenses,_that.electricityUnits,_that.electricityEstimatedCost);case _:
+return $default(_that.period,_that.totalIncome,_that.totalExpenses,_that.rentExpected,_that.rentCollected,_that.topExpenses,_that.overdueItems,_that.mainGroundIncome,_that.mainGroundExpenses,_that.minorGroundIncome,_that.minorGroundExpenses,_that.electricityUnits,_that.electricityEstimatedCost,_that.waterBillTotal,_that.waterContributionsCollected,_that.waterSurplusDeficit);case _:
   return null;
 
 }
@@ -219,7 +222,7 @@ return $default(_that.period,_that.totalIncome,_that.totalExpenses,_that.rentExp
 
 
 class _MonthlyReport extends MonthlyReport {
-  const _MonthlyReport({required this.period, this.totalIncome = 0, this.totalExpenses = 0, this.rentExpected = 0, this.rentCollected = 0, final  List<ExpenseCategory> topExpenses = const [], final  List<OverdueItem> overdueItems = const [], this.mainGroundIncome = 0, this.mainGroundExpenses = 0, this.minorGroundIncome = 0, this.minorGroundExpenses = 0, this.electricityUnits = 0, this.electricityEstimatedCost = 0}): _topExpenses = topExpenses,_overdueItems = overdueItems,super._();
+  const _MonthlyReport({required this.period, this.totalIncome = 0, this.totalExpenses = 0, this.rentExpected = 0, this.rentCollected = 0, final  List<ExpenseCategory> topExpenses = const [], final  List<OverdueItem> overdueItems = const [], this.mainGroundIncome = 0, this.mainGroundExpenses = 0, this.minorGroundIncome = 0, this.minorGroundExpenses = 0, this.electricityUnits = 0, this.electricityEstimatedCost = 0, this.waterBillTotal = 0, this.waterContributionsCollected = 0, this.waterSurplusDeficit = 0}): _topExpenses = topExpenses,_overdueItems = overdueItems,super._();
   
 
 @override final  String period;
@@ -248,6 +251,9 @@ class _MonthlyReport extends MonthlyReport {
 @override@JsonKey() final  double minorGroundExpenses;
 @override@JsonKey() final  double electricityUnits;
 @override@JsonKey() final  double electricityEstimatedCost;
+@override@JsonKey() final  double waterBillTotal;
+@override@JsonKey() final  double waterContributionsCollected;
+@override@JsonKey() final  double waterSurplusDeficit;
 
 /// Create a copy of MonthlyReport
 /// with the given fields replaced by the non-null parameter values.
@@ -259,16 +265,16 @@ _$MonthlyReportCopyWith<_MonthlyReport> get copyWith => __$MonthlyReportCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MonthlyReport&&(identical(other.period, period) || other.period == period)&&(identical(other.totalIncome, totalIncome) || other.totalIncome == totalIncome)&&(identical(other.totalExpenses, totalExpenses) || other.totalExpenses == totalExpenses)&&(identical(other.rentExpected, rentExpected) || other.rentExpected == rentExpected)&&(identical(other.rentCollected, rentCollected) || other.rentCollected == rentCollected)&&const DeepCollectionEquality().equals(other._topExpenses, _topExpenses)&&const DeepCollectionEquality().equals(other._overdueItems, _overdueItems)&&(identical(other.mainGroundIncome, mainGroundIncome) || other.mainGroundIncome == mainGroundIncome)&&(identical(other.mainGroundExpenses, mainGroundExpenses) || other.mainGroundExpenses == mainGroundExpenses)&&(identical(other.minorGroundIncome, minorGroundIncome) || other.minorGroundIncome == minorGroundIncome)&&(identical(other.minorGroundExpenses, minorGroundExpenses) || other.minorGroundExpenses == minorGroundExpenses)&&(identical(other.electricityUnits, electricityUnits) || other.electricityUnits == electricityUnits)&&(identical(other.electricityEstimatedCost, electricityEstimatedCost) || other.electricityEstimatedCost == electricityEstimatedCost));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MonthlyReport&&(identical(other.period, period) || other.period == period)&&(identical(other.totalIncome, totalIncome) || other.totalIncome == totalIncome)&&(identical(other.totalExpenses, totalExpenses) || other.totalExpenses == totalExpenses)&&(identical(other.rentExpected, rentExpected) || other.rentExpected == rentExpected)&&(identical(other.rentCollected, rentCollected) || other.rentCollected == rentCollected)&&const DeepCollectionEquality().equals(other._topExpenses, _topExpenses)&&const DeepCollectionEquality().equals(other._overdueItems, _overdueItems)&&(identical(other.mainGroundIncome, mainGroundIncome) || other.mainGroundIncome == mainGroundIncome)&&(identical(other.mainGroundExpenses, mainGroundExpenses) || other.mainGroundExpenses == mainGroundExpenses)&&(identical(other.minorGroundIncome, minorGroundIncome) || other.minorGroundIncome == minorGroundIncome)&&(identical(other.minorGroundExpenses, minorGroundExpenses) || other.minorGroundExpenses == minorGroundExpenses)&&(identical(other.electricityUnits, electricityUnits) || other.electricityUnits == electricityUnits)&&(identical(other.electricityEstimatedCost, electricityEstimatedCost) || other.electricityEstimatedCost == electricityEstimatedCost)&&(identical(other.waterBillTotal, waterBillTotal) || other.waterBillTotal == waterBillTotal)&&(identical(other.waterContributionsCollected, waterContributionsCollected) || other.waterContributionsCollected == waterContributionsCollected)&&(identical(other.waterSurplusDeficit, waterSurplusDeficit) || other.waterSurplusDeficit == waterSurplusDeficit));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,period,totalIncome,totalExpenses,rentExpected,rentCollected,const DeepCollectionEquality().hash(_topExpenses),const DeepCollectionEquality().hash(_overdueItems),mainGroundIncome,mainGroundExpenses,minorGroundIncome,minorGroundExpenses,electricityUnits,electricityEstimatedCost);
+int get hashCode => Object.hash(runtimeType,period,totalIncome,totalExpenses,rentExpected,rentCollected,const DeepCollectionEquality().hash(_topExpenses),const DeepCollectionEquality().hash(_overdueItems),mainGroundIncome,mainGroundExpenses,minorGroundIncome,minorGroundExpenses,electricityUnits,electricityEstimatedCost,waterBillTotal,waterContributionsCollected,waterSurplusDeficit);
 
 @override
 String toString() {
-  return 'MonthlyReport(period: $period, totalIncome: $totalIncome, totalExpenses: $totalExpenses, rentExpected: $rentExpected, rentCollected: $rentCollected, topExpenses: $topExpenses, overdueItems: $overdueItems, mainGroundIncome: $mainGroundIncome, mainGroundExpenses: $mainGroundExpenses, minorGroundIncome: $minorGroundIncome, minorGroundExpenses: $minorGroundExpenses, electricityUnits: $electricityUnits, electricityEstimatedCost: $electricityEstimatedCost)';
+  return 'MonthlyReport(period: $period, totalIncome: $totalIncome, totalExpenses: $totalExpenses, rentExpected: $rentExpected, rentCollected: $rentCollected, topExpenses: $topExpenses, overdueItems: $overdueItems, mainGroundIncome: $mainGroundIncome, mainGroundExpenses: $mainGroundExpenses, minorGroundIncome: $minorGroundIncome, minorGroundExpenses: $minorGroundExpenses, electricityUnits: $electricityUnits, electricityEstimatedCost: $electricityEstimatedCost, waterBillTotal: $waterBillTotal, waterContributionsCollected: $waterContributionsCollected, waterSurplusDeficit: $waterSurplusDeficit)';
 }
 
 
@@ -279,7 +285,7 @@ abstract mixin class _$MonthlyReportCopyWith<$Res> implements $MonthlyReportCopy
   factory _$MonthlyReportCopyWith(_MonthlyReport value, $Res Function(_MonthlyReport) _then) = __$MonthlyReportCopyWithImpl;
 @override @useResult
 $Res call({
- String period, double totalIncome, double totalExpenses, double rentExpected, double rentCollected, List<ExpenseCategory> topExpenses, List<OverdueItem> overdueItems, double mainGroundIncome, double mainGroundExpenses, double minorGroundIncome, double minorGroundExpenses, double electricityUnits, double electricityEstimatedCost
+ String period, double totalIncome, double totalExpenses, double rentExpected, double rentCollected, List<ExpenseCategory> topExpenses, List<OverdueItem> overdueItems, double mainGroundIncome, double mainGroundExpenses, double minorGroundIncome, double minorGroundExpenses, double electricityUnits, double electricityEstimatedCost, double waterBillTotal, double waterContributionsCollected, double waterSurplusDeficit
 });
 
 
@@ -296,7 +302,7 @@ class __$MonthlyReportCopyWithImpl<$Res>
 
 /// Create a copy of MonthlyReport
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? period = null,Object? totalIncome = null,Object? totalExpenses = null,Object? rentExpected = null,Object? rentCollected = null,Object? topExpenses = null,Object? overdueItems = null,Object? mainGroundIncome = null,Object? mainGroundExpenses = null,Object? minorGroundIncome = null,Object? minorGroundExpenses = null,Object? electricityUnits = null,Object? electricityEstimatedCost = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? period = null,Object? totalIncome = null,Object? totalExpenses = null,Object? rentExpected = null,Object? rentCollected = null,Object? topExpenses = null,Object? overdueItems = null,Object? mainGroundIncome = null,Object? mainGroundExpenses = null,Object? minorGroundIncome = null,Object? minorGroundExpenses = null,Object? electricityUnits = null,Object? electricityEstimatedCost = null,Object? waterBillTotal = null,Object? waterContributionsCollected = null,Object? waterSurplusDeficit = null,}) {
   return _then(_MonthlyReport(
 period: null == period ? _self.period : period // ignore: cast_nullable_to_non_nullable
 as String,totalIncome: null == totalIncome ? _self.totalIncome : totalIncome // ignore: cast_nullable_to_non_nullable
@@ -311,6 +317,9 @@ as double,minorGroundIncome: null == minorGroundIncome ? _self.minorGroundIncome
 as double,minorGroundExpenses: null == minorGroundExpenses ? _self.minorGroundExpenses : minorGroundExpenses // ignore: cast_nullable_to_non_nullable
 as double,electricityUnits: null == electricityUnits ? _self.electricityUnits : electricityUnits // ignore: cast_nullable_to_non_nullable
 as double,electricityEstimatedCost: null == electricityEstimatedCost ? _self.electricityEstimatedCost : electricityEstimatedCost // ignore: cast_nullable_to_non_nullable
+as double,waterBillTotal: null == waterBillTotal ? _self.waterBillTotal : waterBillTotal // ignore: cast_nullable_to_non_nullable
+as double,waterContributionsCollected: null == waterContributionsCollected ? _self.waterContributionsCollected : waterContributionsCollected // ignore: cast_nullable_to_non_nullable
+as double,waterSurplusDeficit: null == waterSurplusDeficit ? _self.waterSurplusDeficit : waterSurplusDeficit // ignore: cast_nullable_to_non_nullable
 as double,
   ));
 }

@@ -4,6 +4,7 @@ import 'package:hms/features/dashboard/services/alert_generator_service.dart';
 import 'package:hms/features/electricity/providers/alert_providers.dart';
 import 'package:hms/features/electricity/providers/electricity_summary_providers.dart';
 import 'package:hms/features/rent/providers/rent_summary_providers.dart';
+import 'package:hms/features/water/providers/water_summary_providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'alert_provider.g.dart';
@@ -14,6 +15,7 @@ AlertGeneratorService alertGeneratorService(Ref ref) {
     ref.watch(rentSummaryServiceProvider),
     ref.watch(consumptionAlertServiceProvider),
     ref.watch(electricitySummaryServiceProvider),
+    ref.watch(waterSummaryServiceProvider),
   );
 }
 

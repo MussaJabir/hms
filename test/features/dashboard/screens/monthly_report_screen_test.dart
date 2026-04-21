@@ -168,5 +168,39 @@ void main() {
 
       expect(find.textContaining('TANESCO tariff'), findsOneWidget);
     });
+
+    testWidgets('water section is hidden when waterBillTotal is 0', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_wrap(_testReport));
+      await tester.pumpAndSettle();
+
+      await tester.drag(find.byType(ListView), const Offset(0, -2000));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Water'), findsNothing);
+    });
+
+    testWidgets('water section is visible when waterBillTotal > 0', (
+      tester,
+    ) async {
+      const reportWithWater = MonthlyReport(
+        period: '2026-04',
+        waterBillTotal: 28000,
+        waterContributionsCollected: 20000,
+        waterSurplusDeficit: -8000,
+      );
+      await tester.pumpWidget(_wrap(reportWithWater));
+      await tester.pumpAndSettle();
+
+      await tester.dragUntilVisible(
+        find.text('Water', skipOffstage: false),
+        find.byType(ListView),
+        const Offset(0, -200),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Water'), findsOneWidget);
+    });
   });
 }

@@ -44,16 +44,23 @@ class HealthScoreService {
     return (withinLimit / total) * 100;
   }
 
-  /// Builds a [HealthScore] using real rent data plus mock data for modules
-  /// that have not yet been wired (bills, stock, overdue, budget).
+  /// Builds a [HealthScore] using real rent and bills data.
   ///
   /// [rentRate] is the rent collection rate (0–100).
   /// [rentActive] is true when at least one rent record exists this month.
-  HealthScore buildScore({required double rentRate, required bool rentActive}) {
+  /// [billsRate] is the water bills paid-on-time rate (0–100).
+  /// [billsActive] is true when at least one water bill exists this month.
+  HealthScore buildScore({
+    required double rentRate,
+    required bool rentActive,
+    double billsRate = 0,
+    bool billsActive = false,
+  }) {
     return HealthScore(
       rentScore: rentRate,
       rentActive: rentActive,
-      // Remaining modules use mock values until their phases are built.
+      billsScore: billsRate,
+      billsActive: billsActive,
       budgetScore: 60,
       budgetActive: true,
     );

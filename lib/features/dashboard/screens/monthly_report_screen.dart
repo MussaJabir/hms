@@ -89,6 +89,10 @@ class _MonthlyReportScreenState extends ConsumerState<MonthlyReportScreen> {
                 const SizedBox(height: AppSpacing.md),
                 _ElectricitySummarySection(report: report),
               ],
+              if (report.waterBillTotal > 0) ...[
+                const SizedBox(height: AppSpacing.md),
+                _WaterSummarySection(report: report),
+              ],
               const SizedBox(height: AppSpacing.lg),
             ],
           ),
@@ -479,6 +483,68 @@ class _ElectricitySummarySection extends StatelessWidget {
           style: theme.textTheme.bodySmall?.copyWith(
             color: AppColors.textSecondary,
           ),
+        ),
+      ],
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Water Summary
+// ---------------------------------------------------------------------------
+
+class _WaterSummarySection extends StatelessWidget {
+  const _WaterSummarySection({required this.report});
+
+  final MonthlyReport report;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final surplusDeficit = report.waterSurplusDeficit;
+    final sdColor = surplusDeficit >= 0 ? AppColors.success : AppColors.error;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Water', style: theme.textTheme.titleMedium),
+        const SizedBox(height: AppSpacing.sm),
+        Row(
+          children: [
+            Expanded(
+              child: SummaryTile(
+                label: 'Water Bill',
+                value: formatTZS(report.waterBillTotal, short: true),
+                icon: Icons.water_drop_outlined,
+                compact: true,
+                valueColor: AppColors.error,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: SummaryTile(
+                label: 'Contributions',
+                value: formatTZS(
+                  report.waterContributionsCollected,
+                  short: true,
+                ),
+                icon: Icons.people_outlined,
+                compact: true,
+                valueColor: AppColors.success,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        SummaryTile(
+          label: 'Surplus / Deficit',
+          value: formatTZS(surplusDeficit.abs(), short: true),
+          icon: surplusDeficit >= 0
+              ? Icons.trending_up_outlined
+              : Icons.trending_down_outlined,
+          compact: true,
+          valueColor: sdColor,
+          trendText: surplusDeficit >= 0 ? 'Surplus' : 'Deficit',
         ),
       ],
     );

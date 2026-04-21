@@ -3,6 +3,7 @@ import 'package:hms/features/dashboard/models/monthly_report.dart';
 import 'package:hms/features/dashboard/services/monthly_report_service.dart';
 import 'package:hms/features/electricity/providers/electricity_summary_providers.dart';
 import 'package:hms/features/rent/providers/rent_summary_providers.dart';
+import 'package:hms/features/water/providers/water_summary_providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'monthly_report_provider.g.dart';
@@ -12,6 +13,7 @@ MonthlyReportService monthlyReportService(Ref ref) {
   return MonthlyReportService(
     ref.watch(rentSummaryServiceProvider),
     ref.watch(electricitySummaryServiceProvider),
+    ref.watch(waterSummaryServiceProvider),
   );
 }
 

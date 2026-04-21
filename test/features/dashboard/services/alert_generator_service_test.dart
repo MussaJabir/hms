@@ -15,6 +15,9 @@ import 'package:hms/features/grounds/services/ground_service.dart';
 import 'package:hms/features/grounds/services/rental_unit_service.dart';
 import 'package:hms/features/rent/services/rent_config_service.dart';
 import 'package:hms/features/rent/services/rent_summary_service.dart';
+import 'package:hms/features/water/services/water_bill_service.dart';
+import 'package:hms/features/water/services/water_contribution_service.dart';
+import 'package:hms/features/water/services/water_summary_service.dart';
 
 // ---------------------------------------------------------------------------
 // Test helpers
@@ -82,10 +85,27 @@ void main() {
       groundService,
       rentalUnitService,
     );
+    final waterBillService = WaterBillService(
+      firestoreService,
+      activityLogService,
+      firestore: fakeFirestore,
+    );
+    final waterContributionService = WaterContributionService(
+      firestoreService,
+      recurringService,
+      waterBillService,
+      activityLogService,
+    );
+    final waterSummaryService = WaterSummaryService(
+      waterBillService,
+      waterContributionService,
+      groundService,
+    );
     service = AlertGeneratorService(
       rentSummaryService,
       consumptionAlertService,
       electricitySummaryService,
+      waterSummaryService,
     );
   });
 
@@ -320,6 +340,77 @@ void main() {
       );
 
       expect(alerts.first.targetRoute, equals('/electricity/warnings'));
+    });
+  });
+
+  // ── generateWaterAlerts ──────────────────────────────────────────────────
+
+  Future<String> seedWaterBill({
+    String status = 'overdue',
+    DateTime? dueDate,
+    double totalAmount = 25000.0,
+  }) async {
+    final now = DateTime.now();
+    final ref = fakeFirestore
+        .collection('grounds/$_groundId/water_bills')
+        .doc();
+    await ref.set({
+      'id': ref.id,
+      'groundId': _groundId,
+      'billingPeriod': _currentPeriod(),
+      'previousMeterReading': 100.0,
+      'currentMeterReading': 160.0,
+      'totalAmount': totalAmount,
+      'dueDate': (dueDate ?? now.subtract(const Duration(days: 5)))
+          .toIso8601String(),
+      'status': status,
+      'notes': '',
+      'createdAt': now.toIso8601String(),
+      'updatedAt': now.toIso8601String(),
+      'updatedBy': 'user-1',
+      'schemaVersion': 1,
+    });
+    return ref.id;
+  }
+
+  group('AlertGeneratorService.generateWaterAlerts', () {
+    test('returns empty list when no bills exist', () async {
+      final alerts = await service.generateWaterAlerts(groundId: _groundId);
+      expect(alerts, isEmpty);
+    });
+
+    test('returns critical alert for overdue bills', () async {
+      await seedWaterBill(status: 'overdue');
+      final alerts = await service.generateWaterAlerts(groundId: _groundId);
+      expect(alerts, isNotEmpty);
+      expect(alerts.any((a) => a.severity == AlertSeverity.critical), isTrue);
+    });
+
+    test('returns warning alert for bills due soon', () async {
+      final soon = DateTime.now().add(const Duration(days: 2));
+      await seedWaterBill(status: 'unpaid', dueDate: soon);
+      final alerts = await service.generateWaterAlerts(groundId: _groundId);
+      expect(alerts.any((a) => a.severity == AlertSeverity.warning), isTrue);
+    });
+
+    test('overdue alert has module set to water', () async {
+      await seedWaterBill(status: 'overdue');
+      final alerts = await service.generateWaterAlerts(groundId: _groundId);
+      expect(alerts.where((a) => a.module == 'water'), isNotEmpty);
+    });
+
+    test('no alert when all bills paid', () async {
+      await seedWaterBill(status: 'paid');
+      final alerts = await service.generateWaterAlerts(groundId: _groundId);
+      // No overdue/due-soon alerts; surplus deficit = 0 (no unpaid bill amount)
+      expect(
+        alerts.where(
+          (a) =>
+              a.severity == AlertSeverity.critical ||
+              a.severity == AlertSeverity.warning,
+        ),
+        isEmpty,
+      );
     });
   });
 }

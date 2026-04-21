@@ -8,6 +8,7 @@ import 'package:hms/core/widgets/widgets.dart';
 import 'package:hms/features/water/models/water_bill.dart';
 import 'package:hms/features/water/providers/sms_parser_provider.dart';
 import 'package:hms/features/water/providers/water_bill_providers.dart';
+import 'package:hms/features/water/providers/water_summary_providers.dart';
 
 class AddWaterBillScreen extends ConsumerStatefulWidget {
   const AddWaterBillScreen({
@@ -156,11 +157,27 @@ class _AddWaterBillScreenState extends ConsumerState<AddWaterBillScreen>
           updatedBy: userId,
         );
 
-        await service.createBill(
+        final newBillId = await service.createBill(
           groundId: widget.groundId,
           bill: bill,
           userId: userId,
         );
+
+        // Schedule a due-date reminder for the new bill.
+        final createdBill = bill.copyWith(id: newBillId);
+        ref.read(waterNotificationServiceProvider.future).then((notifSvc) {
+          notifSvc
+              .scheduleBillReminder(
+                bill: createdBill,
+                groundName: widget.groundId,
+                daysBefore: 3,
+                userId: userId,
+              )
+              .catchError((e) {
+                debugPrint('Water bill reminder scheduling failed: $e');
+                return;
+              });
+        });
       }
 
       if (!mounted) return;

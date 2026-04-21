@@ -5,17 +5,20 @@ import 'package:hms/features/dashboard/models/dashboard_alert.dart';
 import 'package:hms/features/electricity/services/consumption_alert_service.dart';
 import 'package:hms/features/electricity/services/electricity_summary_service.dart';
 import 'package:hms/features/rent/services/rent_summary_service.dart';
+import 'package:hms/features/water/services/water_summary_service.dart';
 
 class AlertGeneratorService {
   AlertGeneratorService(
     this._rentSummaryService,
     this._consumptionAlertService,
     this._electricitySummaryService,
+    this._waterSummaryService,
   );
 
   final RentSummaryService _rentSummaryService;
   final ConsumptionAlertService _consumptionAlertService;
   final ElectricitySummaryService _electricitySummaryService;
+  final WaterSummaryService _waterSummaryService;
 
   /// Returns overdue rent alerts, filtered by [groundId] when non-null.
   /// Critical if > 7 days overdue, warning if ≤ 7 days.
@@ -120,8 +123,81 @@ class AlertGeneratorService {
     ];
   }
 
-  Future<List<DashboardAlert>> generateWaterAlerts({String? groundId}) async =>
-      [];
+  Future<List<DashboardAlert>> generateWaterAlerts({String? groundId}) async {
+    final alerts = <DashboardAlert>[];
+    final now = DateTime.now();
+
+    // Overdue bills → critical alerts
+    final overdueBills = await _waterSummaryService.getOverdueBills(
+      groundId: groundId,
+    );
+    for (final bill in overdueBills) {
+      final daysOverdue = now.difference(bill.dueDate).inDays;
+      alerts.add(
+        DashboardAlert(
+          id: 'water-overdue-${bill.id}',
+          title: 'Water Bill Overdue',
+          message:
+              '${bill.groundId} — ${formatTZS(bill.totalAmount)}, '
+              '$daysOverdue day${daysOverdue == 1 ? '' : 's'} overdue',
+          severity: AlertSeverity.critical,
+          icon: Icons.water_drop_outlined,
+          module: 'water',
+          createdAt: bill.dueDate,
+          targetRoute: '/grounds/${bill.groundId}/water/${bill.id}',
+          actionLabel: 'Pay Now',
+        ),
+      );
+    }
+
+    // Bills due soon → warning alerts
+    final dueSoonBills = await _waterSummaryService.getBillsDueSoon(
+      groundId: groundId,
+    );
+    for (final bill in dueSoonBills) {
+      final daysLeft = bill.dueDate.difference(now).inDays;
+      alerts.add(
+        DashboardAlert(
+          id: 'water-due-soon-${bill.id}',
+          title: 'Water Bill Due Soon',
+          message:
+              '${bill.groundId} — ${formatTZS(bill.totalAmount)}, '
+              'due in $daysLeft day${daysLeft == 1 ? '' : 's'}',
+          severity: AlertSeverity.warning,
+          icon: Icons.water_drop_outlined,
+          module: 'water',
+          createdAt: bill.dueDate,
+          targetRoute: '/grounds/${bill.groundId}/water/${bill.id}',
+          actionLabel: 'Pay Now',
+        ),
+      );
+    }
+
+    // Deficit → info alert
+    final surplusDeficit = await _waterSummaryService
+        .getCurrentMonthSurplusDeficit(groundId: groundId);
+    if (surplusDeficit < 0) {
+      final deficit = surplusDeficit.abs();
+      final gLabel = groundId ?? 'All properties';
+      alerts.add(
+        DashboardAlert(
+          id: 'water-deficit-${groundId ?? 'all'}',
+          title: 'Water Deficit',
+          message:
+              '$gLabel — tenant contributions ${formatTZS(deficit)} short of bill',
+          severity: AlertSeverity.info,
+          icon: Icons.water_drop_outlined,
+          module: 'water',
+          createdAt: now,
+          targetRoute: groundId != null
+              ? '/grounds/$groundId/water/contributions'
+              : '/grounds',
+        ),
+      );
+    }
+
+    return alerts;
+  }
 
   Future<List<DashboardAlert>> generateInventoryAlerts({
     String? groundId,

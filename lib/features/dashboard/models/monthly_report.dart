@@ -20,6 +20,9 @@ abstract class MonthlyReport with _$MonthlyReport {
     @Default(0) double minorGroundExpenses,
     @Default(0) double electricityUnits,
     @Default(0) double electricityEstimatedCost,
+    @Default(0) double waterBillTotal,
+    @Default(0) double waterContributionsCollected,
+    @Default(0) double waterSurplusDeficit,
   }) = _MonthlyReport;
 
   double get netPosition => totalIncome - totalExpenses;

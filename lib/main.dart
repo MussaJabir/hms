@@ -9,6 +9,7 @@ import 'package:hms/features/electricity/providers/alert_providers.dart';
 import 'package:hms/features/electricity/providers/reminder_providers.dart';
 import 'package:hms/features/rent/providers/rent_generation_providers.dart';
 import 'package:hms/features/rent/providers/rent_summary_providers.dart';
+import 'package:hms/features/water/providers/water_summary_providers.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -65,6 +66,18 @@ class HmsApp extends ConsumerWidget {
           ref.read(meterReminderServiceProvider.future).then((reminderSvc) {
             reminderSvc.scheduleReminder().catchError((e) {
               debugPrint('Meter reminder scheduling failed: $e');
+              return;
+            });
+          });
+
+          // Schedule water bill due-date reminders and overdue notifications.
+          ref.read(waterNotificationServiceProvider.future).then((waterSvc) {
+            waterSvc.scheduleDueDateReminders(userId: uid).catchError((e) {
+              debugPrint('Water due-date reminder scheduling failed: $e');
+              return;
+            });
+            waterSvc.notifyOverdueBills(userId: uid).catchError((e) {
+              debugPrint('Water overdue notification failed: $e');
               return;
             });
           });

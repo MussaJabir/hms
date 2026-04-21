@@ -12,6 +12,7 @@ import 'package:hms/features/water/models/water_bill.dart';
 import 'package:hms/features/water/providers/water_bill_providers.dart';
 import 'package:hms/features/water/models/water_surplus_deficit.dart';
 import 'package:hms/features/water/providers/water_contribution_providers.dart';
+import 'package:hms/features/water/providers/water_summary_providers.dart';
 
 class WaterBillDetailScreen extends ConsumerWidget {
   const WaterBillDetailScreen({
@@ -169,6 +170,15 @@ class WaterBillDetailScreen extends ConsumerWidget {
             paymentMethod: method,
             userId: userId,
           );
+
+      // Cancel any pending notifications for this bill.
+      ref.read(waterNotificationServiceProvider.future).then((notifSvc) {
+        notifSvc.cancelBillNotifications(billId).catchError((e) {
+          debugPrint('Water notification cancel failed: $e');
+          return;
+        });
+      });
+
       if (!context.mounted) return;
       ScaffoldMessenger.of(
         context,
