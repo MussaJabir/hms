@@ -1,16 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hms/features/dashboard/widgets/quick_add_bottom_sheet.dart';
 import 'package:hms/features/dashboard/widgets/quick_add_fab.dart';
 
 Widget _wrap(Widget child) {
-  return ProviderScope(
-    child: MaterialApp(
-      home: Scaffold(
-        body: const SizedBox.expand(),
-        floatingActionButton: child,
+  final router = GoRouter(
+    initialLocation: '/',
+    routes: [
+      GoRoute(
+        path: '/',
+        builder: (context, state) =>
+            Scaffold(body: const SizedBox.expand(), floatingActionButton: child),
       ),
+      // The "Log an Expense" action navigates here.
+      GoRoute(
+        path: '/finance/expenses/add/:category',
+        builder: (context, state) =>
+            const Scaffold(body: Text('Add Expense')),
+      ),
+    ],
+  );
+
+  return ProviderScope(
+    child: MaterialApp.router(
+      // NoSplash avoids Material 3's InkSparkle fragment shader on action taps.
+      theme: ThemeData(splashFactory: NoSplash.splashFactory),
+      routerConfig: router,
     ),
   );
 }

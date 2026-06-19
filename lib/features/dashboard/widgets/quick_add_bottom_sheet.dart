@@ -112,6 +112,11 @@ class _ActionTile extends StatelessWidget {
     return InkWell(
       onTap: () {
         Navigator.of(context).pop();
+        if (action.module == 'Finance') {
+          // Pre-select "uncategorized" for the fastest possible expense entry.
+          context.push('/finance/expenses/add/uncategorized');
+          return;
+        }
         if (action.module == 'Rent') {
           context.push('/rent');
           return;

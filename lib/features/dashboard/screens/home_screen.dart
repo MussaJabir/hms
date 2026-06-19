@@ -495,7 +495,7 @@ class _AppDrawer extends ConsumerWidget {
                     title: 'Finance',
                     onTap: () {
                       Navigator.of(context).pop();
-                      context.push('/finance/income');
+                      context.push('/finance/expenses');
                     },
                   ),
                   if (isSuperAdmin) ...[

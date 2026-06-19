@@ -1,1 +1,1 @@
-// Finance module widgets barrel. Widgets are added here as the module grows.
+export 'category_breakdown_chart.dart';

@@ -8,6 +8,7 @@ import 'package:hms/features/dashboard/screens/monthly_report_screen.dart';
 import 'package:hms/core/models/ground.dart';
 import 'package:hms/features/electricity/models/electricity_meter.dart';
 import 'package:hms/features/electricity/screens/screens.dart';
+import 'package:hms/features/finance/models/expense.dart';
 import 'package:hms/features/finance/models/income.dart';
 import 'package:hms/features/finance/screens/screens.dart';
 import 'package:hms/features/grounds/models/rental_unit.dart';
@@ -333,6 +334,29 @@ GoRouter appRouter(Ref ref) {
             path: ':incomeId/edit',
             builder: (context, state) =>
                 AddIncomeScreen(income: state.extra as Income?),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/finance/expenses',
+        builder: (context, state) => const ExpenseListScreen(),
+        routes: [
+          GoRoute(
+            path: 'add',
+            builder: (context, state) => const AddExpenseScreen(),
+            routes: [
+              GoRoute(
+                path: ':category',
+                builder: (context, state) => AddExpenseScreen(
+                  presetCategory: state.pathParameters['category'],
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: ':expenseId/edit',
+            builder: (context, state) =>
+                AddExpenseScreen(expense: state.extra as Expense?),
           ),
         ],
       ),
