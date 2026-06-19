@@ -103,7 +103,7 @@ final class RentIncomeLinkServiceProvider
 }
 
 String _$rentIncomeLinkServiceHash() =>
-    r'de53965d8f95beed1a8fadfae3365af4442ed03e';
+    r'6b0a559925b8c6c4f6c11c9875d8d22ecf529b74';
 
 @ProviderFor(rentNotificationService)
 final rentNotificationServiceProvider = RentNotificationServiceProvider._();

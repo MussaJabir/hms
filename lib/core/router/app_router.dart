@@ -8,6 +8,8 @@ import 'package:hms/features/dashboard/screens/monthly_report_screen.dart';
 import 'package:hms/core/models/ground.dart';
 import 'package:hms/features/electricity/models/electricity_meter.dart';
 import 'package:hms/features/electricity/screens/screens.dart';
+import 'package:hms/features/finance/models/income.dart';
+import 'package:hms/features/finance/screens/screens.dart';
 import 'package:hms/features/grounds/models/rental_unit.dart';
 import 'package:hms/features/grounds/models/tenant.dart';
 import 'package:hms/features/grounds/screens/screens.dart';
@@ -316,6 +318,21 @@ GoRouter appRouter(Ref ref) {
                 collectionPath: args.collectionPath,
               );
             },
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/finance/income',
+        builder: (context, state) => const IncomeListScreen(),
+        routes: [
+          GoRoute(
+            path: 'add',
+            builder: (context, state) => const AddIncomeScreen(),
+          ),
+          GoRoute(
+            path: ':incomeId/edit',
+            builder: (context, state) =>
+                AddIncomeScreen(income: state.extra as Income?),
           ),
         ],
       ),

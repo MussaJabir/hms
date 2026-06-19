@@ -1,17 +1,22 @@
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hms/core/services/activity_log_service.dart';
 import 'package:hms/core/services/firestore_service.dart';
+import 'package:hms/features/finance/services/income_service.dart';
 import 'package:hms/features/rent/services/rent_income_link_service.dart';
 
 void main() {
   late FakeFirebaseFirestore fakeFirestore;
-  late FirestoreService firestoreService;
   late RentIncomeLinkService service;
 
   setUp(() {
     fakeFirestore = FakeFirebaseFirestore();
-    firestoreService = FirestoreService(firestore: fakeFirestore);
-    service = RentIncomeLinkService(firestoreService);
+    final firestoreService = FirestoreService(firestore: fakeFirestore);
+    final incomeService = IncomeService(
+      firestoreService,
+      ActivityLogService(firestoreService),
+    );
+    service = RentIncomeLinkService(incomeService);
   });
 
   group('RentIncomeLinkService.createIncomeFromRentPayment', () {
@@ -39,7 +44,7 @@ void main() {
       expect(data['date'], isA<String>());
     });
 
-    test('stores date in YYYY-MM-DD format', () async {
+    test('flags the entry as auto-linked with a parseable date', () async {
       await service.createIncomeFromRentPayment(
         groundId: 'g-1',
         tenantId: 'tenant-1',
@@ -52,10 +57,9 @@ void main() {
 
       final docs = await fakeFirestore.collection('incomes').get();
       final data = docs.docs.first.data();
-      final date = data['date'] as String;
 
-      // Should match YYYY-MM-DD
-      expect(RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(date), isTrue);
+      expect(data['isAutoLinked'], isTrue);
+      expect(DateTime.tryParse(data['date'] as String), isNotNull);
     });
 
     test('each call creates a separate document', () async {

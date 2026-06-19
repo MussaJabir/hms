@@ -490,6 +490,14 @@ class _AppDrawer extends ConsumerWidget {
                       }
                     },
                   ),
+                  _DrawerNavItem(
+                    icon: Icons.account_balance_wallet_outlined,
+                    title: 'Finance',
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      context.push('/finance/income');
+                    },
+                  ),
                   if (isSuperAdmin) ...[
                     _DrawerNavItem(
                       icon: Icons.people_outlined,

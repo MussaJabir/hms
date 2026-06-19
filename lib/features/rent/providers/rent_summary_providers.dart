@@ -1,6 +1,7 @@
 import 'package:hms/core/models/recurring_record.dart';
 import 'package:hms/core/providers/providers.dart';
 import 'package:hms/core/services/services.dart';
+import 'package:hms/features/finance/providers/income_providers.dart';
 import 'package:hms/features/rent/providers/rent_config_providers.dart';
 import 'package:hms/features/rent/services/rent_income_link_service.dart';
 import 'package:hms/features/rent/services/rent_notification_service.dart';
@@ -19,7 +20,7 @@ RentSummaryService rentSummaryService(Ref ref) {
 
 @riverpod
 RentIncomeLinkService rentIncomeLinkService(Ref ref) {
-  return RentIncomeLinkService(ref.watch(firestoreServiceProvider));
+  return RentIncomeLinkService(ref.watch(incomeServiceProvider));
 }
 
 @riverpod
