@@ -1,3 +1,4 @@
+export 'budget.dart';
 export 'expense.dart';
 export 'expense_category.dart';
 export 'income.dart';

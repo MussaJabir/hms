@@ -1,6 +1,7 @@
 import 'package:hms/core/providers/providers.dart';
 import 'package:hms/core/services/services.dart';
 import 'package:hms/features/finance/models/expense.dart';
+import 'package:hms/features/finance/providers/budget_providers.dart';
 import 'package:hms/features/finance/services/expense_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -18,6 +19,20 @@ ExpenseService expenseService(Ref ref) {
   return ExpenseService(
     ref.watch(firestoreServiceProvider),
     ref.watch(activityLogServiceProvider),
+    // Keep budget spend totals in sync after each expense, then surface any
+    // 80%/100% budget alerts. Read lazily so this doesn't create a dependency
+    // cycle with budgetServiceProvider (which depends on this provider).
+    onExpenseRecorded: (period, userId) async {
+      await ref.read(budgetServiceProvider).recalculateSpent(period, userId);
+      try {
+        final notifier = await ref.read(
+          budgetNotificationServiceProvider.future,
+        );
+        await notifier.checkAndNotify(userId: userId);
+      } catch (_) {
+        // Notifications are best-effort; never block expense recording.
+      }
+    },
   );
 }
 

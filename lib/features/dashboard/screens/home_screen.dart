@@ -498,6 +498,14 @@ class _AppDrawer extends ConsumerWidget {
                       context.push('/finance/expenses');
                     },
                   ),
+                  _DrawerNavItem(
+                    icon: Icons.pie_chart_outline,
+                    title: 'Budget',
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      context.push('/finance/budget');
+                    },
+                  ),
                   if (isSuperAdmin) ...[
                     _DrawerNavItem(
                       icon: Icons.people_outlined,

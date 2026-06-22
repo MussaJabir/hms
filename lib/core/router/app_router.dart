@@ -361,6 +361,16 @@ GoRouter appRouter(Ref ref) {
         ],
       ),
       GoRoute(
+        path: '/finance/budget',
+        builder: (context, state) => const BudgetScreen(),
+        routes: [
+          GoRoute(
+            path: 'setup',
+            builder: (context, state) => const BudgetSetupScreen(),
+          ),
+        ],
+      ),
+      GoRoute(
         path: '/electricity/warnings',
         builder: (context, state) => const ConsumptionWarningsScreen(),
       ),

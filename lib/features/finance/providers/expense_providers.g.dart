@@ -48,7 +48,7 @@ final class ExpenseServiceProvider
   }
 }
 
-String _$expenseServiceHash() => r'add36064fd2fe6200a5e976db7f77f15884b4a98';
+String _$expenseServiceHash() => r'6dcfba7cc27625ad9be57a51cd0919514e39e624';
 
 /// Streams every expense entry, newest first.
 

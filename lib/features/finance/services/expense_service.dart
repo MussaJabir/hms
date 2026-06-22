@@ -7,10 +7,19 @@ import 'package:hms/features/finance/models/expense.dart';
 /// bills or school fees) are protected: they cannot be updated or deleted from
 /// here — manage them from their source module instead.
 class ExpenseService {
-  ExpenseService(this._firestoreService, this._activityLogService);
+  ExpenseService(
+    this._firestoreService,
+    this._activityLogService, {
+    Future<void> Function(String period, String userId)? onExpenseRecorded,
+  }) : _onExpenseRecorded = onExpenseRecorded;
 
   final FirestoreService _firestoreService;
   final ActivityLogService _activityLogService;
+
+  /// Optional hook fired after an expense is created or updated, with the
+  /// affected "yyyy-MM" period. The Finance layer uses it to keep budget spend
+  /// totals in sync without ExpenseService depending on the budget module.
+  final Future<void> Function(String period, String userId)? _onExpenseRecorded;
 
   static const String collection = 'expenses';
 
@@ -40,6 +49,8 @@ class ExpenseService {
       collectionPath: collection,
     );
 
+    await _onExpenseRecorded?.call(_periodOf(expense.date), userId);
+
     return id;
   }
 
@@ -66,6 +77,12 @@ class ExpenseService {
       documentId: expenseId,
       collectionPath: collection,
     );
+
+    final date = updates['date'];
+    final period = date is String
+        ? _periodOf(DateTime.tryParse(date) ?? DateTime.now())
+        : _periodOf(DateTime.now());
+    await _onExpenseRecorded?.call(period, userId);
   }
 
   /// Deletes an expense entry. Auto-linked entries are rejected. Super Admin
