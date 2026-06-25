@@ -11,14 +11,15 @@ Widget _wrap(Widget child) {
     routes: [
       GoRoute(
         path: '/',
-        builder: (context, state) =>
-            Scaffold(body: const SizedBox.expand(), floatingActionButton: child),
+        builder: (context, state) => Scaffold(
+          body: const SizedBox.expand(),
+          floatingActionButton: child,
+        ),
       ),
       // The "Log an Expense" action navigates here.
       GoRoute(
         path: '/finance/expenses/add/:category',
-        builder: (context, state) =>
-            const Scaffold(body: Text('Add Expense')),
+        builder: (context, state) => const Scaffold(body: Text('Add Expense')),
       ),
     ],
   );

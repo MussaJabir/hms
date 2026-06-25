@@ -323,6 +323,10 @@ GoRouter appRouter(Ref ref) {
         ],
       ),
       GoRoute(
+        path: '/finance',
+        builder: (context, state) => const FinanceOverviewScreen(),
+      ),
+      GoRoute(
         path: '/finance/income',
         builder: (context, state) => const IncomeListScreen(),
         routes: [

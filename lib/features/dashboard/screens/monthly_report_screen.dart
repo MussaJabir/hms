@@ -5,6 +5,11 @@ import 'package:hms/core/utils/currency_formatter.dart';
 import 'package:hms/core/widgets/widgets.dart';
 import 'package:hms/features/dashboard/models/monthly_report.dart';
 import 'package:hms/features/dashboard/providers/monthly_report_provider.dart';
+import 'package:hms/features/finance/providers/expense_providers.dart';
+import 'package:hms/features/finance/providers/financial_summary_providers.dart';
+import 'package:hms/features/finance/widgets/category_breakdown_chart.dart';
+import 'package:hms/features/finance/widgets/monthly_trend_chart.dart';
+import 'package:hms/features/finance/widgets/net_position_card.dart';
 import 'package:intl/intl.dart';
 
 class MonthlyReportScreen extends ConsumerStatefulWidget {
@@ -74,7 +79,7 @@ class _MonthlyReportScreenState extends ConsumerState<MonthlyReportScreen> {
                 onNext: _nextMonth,
               ),
               const SizedBox(height: AppSpacing.md),
-              _NetPositionCard(report: report),
+              _FinancialOverviewSection(period: _period, report: report),
               const SizedBox(height: AppSpacing.md),
               _IncomeExpensesRow(report: report),
               const SizedBox(height: AppSpacing.md),
@@ -143,47 +148,73 @@ class _MonthHeader extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Net Position card
+// Financial Overview — net position, 6-month trend, expense breakdown
 // ---------------------------------------------------------------------------
 
-class _NetPositionCard extends StatelessWidget {
-  const _NetPositionCard({required this.report});
+class _FinancialOverviewSection extends ConsumerWidget {
+  const _FinancialOverviewSection({required this.period, required this.report});
 
+  final String period;
   final MonthlyReport report;
 
   @override
-  Widget build(BuildContext context) {
-    final color = report.isPositive ? AppColors.success : AppColors.error;
-    final prefix = report.isPositive ? '+' : '';
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final trends = ref.watch(monthlyTrendsProvider).asData?.value ?? const [];
+    final byCategory =
+        ref.watch(expensesByCategoryProvider(period)).asData?.value ??
+        const <String, double>{};
 
-    return Card(
-      margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppSpacing.borderRadius),
-        side: BorderSide(color: color.withValues(alpha: 0.3), width: 1),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.cardPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Net Position',
-              style: Theme.of(
-                context,
-              ).textTheme.labelMedium?.copyWith(color: AppColors.textSecondary),
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              '$prefix${formatTZS(report.netPosition)}',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                color: color,
-                fontWeight: FontWeight.w700,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('Financial Overview', style: theme.textTheme.titleMedium),
+        const SizedBox(height: AppSpacing.sm),
+        NetPositionCard(
+          totalIncome: report.totalIncome,
+          totalExpenses: report.totalExpenses,
+        ),
+        if (trends.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.md),
+          Card(
+            margin: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.cardPadding),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('6-Month Trend', style: theme.textTheme.titleSmall),
+                  const SizedBox(height: AppSpacing.sm),
+                  MonthlyTrendChart(trends: trends),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
+          ),
+        ],
+        if (byCategory.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.md),
+          Card(
+            margin: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.cardPadding),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Expense Breakdown', style: theme.textTheme.titleSmall),
+                  const SizedBox(height: AppSpacing.sm),
+                  CategoryBreakdownChart(
+                    categoryTotals: byCategory,
+                    totalAmount: byCategory.values.fold<double>(
+                      0,
+                      (s, v) => s + v,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

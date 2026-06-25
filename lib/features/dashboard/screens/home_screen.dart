@@ -9,6 +9,7 @@ import 'package:hms/core/utils/currency_formatter.dart';
 import 'package:hms/features/auth/providers/user_providers.dart';
 import 'package:hms/features/dashboard/providers/alert_provider.dart';
 import 'package:hms/features/dashboard/widgets/widgets.dart';
+import 'package:hms/features/finance/providers/financial_summary_providers.dart';
 import 'package:hms/features/grounds/providers/ground_providers.dart';
 import 'package:hms/features/electricity/providers/electricity_summary_providers.dart';
 import 'package:hms/features/rent/providers/rent_summary_providers.dart';
@@ -88,6 +89,8 @@ class HomeScreen extends ConsumerWidget {
                 const _ElectricitySummaryTile(),
                 // ── Water Summary ─────────────────────────────────────────
                 const _WaterSummaryTile(),
+                // ── Net Position ──────────────────────────────────────────
+                const _NetPositionTile(),
                 // ── Needs Attention ───────────────────────────────────────
                 Padding(
                   padding: const EdgeInsets.fromLTRB(
@@ -299,6 +302,62 @@ class _WaterSummaryTile extends ConsumerWidget {
   }
 }
 
+// ── Net position tile ─────────────────────────────────────────────────────
+
+class _NetPositionTile extends ConsumerWidget {
+  const _NetPositionTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final summaryAsync = ref.watch(currentMonthSummaryProvider);
+    final summary = summaryAsync.asData?.value;
+
+    if (summaryAsync.isLoading) {
+      return const Padding(
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.screenPadding,
+          AppSpacing.md,
+          AppSpacing.screenPadding,
+          0,
+        ),
+        child: ShimmerBox(height: 72, borderRadius: AppSpacing.borderRadius),
+      );
+    }
+
+    // No data (e.g. error or nothing recorded yet) — keep the dashboard clean.
+    if (summary == null) return const SizedBox.shrink();
+
+    final net = summary.netPosition;
+    final color = summary.isPositive ? AppColors.success : AppColors.error;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.screenPadding,
+        AppSpacing.md,
+        AppSpacing.screenPadding,
+        0,
+      ),
+      child: InkWell(
+        onTap: () => context.push('/finance'),
+        borderRadius: BorderRadius.circular(AppSpacing.borderRadius),
+        child: SummaryTile(
+          label: 'Net Position This Month',
+          value:
+              '${summary.isPositive ? '+' : '-'}${formatTZS(net.abs(), short: true)}',
+          icon: Icons.account_balance_wallet_outlined,
+          iconColor: color,
+          valueColor: color,
+          trend: summary.isPositive ? TrendDirection.up : TrendDirection.down,
+          trendText:
+              'Income ${formatTZS(summary.totalIncome, short: true)} · '
+              'Expenses ${formatTZS(summary.totalExpenses, short: true)}',
+          compact: true,
+        ),
+      ),
+    );
+  }
+}
+
 // ── First-time setup prompt ────────────────────────────────────────────────
 
 class _SetupPrompt extends StatelessWidget {
@@ -495,7 +554,7 @@ class _AppDrawer extends ConsumerWidget {
                     title: 'Finance',
                     onTap: () {
                       Navigator.of(context).pop();
-                      context.push('/finance/expenses');
+                      context.push('/finance');
                     },
                   ),
                   _DrawerNavItem(

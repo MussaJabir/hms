@@ -5,6 +5,7 @@ import 'package:hms/core/utils/currency_formatter.dart';
 import 'package:hms/features/dashboard/models/monthly_report.dart';
 import 'package:hms/features/dashboard/providers/monthly_report_provider.dart';
 import 'package:hms/features/dashboard/screens/monthly_report_screen.dart';
+import 'package:hms/features/finance/widgets/net_position_card.dart';
 
 const _testReport = MonthlyReport(
   period: '2026-03',
@@ -68,6 +69,14 @@ void main() {
 
       expect(find.byKey(const Key('prev_month')), findsOneWidget);
       expect(find.byKey(const Key('next_month')), findsOneWidget);
+    });
+
+    testWidgets('renders the financial overview section', (tester) async {
+      await tester.pumpWidget(_wrap(_testReport));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Financial Overview'), findsOneWidget);
+      expect(find.byType(NetPositionCard), findsOneWidget);
     });
 
     testWidgets('renders rent collection section', (tester) async {

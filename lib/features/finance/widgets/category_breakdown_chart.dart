@@ -14,6 +14,8 @@ class CategoryBreakdownChart extends StatefulWidget {
     super.key,
     required this.categoryTotals,
     required this.totalAmount,
+    this.labelOf,
+    this.iconOf,
   });
 
   /// Category value → summed amount for the period.
@@ -21,6 +23,19 @@ class CategoryBreakdownChart extends StatefulWidget {
 
   /// Sum of all category amounts (chart denominator).
   final double totalAmount;
+
+  /// Resolves a key to its display label. Defaults to [ExpenseCategory]. Pass
+  /// a custom resolver to reuse the chart for income sources, etc.
+  final String Function(String key)? labelOf;
+
+  /// Resolves a key to its display icon. Defaults to [ExpenseCategory].
+  final IconData Function(String key)? iconOf;
+
+  String _label(String key) =>
+      labelOf?.call(key) ?? ExpenseCategory.fromString(key).label;
+
+  IconData _icon(String key) =>
+      iconOf?.call(key) ?? ExpenseCategory.fromString(key).icon;
 
   @override
   State<CategoryBreakdownChart> createState() => _CategoryBreakdownChartState();
@@ -94,6 +109,8 @@ class _CategoryBreakdownChartState extends State<CategoryBreakdownChart> {
           entries: entries,
           total: widget.totalAmount,
           colorOf: _colorAt,
+          labelOf: widget._label,
+          iconOf: widget._icon,
           touchedIndex: _touchedIndex,
           onTap: (i) =>
               setState(() => _touchedIndex = _touchedIndex == i ? -1 : i),
@@ -126,6 +143,8 @@ class _Legend extends StatelessWidget {
     required this.entries,
     required this.total,
     required this.colorOf,
+    required this.labelOf,
+    required this.iconOf,
     required this.touchedIndex,
     required this.onTap,
   });
@@ -133,6 +152,8 @@ class _Legend extends StatelessWidget {
   final List<MapEntry<String, double>> entries;
   final double total;
   final Color Function(int) colorOf;
+  final String Function(String) labelOf;
+  final IconData Function(String) iconOf;
   final int touchedIndex;
   final ValueChanged<int> onTap;
 
@@ -145,7 +166,8 @@ class _Legend extends StatelessWidget {
         for (var i = 0; i < entries.length; i++)
           _LegendRow(
             color: colorOf(i),
-            category: ExpenseCategory.fromString(entries[i].key),
+            label: labelOf(entries[i].key),
+            icon: iconOf(entries[i].key),
             amount: entries[i].value,
             percent: entries[i].value / total * 100,
             highlighted: i == touchedIndex,
@@ -160,7 +182,8 @@ class _Legend extends StatelessWidget {
 class _LegendRow extends StatelessWidget {
   const _LegendRow({
     required this.color,
-    required this.category,
+    required this.label,
+    required this.icon,
     required this.amount,
     required this.percent,
     required this.highlighted,
@@ -169,7 +192,8 @@ class _LegendRow extends StatelessWidget {
   });
 
   final Color color;
-  final ExpenseCategory category;
+  final String label;
+  final IconData icon;
   final double amount;
   final double percent;
   final bool highlighted;
@@ -203,11 +227,11 @@ class _LegendRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: AppSpacing.sm),
-            Icon(category.icon, size: 16, color: AppColors.textSecondary),
+            Icon(icon, size: 16, color: AppColors.textSecondary),
             const SizedBox(width: AppSpacing.xs),
             Expanded(
               child: Text(
-                category.label,
+                label,
                 style: textTheme.bodyMedium?.copyWith(
                   fontWeight: highlighted ? FontWeight.w600 : null,
                 ),

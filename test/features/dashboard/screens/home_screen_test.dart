@@ -10,11 +10,14 @@ import 'package:hms/features/dashboard/models/dashboard_alert.dart';
 import 'package:hms/features/dashboard/providers/alert_provider.dart';
 import 'package:hms/features/dashboard/screens/home_screen.dart';
 import 'package:hms/features/dashboard/widgets/alert_feed.dart';
+import 'package:hms/features/dashboard/widgets/dashboard_section_header.dart';
 import 'package:hms/features/dashboard/widgets/grounds_selector.dart';
 import 'package:hms/features/dashboard/widgets/health_score_card.dart';
 import 'package:hms/features/dashboard/widgets/quick_add_fab.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hms/features/electricity/providers/electricity_summary_providers.dart';
+import 'package:hms/features/finance/models/financial_summary.dart';
+import 'package:hms/features/finance/providers/financial_summary_providers.dart';
 import 'package:hms/features/grounds/providers/ground_providers.dart';
 import 'package:hms/features/rent/providers/rent_summary_providers.dart';
 
@@ -76,6 +79,7 @@ Widget _wrap({
   double weekUnits = 0,
   double weekCost = 0,
   double weekTrend = 0,
+  FinancialSummary? netSummary,
 }) {
   final groundList = grounds ?? _defaultGrounds;
 
@@ -111,6 +115,8 @@ Widget _wrap({
       currentMonthCollectedProvider.overrideWith((ref) async => 0.0),
       currentMonthExpectedProvider.overrideWith((ref) async => 0.0),
       currentMonthCollectionRateProvider.overrideWith((ref) async => 0.0),
+      if (netSummary != null)
+        currentMonthSummaryProvider.overrideWith((ref) async => netSummary),
     ],
     child: MaterialApp.router(routerConfig: router),
   );
@@ -148,7 +154,12 @@ void main() {
       await tester.pump();
 
       expect(find.byType(AlertFeed), findsOneWidget);
-      expect(find.text('Needs Attention'), findsOneWidget);
+      // Target the section header specifically — the health score label can
+      // also read "Needs Attention" when no module data is present.
+      expect(
+        find.widgetWithText(DashboardSectionHeader, 'Needs Attention'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('renders QuickAddFab', (tester) async {
@@ -250,6 +261,32 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(HealthScoreCard), findsOneWidget);
+    });
+  });
+
+  group('HomeScreen — net position tile', () {
+    testWidgets('shows real net position when summary is available', (
+      tester,
+    ) async {
+      const summary = FinancialSummary(
+        period: '2026-04',
+        totalIncome: 800000,
+        totalExpenses: 500000,
+        rentIncome: 500000,
+        otherIncome: 300000,
+        incomeBySource: {},
+        expensesByCategory: {},
+        budgetComplianceScore: 100,
+        budgetsOnTrack: 0,
+        budgetsOverLimit: 0,
+      );
+      await tester.pumpWidget(_wrap(netSummary: summary));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Net Position This Month', skipOffstage: false),
+        findsOneWidget,
+      );
     });
   });
 

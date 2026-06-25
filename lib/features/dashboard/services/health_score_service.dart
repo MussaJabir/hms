@@ -44,25 +44,40 @@ class HealthScoreService {
     return (withinLimit / total) * 100;
   }
 
-  /// Builds a [HealthScore] using real rent and bills data.
+  /// Maps a total overdue-item count to a score: 100 when nothing is overdue,
+  /// dropping 10 points per overdue item, floored at 0.
+  double scoreFromOverdueCount(int overdueCount) {
+    return (100 - overdueCount * 10).clamp(0, 100).toDouble();
+  }
+
+  /// Builds a [HealthScore] from real module data.
   ///
-  /// [rentRate] is the rent collection rate (0–100).
-  /// [rentActive] is true when at least one rent record exists this month.
-  /// [billsRate] is the water bills paid-on-time rate (0–100).
-  /// [billsActive] is true when at least one water bill exists this month.
+  /// [rentRate] rent collection rate (0–100); [rentActive] true when rent
+  /// records exist this month. [billsRate]/[billsActive] mirror that for water
+  /// bills. [overdueScore]/[overdueActive] come from aggregated overdue items.
+  /// [budgetScore]/[budgetActive] come from budget compliance. Stock is wired
+  /// in Phase 8, so [stockActive] is always false here.
   HealthScore buildScore({
     required double rentRate,
     required bool rentActive,
     double billsRate = 0,
     bool billsActive = false,
+    double overdueScore = 100,
+    bool overdueActive = false,
+    double budgetScore = 0,
+    bool budgetActive = false,
   }) {
     return HealthScore(
       rentScore: rentRate,
       rentActive: rentActive,
       billsScore: billsRate,
       billsActive: billsActive,
-      budgetScore: 60,
-      budgetActive: true,
+      stockScore: 0,
+      stockActive: false,
+      overdueScore: overdueScore,
+      overdueActive: overdueActive,
+      budgetScore: budgetScore,
+      budgetActive: budgetActive,
     );
   }
 }

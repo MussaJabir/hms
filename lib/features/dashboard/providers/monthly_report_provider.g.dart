@@ -55,7 +55,7 @@ final class MonthlyReportServiceProvider
 }
 
 String _$monthlyReportServiceHash() =>
-    r'83e9b02cd2a5a08bdfc09b95ee4c509011045425';
+    r'2f86f25a6fd61cca670cf9605a67ca9256b2480b';
 
 /// Returns the report for [period] ("yyyy-MM"). Defaults to current month.
 /// Reacts to the selected ground via [currentGroundProvider].
